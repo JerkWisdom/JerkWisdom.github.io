@@ -44,14 +44,14 @@
   </url>
   
   <url>
-    <loc>https://www.freehacker.cn/timecapsule/goodbye-2015-hey-2016/</loc>
+    <loc>https://www.freehacker.cn/timecapsule/grass-and-tree/</loc>
     
     <lastmod>2020-10-27</lastmod>
     
   </url>
   
   <url>
-    <loc>https://www.freehacker.cn/timecapsule/grass-and-tree/</loc>
+    <loc>https://www.freehacker.cn/timecapsule/goodbye-2015-hey-2016/</loc>
     
     <lastmod>2020-10-27</lastmod>
     
@@ -487,27 +487,6 @@
   </url>
   
   <url>
-    <loc>https://www.freehacker.cn/tags/Platform/</loc>
-    <lastmod>2020-10-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.freehacker.cn/tags/Win32/</loc>
-    <lastmod>2020-10-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.freehacker.cn/tags/Linux/</loc>
-    <lastmod>2020-10-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://www.freehacker.cn/tags/Tools/</loc>
     <lastmod>2020-10-27</lastmod>
     <changefreq>daily</changefreq>
@@ -530,6 +509,27 @@
   
   <url>
     <loc>https://www.freehacker.cn/tags/Git/</loc>
+    <lastmod>2020-10-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.freehacker.cn/tags/Platform/</loc>
+    <lastmod>2020-10-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.freehacker.cn/tags/Win32/</loc>
+    <lastmod>2020-10-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.freehacker.cn/tags/Linux/</loc>
     <lastmod>2020-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
