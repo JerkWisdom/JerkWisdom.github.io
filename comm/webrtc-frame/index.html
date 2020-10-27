@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>WebRTC帧率调整策略 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="从WebRTC帧率调整策略窥探实时视频应用需要考虑的帧率问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebRTC帧率调整策略">
+<meta property="og:url" content="https://www.freehacker.cn/comm/webrtc-frame/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="从WebRTC帧率调整策略窥探实时视频应用需要考虑的帧率问题。">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.freehacker.cn/assets/media/webrtc/webrtc-leaky-bucket-algorithm.jpg">
+<meta property="article:published_time" content="2017-12-09T04:36:45.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.352Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Media">
+<meta property="article:tag" content="WebRTC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/media/webrtc/webrtc-leaky-bucket-algorithm.jpg">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://wx2.sinaimg.cn/large/61b57e82gy1fj91q7dx70j22r70xl76p.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">WebRTC帧率调整策略</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Media/'>Media</a> /
+    
+    <a href='/tags/WebRTC/'>WebRTC</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-12-09T04:36:45.000Z" >
+          2017-12-09
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<p>与实时视频相关参数包含：帧率、码率、时延、抖动等。帧率体现了视频的流畅性，要想达到较好的流畅性体验要求——网络视频帧率不低于24帧，视频会议帧率不低于15帧。在实际开发中，我们遇到了不少问题<a id="more"></a>，主要包括：</p>
+<ul>
+<li>发送端帧率较低</li>
+<li>接收端帧率较低</li>
+<li>帧率波动较大</li>
+</ul>
+<p>本文主要研究WebRTC中的帧率调整策略，解决上述实际开发中帧率较低的问题，以期达到较好的流畅性体验。</p>
+<h2 id="帧率计算方法"><a href="#帧率计算方法" class="headerlink" title="帧率计算方法"></a>帧率计算方法</h2><p>帧率并非恒定值，帧率大小反映的是每秒多少视频帧的统计值。在视频会议中，同一路视频流发送端的帧率和接收端的帧率并不相同。对于发送端帧率，我们需要明确：<strong>发送端输出帧率不等于摄像头采集帧率，编码器实际输入帧率不等于摄像头采集帧率，发送端帧率为编码器输出帧率</strong>。</p>
+<h3 id="发送端帧率"><a href="#发送端帧率" class="headerlink" title="发送端帧率"></a>发送端帧率</h3><p>摄像头采集帧率决定了发送端输入帧率的最大值。当采集的视频数据传送到编码器时，受制于编码器性能和系统硬件性能，编码器的实际输入帧率并不等于摄像头的采集帧率。摄像头采集帧率和编码器输入帧率共同决定了发送端的帧率。在WebRTC中的统计信息展现的是摄像头的采集帧率（作为输入帧率）和编码器的输出帧率（作为输出帧率）。</p>
+<p><strong>1、发送端输入帧率计算</strong></p>
+<p>WebRTC在*”webrtc/video/vie_encoder.cc”*文件<strong>EncodeTask</strong>类中统计了摄像头的采集帧率——发送端输入帧率：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Run</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">  vie_encoder_-&gt;stats_proxy_-&gt;OnIncomingFrame(frame_.width(),frame_.height());</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、编码器输入帧率计算</strong></p>
+<p>为了计算编码器的实际输入帧率，WebRTC维持了一个大小为$kFrameCountHistorySize$的数组$T_f$，该数组用于保存最新的$kFrameCountHistorySize$个帧放入数组的时间戳信息。帧率计算$fps$公式如下：<br>$$<br>fps=\frac{N_f\times 1000.0f}{T_f[0]-T_f[N_f]}  \qquad {N_f:\ max(T_{now}-T_f[N_f])&lt;kFrameHistoryWinMs}<br>$$<br>其中，</p>
+<ul>
+<li>$kFrameCountHistorySize$一般取值为90，$kFrameCountHistorySize$一般取值为2000；</li>
+<li>$N_f$是使$N_f:\ max(T_{now}-T_f[N_f])&lt;kFrameHistoryWinMs$成立的最大序列号；</li>
+<li>$T_{now}$为当前时间，$T_f[0]=T_{now}$是数组内newest帧的时间戳，$T_f[kFrameCountHistorySize]$为数组内现存oldest帧的时间戳；</li>
+<li>当$N_f==0$时，不执行该公式，帧率保持上一次计算的结果。</li>
+</ul>
+<p>在WebRTC中，上述公式在*”webrtc/modules/video_coding/media_optimization.cc”*文件<strong>MediaOptimization</strong>类中实现。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ProcessIncomingFrameRate</span><span class="params">(<span class="keyword">int64_t</span> now)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int32_t</span> num = <span class="number">0</span>, nr_of_frames = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (num = <span class="number">1</span>; num &lt; (kFrameCountHistorySize - <span class="number">1</span>); ++num) &#123;</span><br><span class="line">    <span class="keyword">if</span> (incoming_frame_times_[num] &lt;= <span class="number">0</span> ||</span><br><span class="line">        <span class="comment">/* don&#x27;t use data older than 2 s */</span></span><br><span class="line">        now - incoming_frame_times_[num] &gt; kFrameHistoryWinMs) &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      nr_of_frames++;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (num &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int64_t</span> diff =</span><br><span class="line">        incoming_frame_times_[<span class="number">0</span>] - incoming_frame_times_[num - <span class="number">1</span>];</span><br><span class="line">    incoming_frame_rate_ = <span class="number">0.0</span>;  <span class="comment">/* No frame rate estimate available. */</span></span><br><span class="line">    <span class="keyword">if</span> (diff &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      incoming_frame_rate_ = nr_of_frames * <span class="number">1000.0f</span> / <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(diff);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3、编码器输出帧率计算</strong></p>
+<p>为了计算编码器的实际输出帧率，WebRTC维护了一个$kBitrateAverageWinMs$时间段内的已编码帧的数组$T_f$，依据下列公式来计算实际码率：<br>$$<br>fps=\frac{90000 \times (sizeof(T_f)-1) + \frac{T_{diff}}{2}}{T_{diff}}<br>$$<br>其中，</p>
+<ul>
+<li>$T_{diff}=T_f[back]-T_f[front]$，表示数组$T_f$最大的时间间隔，当$T_{diff}&lt;0$时，$fps=sizeof(T_f)$；</li>
+<li>$sizeof(T_f)$表示数组$T_f$的大小，当$sizeof(T_f)&lt;=1$时，$fps=sizeof(T_f)$。</li>
+</ul>
+<p>在WebRTC中，上述公式在*”webrtc/modules/video_coding/media_optimization.cc”*文件<strong>MediaOptimization</strong>类中实现。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MediaOptimization::PurgeOldFrameSamples</span><span class="params">(<span class="keyword">int64_t</span> now_ms)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (!encoded_frame_samples_.empty()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (now_ms - encoded_frame_samples_.front().time_complete_ms &gt;</span><br><span class="line">        kBitrateAverageWinMs) &#123;</span><br><span class="line">      encoded_frame_samples_.pop_front();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MediaOptimization::UpdateSentFramerate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (encoded_frame_samples_.size() &lt;= <span class="number">1</span>) &#123;</span><br><span class="line">    avg_sent_framerate_ = encoded_frame_samples_.size();</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">int</span> denom = encoded_frame_samples_.back().timestamp -</span><br><span class="line">              encoded_frame_samples_.front().timestamp;</span><br><span class="line">  <span class="keyword">if</span> (denom &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    avg_sent_framerate_ =</span><br><span class="line">        (<span class="number">90000</span> * (encoded_frame_samples_.size() - <span class="number">1</span>) + denom / <span class="number">2</span>) / denom;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    avg_sent_framerate_ = encoded_frame_samples_.size();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="接收端帧率"><a href="#接收端帧率" class="headerlink" title="接收端帧率"></a>接收端帧率</h3><p>在WebRTC中，将接收端帧率分为了三种：网络接收帧率——接收端输入帧率、解码器输出帧率、视频渲染帧率。</p>
+<p><strong>1、网络接收帧率</strong></p>
+<p>网络接收帧率统计的是接收端接收到网络发送过来的视频帧帧率。在完整接收到一帧数据后，由<strong>FrameBuffer</strong>类调用*ReceiveStatisticsProxy::OnCompleteFrame()*来统计。具体代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">OnCompleteFrame</span><span class="params">(<span class="keyword">bool</span> is_keyframe,</span></span></span><br><span class="line"><span class="function"><span class="params">                     <span class="keyword">size_t</span> size_bytes)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int64_t</span> now_ms = clock_-&gt;TimeInMilliseconds();</span><br><span class="line">  frame_window_.insert(<span class="built_in">std</span>::<span class="built_in">make_pair</span>(now_ms, size_bytes));</span><br><span class="line">  <span class="keyword">int64_t</span> old_frames_ms = now_ms - kRateStatisticsWindowSizeMs;</span><br><span class="line">  <span class="keyword">while</span> (!frame_window_.empty() &amp;&amp;</span><br><span class="line">         frame_window_.begin()-&gt;first &lt; old_frames_ms) &#123;</span><br><span class="line">    frame_window_accumulated_bytes_ -= frame_window_.begin()-&gt;second;</span><br><span class="line">    frame_window_.erase(frame_window_.begin());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">size_t</span> framerate =</span><br><span class="line">      (frame_window_.size() * <span class="number">1000</span> + <span class="number">500</span>) / kRateStatisticsWindowSizeMs;</span><br><span class="line">  stats_.network_frame_rate = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(framerate);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、解码器输出帧率</strong></p>
+<p>WebRTC实现了<strong>RateStatistics</strong>来统计解码器输出帧率，在编码结束后由<strong>VideoReceiveStream</strong>调用*ReceiveStatisticsProxy::OnDecodedFrame()*来统计。具体代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">OnDecodedFrame</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">uint64_t</span> now = clock_-&gt;TimeInMilliseconds();</span><br><span class="line">  <span class="function">rtc::CritScope <span class="title">lock</span><span class="params">(&amp;crit_)</span></span>;</span><br><span class="line">  ++stats_.frames_decoded;</span><br><span class="line">  decode_fps_estimator_.Update(<span class="number">1</span>, now);</span><br><span class="line">  stats_.decode_frame_rate = decode_fps_estimator_.Rate(now).value_or(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3、视频渲染帧率</strong></p>
+<p>WebRTC实现了<strong>RateStatistics</strong>来统计视频渲染帧率，在视频渲染结束后由<strong>VideoReceiveStream</strong>调用*ReceiveStatisticsProxy::OnRenderedFrame()*来统计。具体代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">OnRenderedFrame</span><span class="params">(<span class="keyword">const</span> VideoFrame&amp; frame)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">uint64_t</span> now = clock_-&gt;TimeInMilliseconds();</span><br><span class="line">  <span class="function">rtc::CritScope <span class="title">lock</span><span class="params">(&amp;crit_)</span></span>;</span><br><span class="line">  renders_fps_estimator_.Update(<span class="number">1</span>, now);</span><br><span class="line">  stats_.render_frame_rate = renders_fps_estimator_.Rate(now).value_or(<span class="number">0</span>);</span><br><span class="line">  ++stats_.frames_rendered;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="发送端帧率策略"><a href="#发送端帧率策略" class="headerlink" title="发送端帧率策略"></a>发送端帧率策略</h2><p>影响发送端帧率的主要因素包含：视频采集（摄像头/桌面）帧率、编码器性能。</p>
+<h3 id="视频采集帧率策略"><a href="#视频采集帧率策略" class="headerlink" title="视频采集帧率策略"></a>视频采集帧率策略</h3><p>摄像头是视频采集的来源，其帧率决定了视频会议帧率的上限。与摄像头采集相关的参数包含：像素格式、帧率和分辨率。下表列出了ThinkPad T440P自带摄像头支持的部分视频格式：</p>
+<table>
+<thead>
+<tr>
+<th align="center">格式</th>
+<th align="center">分辨率</th>
+<th align="center">帧率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">MJPG</td>
+<td align="center">1280x720</td>
+<td align="center">30</td>
+</tr>
+<tr>
+<td align="center">MJPG</td>
+<td align="center">640x360</td>
+<td align="center">30</td>
+</tr>
+<tr>
+<td align="center">YUY2</td>
+<td align="center">1280x720</td>
+<td align="center">10</td>
+</tr>
+<tr>
+<td align="center">YUY2</td>
+<td align="center">640x360</td>
+<td align="center">30</td>
+</tr>
+</tbody></table>
+<p>可以看出对于YUY2格式，1280x720的帧率仅为10帧，要想达到30帧必须要采用MJPG格式。这是因为，同样是1280x720分辨率，30帧YUY2和MJPG格式需要传输的数据量分别为：</p>
+<ul>
+<li>YUY2：<em>1280x720x30x2x8=421Mbps</em></li>
+<li>MJPG：<em>1280x720x30x3x8/20=32Mbps</em></li>
+</ul>
+<p>YUY2需要的传输带宽过大，所以很多摄像头对于RGB、YUV等格式1280x720仅支持10帧。然而10帧是远远不能够满足视频会议的帧率需求的，因此在选择视频采集规格时，需要注意像素格式、帧率和分辨率的权衡。在实际应用中，我们可以采集MJPG格式1280x720x30视频规格，然后在应用层转换为YUV格式。WebRTC在*”webrtc/modules/video_capture/video_capture_impl.cc”*的<strong>VideoCaptureImpl</strong>类中实现了转换：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (frameInfo.codecType == kVideoCodecUnknown) &#123;</span><br><span class="line">  <span class="comment">/* Not encoded, convert to I420. */</span></span><br><span class="line">  <span class="keyword">const</span> VideoType commonVideoType =</span><br><span class="line">            RawVideoTypeToCommonVideoVideoType(frameInfo.rawType);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (frameInfo.rawType != kVideoMJPEG &amp;&amp; CalcBufferSize(commonVideoType, width,</span><br><span class="line">                     							<span class="built_in">abs</span>(height)) != videoFrameLength) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> stride_y = width, stride_uv = (width + <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">int</span> target_width = width, target_height = height;</span><br><span class="line"></span><br><span class="line">  rtc::scoped_refptr&lt;I420Buffer&gt; buffer = I420Buffer::Create(</span><br><span class="line">      target_width, <span class="built_in">abs</span>(target_height), stride_y, stride_uv, stride_uv);</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">int</span> conversionResult = ConvertToI420(</span><br><span class="line">      commonVideoType, videoFrame, <span class="number">0</span>, <span class="number">0</span>, width, height, videoFrameLength,</span><br><span class="line">      apply_rotation ? _rotateFrame : kVideoRotation_0, buffer.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终得到的YUV格式的视频数据会被送到编码器中被编码，需要注意：不是所有的视频数据都会被编码器编码，详细内容将在下一节介绍。</p>
+<h3 id="采集编码丢帧策略"><a href="#采集编码丢帧策略" class="headerlink" title="采集编码丢帧策略"></a>采集编码丢帧策略</h3><p>受限于系统硬件性能和编码器性能，视频采集图片的速度有可能比编码器编码速度快，这将导致多余的图片帧在编码器任务队列中累积。由于视频会议需要较低的时延，编码器必须要及时处理最新的帧，此时WebRTC采取丢帧策略——<strong>当有多个帧在编码器任务队列时，只编码最新的一帧</strong>。WebRTC在*”webrtc/video/vie_encoder.cc”*文件<strong>EncodeTask</strong>类中实现了该策略：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Run</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">  ++vie_encoder_-&gt;captured_frame_count_;</span><br><span class="line">  <span class="keyword">if</span> (--vie_encoder_-&gt;posted_frames_waiting_for_encode_ == <span class="number">0</span>) &#123;</span><br><span class="line">    vie_encoder_-&gt;EncodeVideoFrame(frame_, time_when_posted_us_);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/* There is a newer frame in flight. Do not encode this frame. */</span></span><br><span class="line">    LOG(LS_VERBOSE) &lt;&lt; <span class="string">&quot;Incoming frame dropped due to that the encoder is blocked.&quot;</span>;</span><br><span class="line">    ++vie_encoder_-&gt;dropped_frame_count_;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，由于编码器是阻塞的，如果编码器性能或系统硬件性能较差，编码器会丢掉因阻塞而累积的帧，进而导致发送端帧率降低。在具体使用场景中，这往往会导致两种现象：</p>
+<ul>
+<li>接收端黑屏：如果发送端一开始就卡死在编码器中，接收端会一直黑屏，直到第一个帧编码完成；</li>
+<li>接收端卡顿：如果发送端运行后经常阻塞在编码器中，接收端会卡顿，严重影响视频质量。</li>
+</ul>
+<p>因此，摄像头采集帧率并不等于编码器的实际输入帧率，<strong>MediaOptimization</strong>类中得到的编码器实际输入帧率，需要在下次编码前设置为编码器的输入帧率。</p>
+<h3 id="恒定码率丢帧策略"><a href="#恒定码率丢帧策略" class="headerlink" title="恒定码率丢帧策略"></a>恒定码率丢帧策略</h3><p>除了上文所述的采集编码丢帧策略，WebRTC还实现了一种漏桶算法的变体，用于跟踪何时应该主动丢帧，以避免编码器无法保持其比特率时，产生过高的比特率。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Leaky_bucket">漏桶算法</a>的示意图如下：</p>
+<img src="../../assets/media/webrtc/webrtc-leaky-bucket-algorithm.jpg">
+
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Leaky_bucket">漏桶算法</a>的实现位于*”webrtc/modules/video_coding/frame_dropper.cc”*中的<strong>FrameDropper</strong>类，其实现了三个关键方法：</p>
+<ul>
+<li><em>Fill()</em></li>
+<li><em>Leak()</em></li>
+<li><em>DropFrame()</em></li>
+</ul>
+<p>从字面上可以看出，这三个方法对应于上图所示漏桶算法的三个操作。这三个方法都在<strong>MediaOptimization</strong>类被调用。</p>
+<p>首先，来看看<strong>FrameDropper</strong>类的核心参数：</p>
+<ul>
+<li>漏桶容积：<em>accumulator_max_</em>，其值为<em>target-bps×kLeakyBucketSizeSeconds</em>，随目标码率改变而改变；</li>
+<li>漏桶累积：<em>accumulator_</em>，其表示漏桶累积的字节数，每次<em>Fill()<em>时增加，每次</em>Leak()<em>时减少，其最大值为</em>target-bps×kAccumulatorCapBufferSizeSecs</em>；</li>
+<li>丢帧率：<em>drop_ratio_</em>，其为一个指数滤波器，使丢帧率保持一个平滑的变化过程，每次*Leak()*后更新丢帧率；</li>
+<li>关键帧率：<em>key_frame_ratio_</em>，其为一个指数滤波器，使关键帧率保持一个平滑的变化过程，每次*Fill()*后更新；</li>
+<li>差分帧码率：<em>delta_frame_size_avg_kbits_</em>，其为一个指数滤波器，使关键帧率保持一个平滑的变化过程，每次*Fill()*后更新。</li>
+</ul>
+<p>其次，为了防止关键帧和较大的差分帧立即溢出，进而导致后续较小的帧出现较高丢帧，关键帧和较大的差分帧是不会被立即在桶中累计。相反，这些较大的帧会在漏桶中累计前，会分成若干小块，进而在<em>Leak()<em>操作中逐次累计这些小块，来防止较关键帧和较大的差分帧立即溢出。</em></em>FrameDropper**类增加了额外的几个参数来实现该策略：</p>
+<ul>
+<li><em>large_frame_accumulation_spread_</em>：大帧最大拆分块数，四舍五入取整；</li>
+<li><em>large_frame_accumulation_count_</em>：大帧剩余拆分块数，四舍五入取整；</li>
+<li><em>large_frame_accumulation_chunk_size_</em>：单个块尺寸，其值为<em>framesize/large_frame_accumulation_count_</em>。</li>
+</ul>
+<p>最后，来看看<strong>FrameDropper</strong>类的核心操作：</p>
+<p><strong>1、<em>Fill()</em></strong></p>
+<p>当视频帧被编码后，<strong>MediaOptimization</strong>类会调用<em>Fill()<em>方法来填充漏桶。调用顺序很简单，主要关注</em>Fill()<em>方法的实现——将大帧拆分为</em>large_frame_accumulation_count_</em>个小块，并不累加<em>accumulator_</em>；将小帧直接累计<em>accumulator_</em>。<em>Fill()<em>方法同时需要更新</em>key_frame_ratio_</em>和<em>delta_frame_size_avg_kbits_</em>，用以计算大帧拆分块数和大帧判断。具体实现如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Fill</span><span class="params">(<span class="keyword">size_t</span> framesize_bytes, <span class="keyword">bool</span> delta_frame)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">float</span> framesize_kbits = <span class="number">8.0f</span> * <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(framesize_bytes) / <span class="number">1000.0f</span>;</span><br><span class="line">  <span class="keyword">if</span> (!delta_frame) &#123;</span><br><span class="line">    <span class="keyword">if</span> (large_frame_accumulation_count_ == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (key_frame_ratio_.filtered() &gt; <span class="number">1e-5</span> &amp;&amp;</span><br><span class="line">          <span class="number">1</span> / key_frame_ratio_.filtered() &lt; large_frame_accumulation_spread_) &#123;</span><br><span class="line">        large_frame_accumulation_count_ =</span><br><span class="line">            <span class="keyword">static_cast</span>&lt;<span class="keyword">int32_t</span>&gt;(<span class="number">1</span> / key_frame_ratio_.filtered() + <span class="number">0.5</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        large_frame_accumulation_count_ =</span><br><span class="line">            <span class="keyword">static_cast</span>&lt;<span class="keyword">int32_t</span>&gt;(large_frame_accumulation_spread_ + <span class="number">0.5</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      large_frame_accumulation_chunk_size_ =</span><br><span class="line">          framesize_kbits / large_frame_accumulation_count_;</span><br><span class="line">      framesize_kbits = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (delta_frame_size_avg_kbits_.filtered() != <span class="number">-1</span> &amp;&amp;</span><br><span class="line">        (framesize_kbits &gt;</span><br><span class="line">         kLargeDeltaFactor * delta_frame_size_avg_kbits_.filtered()) &amp;&amp;</span><br><span class="line">        large_frame_accumulation_count_ == <span class="number">0</span>) &#123;</span><br><span class="line">      large_frame_accumulation_count_ =</span><br><span class="line">          <span class="keyword">static_cast</span>&lt;<span class="keyword">int32_t</span>&gt;(large_frame_accumulation_spread_ + <span class="number">0.5</span>);</span><br><span class="line">      large_frame_accumulation_chunk_size_ =</span><br><span class="line">          framesize_kbits / large_frame_accumulation_count_;</span><br><span class="line">      framesize_kbits = <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      delta_frame_size_avg_kbits_.Apply(<span class="number">1</span>, framesize_kbits);</span><br><span class="line">    &#125;</span><br><span class="line">    key_frame_ratio_.Apply(<span class="number">1.0</span>, <span class="number">0.0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  accumulator_ += framesize_kbits;</span><br><span class="line">  CapAccumulator();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、<em>Leak()</em></strong></p>
+<p><em>Leak()<em>操作按照编码器输入帧率的频率来执行，每次</em></em>Leak<strong>的大小为<em>target_bps/input_fps</em>，每次</strong>Leak*<em>时需要判断是否需要累计</em>Fill()<em>方法拆分的块，进而更新</em>drop_ratio_<em>。</em>drop_ratio_*的更新遵循下列原则：</p>
+<ul>
+<li>当<em>accumulator_ &gt; 1.3f * accumulator_max_*，</em>drop_ratio_<em>基数调整为</em>0.8f*，提高丢帧率调整加速度；</li>
+<li>当<em>accumulator_ &lt; 1.3f * accumulator_max_*，</em>drop_ratio_<em>基数调整为</em>0.9f*，降低丢帧率调整加速度。</li>
+</ul>
+<p>实现代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Leak</span><span class="params">(<span class="keyword">uint32_t</span> input_framerate)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">float</span> expected_bits_per_frame = target_bitrate_ / input_framerate;</span><br><span class="line">  <span class="keyword">if</span> (large_frame_accumulation_count_ &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    expected_bits_per_frame -= large_frame_accumulation_chunk_size_;</span><br><span class="line">    --large_frame_accumulation_count_;</span><br><span class="line">  &#125;</span><br><span class="line">  accumulator_ -= expected_bits_per_frame;</span><br><span class="line">  <span class="keyword">if</span> (accumulator_ &lt; <span class="number">0.0f</span>) &#123;</span><br><span class="line">    accumulator_ = <span class="number">0.0f</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (accumulator_ &gt; <span class="number">1.3f</span> * accumulator_max_) &#123;</span><br><span class="line">    <span class="comment">/* Too far above accumulator max, react faster */</span></span><br><span class="line">    drop_ratio_.UpdateBase(<span class="number">0.8f</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/* Go back to normal reaction */</span></span><br><span class="line">    drop_ratio_.UpdateBase(<span class="number">0.9f</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (accumulator_ &gt; accumulator_max_) &#123;</span><br><span class="line">    <span class="comment">/* We are above accumulator max, and should ideally</span></span><br><span class="line"><span class="comment">     * drop a frame. Increase the dropRatio and drop</span></span><br><span class="line"><span class="comment">     * the frame later.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span> (was_below_max_) &#123;</span><br><span class="line">      drop_next_ = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    drop_ratio_.Apply(<span class="number">1.0f</span>, <span class="number">1.0f</span>);</span><br><span class="line">    drop_ratio_.UpdateBase(<span class="number">0.9f</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    drop_ratio_.Apply(<span class="number">1.0f</span>, <span class="number">0.0f</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  was_below_max_ = accumulator_ &lt; accumulator_max_;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3、<em>DropFrame()</em></strong></p>
+<p><em>DropFrame()<em>操作用来判断是否需要将输入到编码器的这一帧丢弃，其利用</em>drop_ratio_</em>来使丢帧率保持一个平滑的变化过程。当<em>drop_ratio_.filtered() &gt;= 0.5f</em>时，表明连续丢弃多个帧（至少一个帧）；当<em>0.0f &lt; drop_ratio_.filtered() &lt; 0.5f</em>时，表明多个帧才会丢弃一个帧。具体的丢帧策略见实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">FrameDropper::DropFrame</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (drop_ratio_.filtered() &gt;= <span class="number">0.5f</span>) &#123;</span><br><span class="line">    <span class="keyword">float</span> denom = <span class="number">1.0f</span> - drop_ratio_.filtered();</span><br><span class="line">    <span class="keyword">if</span> (denom &lt; <span class="number">1e-5</span>) &#123;</span><br><span class="line">      denom = <span class="number">1e-5</span>f;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int32_t</span> limit = <span class="keyword">static_cast</span>&lt;<span class="keyword">int32_t</span>&gt;(<span class="number">1.0f</span> / denom - <span class="number">1.0f</span> + <span class="number">0.5f</span>);</span><br><span class="line">    <span class="keyword">int</span> max_limit = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(incoming_frame_rate_ * max_drop_duration_secs_);</span><br><span class="line">    <span class="keyword">if</span> (limit &gt; max_limit) &#123;</span><br><span class="line">      limit = max_limit;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (drop_count_ &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      drop_count_ = -drop_count_;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (drop_count_ &lt; limit) &#123;</span><br><span class="line">      drop_count_++;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      drop_count_ = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (drop_ratio_.filtered() &gt; <span class="number">0.0f</span> &amp;&amp; drop_ratio_.filtered() &lt; <span class="number">0.5f</span>) &#123;</span><br><span class="line">    <span class="keyword">float</span> denom = drop_ratio_.filtered();</span><br><span class="line">    <span class="keyword">if</span> (denom &lt; <span class="number">1e-5</span>) &#123;</span><br><span class="line">      denom = <span class="number">1e-5</span>f;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int32_t</span> limit = -<span class="keyword">static_cast</span>&lt;<span class="keyword">int32_t</span>&gt;(<span class="number">1.0f</span> / denom - <span class="number">1.0f</span> + <span class="number">0.5f</span>);</span><br><span class="line">    <span class="keyword">if</span> (drop_count_ &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      drop_count_ = -drop_count_;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (drop_count_ &gt; limit) &#123;</span><br><span class="line">      <span class="keyword">if</span> (drop_count_ == <span class="number">0</span>) &#123;</span><br><span class="line">        drop_count_--;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        drop_count_--;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      drop_count_ = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  drop_count_ = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="接收端帧率策略"><a href="#接收端帧率策略" class="headerlink" title="接收端帧率策略"></a>接收端帧率策略</h2><p>影响接收端帧率的主要因素包含：网络状况、解码器性能、渲染速度。</p>
+<h3 id="网络状况导致丢帧"><a href="#网络状况导致丢帧" class="headerlink" title="网络状况导致丢帧"></a>网络状况导致丢帧</h3><p>网络因素对实时视频流的影响十分严重，当网络出现拥塞，导致较高的丢包率，明显的现象就是视频接收端帧率降到很低。比较严重时，接收端接收帧率可能只有几帧，导致无法进行正常的视频通话。WebRTC在*”webrtc/modules/video_coding/packet_buffer.cc”<em>的<strong>PacketBuffer</strong>中，将接收到的RTP包组合成一个完整的视频帧。之后，该完整的帧会被送到</em>“webrtc/modules/video_coding/rtp_frame_reference_finder.cc”*的<strong>RtpFrameReferenceFinder</strong>中。一个完整的帧可能是关键帧，也可能是参考帧，<strong>RtpFrameReferenceFinder</strong>类中关键帧直接送到解码器中处理。而对于参考帧，会判断其是否连续，若不连续会一直暂存在队列中，直到连续——送到解码器，或者下一个关键帧来了——从队列中删除。两个类相应的操作见下面两个函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">PacketBuffer::InsertPacket</span><span class="params">(VCMPacket* packet)</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RtpFrameReferenceFinder::ManageFrameGeneric</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;RtpFrameObject&gt; frame,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                 <span class="keyword">int</span> picture_id)</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>视频会议软件通常会采用NACK和FEC等手段来降低丢包对视频通话质量的影响。同时，解码器一定时间内，没有收到可解码数据，会向发送端请求I帧，这也就在一定程度上保证帧率不会过于低。这部分代码实现与*”webrtc/video/video_receive_stream.cc”*的<strong>VideoReceiveStream</strong>类中：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">VideoReceiveStream::Decode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> kMaxWaitForFrameMs = <span class="number">3000</span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;video_coding::FrameObject&gt; frame;</span><br><span class="line">  video_coding::FrameBuffer::ReturnReason res =</span><br><span class="line">      frame_buffer_-&gt;NextFrame(kMaxWaitForFrameMs, &amp;frame);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (res == video_coding::FrameBuffer::ReturnReason::kStopped)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (frame) &#123;</span><br><span class="line">    <span class="keyword">if</span> (video_receiver_.Decode(frame.get()) == VCM_OK)</span><br><span class="line">      rtp_stream_receiver_.FrameDecoded(frame-&gt;picture_id);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    RequestKeyFrame();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="解码导致丢帧"><a href="#解码导致丢帧" class="headerlink" title="解码导致丢帧"></a>解码导致丢帧</h3><p>看一下WebRTC内调用解码模块的代码，就可以看出WebRTC解码导致失败的可能原因。这部分代码位于*”webrtc/modules/video_coding/video_receiver.cc”*，实现如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int32_t</span> <span class="title">Decode</span><span class="params">(<span class="keyword">const</span> VCMEncodedFrame&amp; frame)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* Decode a frame */</span></span><br><span class="line">  <span class="keyword">int32_t</span> ret = _decoder-&gt;Decode(frame, clock_-&gt;TimeInMilliseconds());</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Check for failed decoding, run frame type request callback if needed. */</span></span><br><span class="line">  <span class="keyword">bool</span> request_key_frame = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">if</span> (ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (ret == VCM_ERROR_REQUEST_SLI) &#123;</span><br><span class="line">      <span class="keyword">return</span> RequestSliceLossIndication(</span><br><span class="line">          _decodedFrameCallback.LastReceivedPictureID() + <span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      request_key_frame = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ret == VCM_REQUEST_SLI) &#123;</span><br><span class="line">    ret = RequestSliceLossIndication(</span><br><span class="line">        _decodedFrameCallback.LastReceivedPictureID() + <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!frame.Complete() || frame.MissingFrame()) &#123;</span><br><span class="line">    request_key_frame = <span class="literal">true</span>;</span><br><span class="line">    ret = VCM_OK;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (request_key_frame) &#123;</span><br><span class="line">    <span class="function">rtc::CritScope <span class="title">cs</span><span class="params">(&amp;process_crit_)</span></span>;</span><br><span class="line">    _scheduleKeyRequest = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面代码可以看出，如果解码器无法将接收到的数据解码，要么发送SLI要么发送PLI，请求重新发送关键帧。从SLI/PLI发出到收到可解码的关键帧这个时间间隔内，接收端的帧率会比正常情况低。</p>
+<h3 id="渲染导致丢帧"><a href="#渲染导致丢帧" class="headerlink" title="渲染导致丢帧"></a>渲染导致丢帧</h3><p>在实际应用中，经过WebRTC处理后显示的帧率较大，但最终的显示效果却比较差，能够感觉到明显的卡顿。这就和应用软件的渲染有关。研究不深，暂不撰写。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/comm/webrtc-frame/"> https://www.freehacker.cn/comm/webrtc-frame/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1fb2cstahfqj20zi0bzaak.jpg)" href="/comm/codec-h264/">
+			<section class="post">
+				<h3>H.264/MPEG-4 AVC学习</h1>
+				<p>简述YUV和RGB视频像素格式。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://wx2.sinaimg.cn/large/61b57e82gy1fp01j6z7tsj21hc0i2aip.jpg)" href="/timecapsule/2017-improve/">
+			<section class="post">
+				<h3>三月——迟来的总结和反思</h1>
+				<p>三省吾身</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/comm/webrtc-frame/';
+        this.page.identifier = 'comm/webrtc-frame/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

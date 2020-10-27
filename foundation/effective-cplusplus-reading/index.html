@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>如何设计C++类——《Effective C++》读后感 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="探讨如何设计高效的C++类，如何利用C++封装、继承、动态特性，实现高效、优雅、易于维护的代码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何设计C++类——《Effective C++》读后感">
+<meta property="og:url" content="https://www.freehacker.cn/foundation/effective-cplusplus-reading/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="探讨如何设计高效的C++类，如何利用C++封装、继承、动态特性，实现高效、优雅、易于维护的代码。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-03-13T16:02:00.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.358Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="CPlusPlus">
+<meta property="article:tag" content="OOP">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">如何设计C++类——《Effective C++》读后感</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/CPlusPlus/'>CPlusPlus</a> /
+    
+    <a href='/tags/OOP/'>OOP</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-03-13T16:02:00.000Z" >
+          2017-03-14
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>永远保持真诚，保持高尚的品行。把每天过成你的最后一天，活得充实、不留遗憾，有冒险精神、要英勇，但也要尽情享受，因为人生本短。<br>《神奇队长》</p>
+</blockquote>
+<p>一直以来，使用C++面向对象机制，主要是为了其封装和多态特性。往往设计类时，只是为了功能的堆砌，没有考虑的更加深入。</p>
+<p>之前也阅读过《Effective C++》，只是那时是在学生时代。如今工作了，重新阅读，有不少新的感悟。最关键的是，能从更高的视角去设计程序，之前杂乱无序的点与点，逐渐连接成一条条线。希望后续能够成面、成立体。<a id="more"></a></p>
+<p>回到正题：如何设计C++类？当然，更合理的表述应该是：如何设计高效、优雅的C++类？（菜鸟的思考）</p>
+<blockquote>
+<p>注意：我们并不是要设计一个程序，或者一个大的模块，我们考虑的更加具体，具体到其中的一点。</p>
+</blockquote>
+<h2 id="我们需要实现哪些功能？"><a href="#我们需要实现哪些功能？" class="headerlink" title="我们需要实现哪些功能？"></a>我们需要实现哪些功能？</h2><p>“先谋后动”，在设计具体类时，必须要清楚下面几点：</p>
+<p>1、设计该类的目的</p>
+<p>清晰的概念远比模棱两口的理解，更能帮助我们深入分析问题。有时候我们觉得我就是需要实现这个功能罢了，只要能用就好了。然而，多和产品经理或技术经理沟通，有可能出现意想不到的结果：</p>
+<ul>
+<li>该功能没有我们想到那么复杂，并不需要自己设计；</li>
+<li>该功能比我们想到的更加复杂，我们需要考虑更多正确性、高效性、扩展性、维护性等方面的额问题。</li>
+</ul>
+<p>2、使用该类的场景</p>
+<p>不同的使用场景，相同功能类的设计需求是不一样的。譬如，设计一个视频解码类，如果使用场景为视频播放器，那我们设计的类必须要考虑不同的编码格式；但如果使用场景为视频会议，我们设计的类就不需要考虑太多编码格式的问题，反而需要针对某种格式进行效率优化。</p>
+<p>3、潜在的扩展方向</p>
+<p>程序不是一成不变的，外界事物不停的变化，催生不同的需求。如果我们的程序不可扩展，那每次需求变更，之前的工作都白费了。类的设计一定要考虑到，未来潜在的扩展方向。如果我们无法确定潜在的扩展方向，至少留下可扩展的接口，不要把一切行为、属性都写死。</p>
+<h2 id="如何构造析构、如何拷贝赋值？"><a href="#如何构造析构、如何拷贝赋值？" class="headerlink" title="如何构造析构、如何拷贝赋值？"></a>如何构造析构、如何拷贝赋值？</h2><p>C++类的构造析构和拷贝赋值是设计C++类时最基本的要点，有不少细节部分需要考虑：</p>
+<ul>
+<li>构造函数：合成的默认构造函数、默认构造函数、default关键词、explicit关键字、类型转换、延迟初始化、单例模式</li>
+<li>析构函数：默认析构函数、虚析构函数</li>
+<li>拷贝构造函数：深拷贝/浅拷贝、禁止拷贝</li>
+<li>赋值构造函数：深拷贝/浅拷贝、禁止拷贝</li>
+</ul>
+<p>除了上面的细节部分，我们需要明确几个准则：</p>
+<ul>
+<li>除非默认操作非你所需，否则请用<code>=default</code>来定义构造析构函数；</li>
+<li>除非编译器合成为你所需，否则请用<code>=delete</code>来定义赋值拷贝函数；</li>
+<li>除非类不可能成为基类，否则请将析构函数定义为<code>virtual</code>；</li>
+<li>构造与析构过程中，不调用virtual函数、析构函数不能抛出异常。</li>
+<li>拷贝构造复制需要处理<code>深拷贝</code>和<code>浅拷贝</code>，赋值操作需要额外考虑<code>自我赋值</code>。</li>
+</ul>
+<h3 id="显式初始化和类型转换"><a href="#显式初始化和类型转换" class="headerlink" title="显式初始化和类型转换"></a>显式初始化和类型转换</h3><blockquote>
+<p>首先表明我的立场：<strong>建议单参数构造函数都声明为explicit，拒绝隐式类型转换，除非你有意要隐式转换。</strong></p>
+</blockquote>
+<p>显式初始化主要针对于单参数构造函数，用<code>explicit</code>关键字来声明构造函数——拒绝隐式类型转换。在C++中，单参数的构造函数主要承担两个功能：对象构造、类型转换。</p>
+<p>这儿强调<code>单参数</code>，是由于多个实参的构造函数不能用于执行隐式转换，所以无须将这些构造函数声明为explicit，但你若是非要声明也是可以的。同时，我们只能在类内声明explicit关键词，不能再类外部重复声明。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">String</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">String</span><span class="params">(<span class="keyword">int</span> n)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">String::String</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123; &#125; <span class="comment">/* error */</span></span><br><span class="line">String str = <span class="number">3</span>; <span class="comment">/* error */</span></span><br><span class="line"><span class="function">String <span class="title">str</span><span class="params">(<span class="number">3</span>)</span></span>;  <span class="comment">/*  ok   */</span></span><br></pre></td></tr></table></figure>
+
+<p>使用隐式类型转换需要注意的是<strong>编译器只会自动执行一步类型转换</strong>，从《C++ Primer》中摘取一个例子来看看：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SalesData</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    SalesData(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;s);</span><br><span class="line">    <span class="function">SalesData&amp; <span class="title">combine</span><span class="params">(SalesData)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SalesData data;</span><br><span class="line">data.combine(<span class="string">&quot;99-99-99-99&quot;</span>); <span class="comment">/* error: cannot transfer &quot;99-99-99-99&quot; to std::string to SalesData at one time*/</span></span><br><span class="line">data.combine(<span class="built_in">std</span>::<span class="built_in">string</span>(<span class="string">&quot;99-99-99-99&quot;</span>)); <span class="comment">/* ok: transfer std::string to SalesData */</span></span><br></pre></td></tr></table></figure>
+
+<p>很多时候，隐式的类型转换逻辑上是合理的，我们设计上需要实现一个隐式转换，是可以接受的。很多编译器会自动将类型转换操作转换成对象构造操作。譬如将整形转换成年龄：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Age</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Age(<span class="keyword">int</span> age);    </span><br><span class="line">&#125;;</span><br><span class="line">Age age = <span class="number">12</span>; <span class="comment">/* ok, same as Age age(12) */</span></span><br></pre></td></tr></table></figure>
+
+<p>然而大多数隐式类型转换常常会带来逻辑上的错误，而且这种错误一旦发生很难查询，所以并不推荐使用隐式转换——<em>除非你是有意为之，否则都使用显式构造</em>。</p>
+<blockquote>
+<p><code>explicit</code>之所以被导入到C++，是为了提供程序员一种方法，使他们能够制止”单一参数的constructor”被当作一个conversion运算符。</p>
+</blockquote>
+<p>《C++ Primer》课后习题中有一题很好的阐述了——何时需要隐式转换、何时需要避免隐式转换：</p>
+<blockquote>
+<p>std::vector将其单参数构造函数定义成explicit的，而std::string则不是，你觉得原因何在？<br>std::string接受的单参数是const char*类型，如果我们得到了一个常量指针，则把它看做std::string对象是自然而然的过程，编译器自动把参数类型转换成类类型也非常符合逻辑，因此我们无须指定为explicit。与std::string相反，std::vector接受的单参数是int类型，这个参数的原意是指定std::vector的容量。如果我们在本来需要std::vector的地方提供一个int值并且希望这个int值自动转换成std::vector，则这个过程显得比较牵强，因此把std::vector的单参数构造函数定义成explicit的更加合理。</p>
+</blockquote>
+<p>C++的标准模板库是学习C++理论实践的好地方，总结下标准库中用explicit修饰的构造函数：</p>
+<ul>
+<li>接受一个容量参数的std::vector构造函数是explicit的。</li>
+<li>接受一个指针参数的std::shared_ptr/std::auto_ptr构造函数是explicit的。</li>
+<li>接受一个std::string参数的std::sstream构造函数是explicit的</li>
+<li>接受一个std::string或C-String参数的std::fstream构造函数是explicit的</li>
+</ul>
+<h3 id="虚函数表"><a href="#虚函数表" class="headerlink" title="虚函数表"></a>虚函数表</h3><p>虚函数表在构造函数中建立，在析构函数中销毁，因此构造函数不可能为虚函数，而析构函数可以为虚函数。同时，调用派生类构造函数，首先会出发基类的构造函数，如果基类的构造函数调用了一个虚函数，该虚函数此时并不具备多态特性。也就是——绝不要在构造和析构过程中调用虚函数。</p>
+<h3 id="虚析构函数"><a href="#虚析构函数" class="headerlink" title="虚析构函数"></a>虚析构函数</h3><p>带有多态性质的基类应该声明一个virtual析构函数，如果class带有任何virtual函数，其就应该拥有一个virtual析构函数。默认情况下，类的析构函数是非虚函数，如果基类的析构函数是虚函数，则派生类的析构函数也都是虚函数。对于多态性质的基类，如果不声明虚析构函数，则会导致内存泄漏，看看下面代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ball</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Ball();</span><br><span class="line">    ~Ball()</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">uint32_t</span> _circle;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BasketBall</span> :</span> <span class="keyword">public</span> Ball &#123;</span><br><span class="line">&#125;</span><br><span class="line">Ball *ball = <span class="keyword">new</span> BasketBall();</span><br><span class="line"><span class="keyword">delete</span> ball; <span class="comment">/* 由于Ball的析构函数非虚，ball中属于Ball类部分的成员不会被析构 */</span></span><br></pre></td></tr></table></figure>
+
+<p>当然，如果class一定不会用作基类使用，或者即使是作为基类使用，也不会定义virtual函数，那么是可以不用价格基类声明为virtual的。</p>
+<h3 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h3><p>如果程序中某个类只允许有一个实例，这个时候就需要使用到单例模式。单例模式Wrapper有很多实现，譬如Boost中的singleton，Poco中的SingletonHold。我们来看看Poco中对单例Wrapper的实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">S</span>&gt;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    SingletonHolder():</span><br><span class="line">        _pS(<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ~SingletonHolder()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">delete</span> _pS;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">S* <span class="title">get</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="function">FastMutex::ScopedLock <span class="title">lock</span><span class="params">(_m)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (!_pS) _pS = <span class="keyword">new</span> S;</span><br><span class="line">        <span class="keyword">return</span> _pS;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    S* _pS;</span><br><span class="line">    FastMutex _m;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>看看Poco::SingletonHolder的代码，S类型的实例仅仅创建一次。如果我们需要将单例嵌入到自己的代码逻辑中，可以按照下面代码实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> Singleton* <span class="title">getInstance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> _s;</span><br><span class="line">    &#125;   </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Singleton();</span><br><span class="line">    ~Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Release</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ~Release()</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">delete</span> _s;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">static</span> Singleton *_s;</span><br><span class="line">    <span class="keyword">static</span> Release r;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Singleton* Singleton::_s = <span class="keyword">new</span> Singleton();</span><br><span class="line">Singleton::Release Singleton::r;</span><br></pre></td></tr></table></figure>
+
+<p>下文中延迟初始化那一节也是一种单例模式的实现。</p>
+<h3 id="深拷贝、浅拷贝"><a href="#深拷贝、浅拷贝" class="headerlink" title="深拷贝、浅拷贝"></a>深拷贝、浅拷贝</h3><p>如果一个类拥有资源，当这个类的对象发生复制过程的时候，资源重新分配，这个过程就是深拷贝，反之，没有重新分配资源，就是浅拷贝。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Test() : p(<span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>(<span class="string">&quot;Test&quot;</span>)) &#123; &#125;</span><br><span class="line">    ~Test() &#123; <span class="keyword">delete</span> p; &#125;</span><br><span class="line">    Test(<span class="keyword">const</span> Test&amp; t) &#123;</span><br><span class="line">        p = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>(*t.p); <span class="comment">/* 如果这儿不进行深拷贝，析构时则会有多个对象重复删除p */</span></span><br><span class="line">    &#125;</span><br><span class="line">    Test&amp; <span class="keyword">operator</span>= (<span class="keyword">const</span> Test t) &#123;</span><br><span class="line">        swap(t);</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> *p;    </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="禁止拷贝"><a href="#禁止拷贝" class="headerlink" title="禁止拷贝"></a>禁止拷贝</h3><p>如果我们不需要编译器为我们实现默认拷贝构造函数，我们需要主动地驳回编译器这一默认的行为。通常的做法有三种：</p>
+<ul>
+<li>将相应的成员函数（这里是拷贝构造函数/赋值构造函数）声明为private，并不予实现；</li>
+<li>将函数声明为delete；</li>
+<li>继承一个不允许该操作的基类。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UnCopyable</span> &#123;</span></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    UnCopyable();</span><br><span class="line">    ~UnCopyable();</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    UnCopyable(<span class="keyword">const</span> UnCopyable&amp;);</span><br><span class="line">    UnCopyable&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> UnCopyable&amp;)；</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Impl</span> :</span> <span class="keyword">public</span> UnCopyable &#123; &#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="延迟初始化"><a href="#延迟初始化" class="headerlink" title="延迟初始化"></a>延迟初始化</h3><p>延迟初始化是一个很有用的概念。一个对象的延迟初始化（也称延迟实例化）意味着该对象的创建将会延迟至第一次使用该对象时。延迟初始化主要用于提高性能，避免浪费计算，并减少程序内存要求。</p>
+<blockquote>
+<p><strong>尽量将对象的定义延迟到第一次使用，甚至是直到能够给它初值实参为止。</strong></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LazyInstance</span> &#123;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">LazyInstance&amp; <span class="title">getInstance</span><span class="params">(<span class="keyword">int</span> param)</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> LazyInstance <span class="title">instance</span><span class="params">(param)</span></span>;</span><br><span class="line">    <span class="keyword">return</span> instance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，instance实例对象直到getInstance()函数被第一次调用时，才会进行初始化。对比下列代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LazyInstance</span> &#123;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> LazyInstance instance;</span><br></pre></td></tr></table></figure>
+
+<p>instance实例对象是静态成员，会在程序一开始调用默认构造函数初始化。</p>
+<p>延迟初始化同时也解决了<code>跨编译单元中非局部静态成员的初始化次序不定</code>的问题——函数内局部静态对象会在第一次调用时被初始化。我们通过下列例子来说明该问题（摘自Effective C++）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* FileSystem.cpp */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileSystem</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">numDisks</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">extern</span> FileSystem tfs;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Directory.cpp */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Directory</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Directory(params);</span><br><span class="line">&#125;;</span><br><span class="line">Directory::Directory(params) &#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> disks = tfs.numDisks();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Director <span class="title">dir</span><span class="params">(tfs)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>由于FileSystem.cpp和Directory.cpp是两个编译单元，其初始化次序在C++标准中并没有被定义，我们无法确定tsf是否一定在dir初始化之前初始化。解决办法就是采用延迟初始化：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileSystem</span> &#123;</span>&#125;;</span><br><span class="line"><span class="function">FileSystem&amp; <span class="title">tfs</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> FileSystem fs;</span><br><span class="line">    <span class="keyword">return</span> fs;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Directory</span> &#123;</span>&#125;;</span><br><span class="line">Directory::Directory(params) &#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> disks = tfs().numDisks();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Directory&amp; <span class="title">dir</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Directory td;</span><br><span class="line">    <span class="keyword">return</span> td;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="接口设计需要考虑哪些问题？"><a href="#接口设计需要考虑哪些问题？" class="headerlink" title="接口设计需要考虑哪些问题？"></a>接口设计需要考虑哪些问题？</h2><p>接口设计的原则就是<code>易用</code>。为了达到<code>易用</code>的目的，我们需要遵循下面准则，同时也要考虑下面问题：</p>
+<h3 id="接口一致准则"><a href="#接口一致准则" class="headerlink" title="接口一致准则"></a>接口一致准则</h3><blockquote>
+<p>除非有好理由，否则应该尽量令你的类的行为与内置类型一致。</p>
+</blockquote>
+<p>接口的一致性，主要体现在两点：</p>
+<ul>
+<li>相同操作，自定义类型的行为应该与内置类型一致；</li>
+<li>相同接口名，在同一自定义类型中，其功能、使用方式也应该一样；</li>
+</ul>
+<h3 id="误操作防御准则"><a href="#误操作防御准则" class="headerlink" title="误操作防御准则"></a>误操作防御准则</h3><p>考虑客户在使用该接口时，可能出现哪些错误，进行针对性防御设计。（如果防御编程消耗过大，就要仔细权衡了。）</p>
+<ul>
+<li>参数限定，譬如：<ul>
+<li>如果参数存在上下限、固定值集合（月份值），最好进行限定（新建月份类型）；</li>
+<li>如果是值传递，最好是改成常引用传递（内置类型、STL迭代器、函数对象除外）；</li>
+<li>如果不想改变参数值，最好声明常参数。</li>
+</ul>
+</li>
+<li>返回值限定，譬如：<ul>
+<li>const限定（防止试图修改返回值）；</li>
+<li>智能指针限定（防止内存泄漏）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="私有还是公有？"><a href="#私有还是公有？" class="headerlink" title="私有还是公有？"></a>私有还是公有？</h3><p>为什么接口可以是私有呢？因为从广义来说，类的设计者也是类中成员的客户，私有的接口是面向类的设计者的。</p>
+<p>对于成员函数，主要分为三种：私有、继承、公有，其安排主要是根据这三者的区别来定，没有什么特殊的地方。</p>
+<p>对于数据成员，建议将所有数据成员声明为私有（考虑封装）。不管是类对象访问，还是派生类对象访问，都可以通过对应的getter/setter函数来操作。需要注意的是：protected并不比public更具封装性。</p>
+<h3 id="成员函数还是非成员函数？"><a href="#成员函数还是非成员函数？" class="headerlink" title="成员函数还是非成员函数？"></a>成员函数还是非成员函数？</h3><ul>
+<li><p>如果接口必须要操作类私有成员，需要将接口声明为成员函数或友元函数。</p>
+</li>
+<li><p>如果接口可以通过访问成员函数来进行所需操作，建议用<code>非成员、非友元函数</code>来替换成员函数。</p>
+<p>因为这样做可以增加封装性、包括弹性和机能扩充性。这种<code>非成员、非友元函数</code>被称为便利函数，往往一个类会存在一系列不同的便利函数，功能相关的便利函数会被定义在同一个头文件内。</p>
+</li>
+<li><p>如果接口的所有参数都需要进行类型转换，那么这个函数必须是非成员函数。</p>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">const</span> Rational <span class="keyword">operator</span>* (<span class="keyword">const</span> Rational &amp;rhs) <span class="keyword">const</span>;    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Rational oneEight(1, 8), oneHalf(1, 2);</span><br><span class="line">Rational result = oneHalf * oneEight; <span class="comment">/* ok */</span></span><br><span class="line">result = oneHalf * <span class="number">2</span>; <span class="comment">/* ok */</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf; <span class="comment">/* error */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* non-member */</span></span><br><span class="line"><span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational &amp;lhs, <span class="keyword">const</span> Rational &amp;rhs);</span><br></pre></td></tr></table></figure>
+
+<h3 id="是否需要为inline函数？"><a href="#是否需要为inline函数？" class="headerlink" title="是否需要为inline函数？"></a>是否需要为inline函数？</h3><p>需要明确的是：inline只是对编译器的一个申请，并不是强制命令。将函数定义于class定义式内是隐喻inline的，定义于class定义式外需要显式声明为inline。通常inline函数被放置在头文件内。</p>
+<p>如果编译器无法将你要求的函数inline化，其通常会给你一个警告信息。下列函数往往是非inline的：</p>
+<ul>
+<li>函数内部包含循环体；</li>
+<li>构造函数/析构函数/虚函数；</li>
+<li>存在被改变的可能：内联函数被改变，所有用到内联函数的程序都必须重新编译，而非内联函数只需要连接就行了。</li>
+</ul>
+<p>对于是否需要为inline函数的建议是：<em>将大多数inline函数限制在小型、被频繁调用的函数身上，同时不要因为函数模板出现在头文件，就将其声明为inline。</em></p>
+<h3 id="接口与实现分离"><a href="#接口与实现分离" class="headerlink" title="接口与实现分离"></a>接口与实现分离</h3><p>接口与实现分离能够将编译依存性最小化，采用Handles Classes和Interface Classes能够很好地实现——相依于声明，不要相依于定义式。<strong>程序库头文件应该以完全且仅有声明式的形式存在，这种做法不论是否涉及template都适用。</strong></p>
+<p>如果我们按照一般的C++教材上的方式现实代码，编译依存关系会导致很严重的重新编译和连接：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Person.h*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Data.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Address.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Person(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> Data&amp; birthday, <span class="keyword">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">address</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> _name;</span><br><span class="line">    Data        _birth;</span><br><span class="line">    Address     _addr;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码，如果Data.h中的内容或其依赖的内容有任何改变，所有包含Person.h头文件的源文件都需要重新编译和连接。</p>
+<p>Handles Classes利用pimpl idiom（pointer to implementation）思想，利用该思想来重写上面代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Person.h */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PersonImpl</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Address</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Person(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> Data&amp; birthday, <span class="keyword">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">address</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PersonImpl&gt; pImpl;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* PersonImpl.h */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Data.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Address.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PersonImpl</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Person(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> Data&amp; birthday, <span class="keyword">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">address</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> _name;</span><br><span class="line">    Data        _birth;</span><br><span class="line">    Address     _addr;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Person.cxx */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Person.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;PersonImpl.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">Person::Person(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> Data&amp; birthday, <span class="keyword">const</span> Address&amp; addr)</span><br><span class="line">    : pImpl(<span class="keyword">new</span> PersonImpl(name, birthday, addr)) &#123; &#125;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">Person::name</span><span class="params">()</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    retur pImpl-&gt;name();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Interface Classes利用抽象基类和多态的特性，将接口定义在接口类中，而具体实现使用具体类，改写Person代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* PersonI.h */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Address</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PersonI</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~PersonI();</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PersonI&gt; <span class="title">create</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;name, <span class="keyword">const</span> Data &amp;birthday, <span class="keyword">const</span> Address &amp;addr)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">address</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* PersonImpl.h */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;PersonI.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Data.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Address.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PersonImpl</span> :</span> <span class="keyword">public</span> PersonI &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Person(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> Data&amp; birthday, <span class="keyword">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">override</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">override</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">address</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">override</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> _name;</span><br><span class="line">    Data        _birth;</span><br><span class="line">    Address     _addr;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* PersonImpl.cxx */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;PersonImpl.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PersonI&gt; <span class="title">create</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;name, <span class="keyword">const</span> Data &amp;birthday, <span class="keyword">const</span> Address &amp;addr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PersonI&gt;(<span class="keyword">new</span> PersonImpl(name, birthday, addr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>两种改写方法都存在一定的代价，一般程序库头文件推荐使用Interface Classes。</p>
+</blockquote>
+<h2 id="接口实现需要考虑哪些问题？"><a href="#接口实现需要考虑哪些问题？" class="headerlink" title="接口实现需要考虑哪些问题？"></a>接口实现需要考虑哪些问题？</h2><h3 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h3><ul>
+<li>绝不要返回指向一个函数局部自动对象的指针或引用。</li>
+<li>绝不要返回指向一个函数内部堆对象的引用，除非你能完全杜绝内存泄漏问题。</li>
+<li>绝不要返回指向一个函数局部静态对象的指针或引用，如果有可能同时需要多个这样的对象。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span>&amp; <span class="title">getStatic</span><span class="params">(<span class="keyword">int</span> param)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> test;</span><br><span class="line">    test += param;</span><br><span class="line">    <span class="keyword">return</span> test;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(getStatic(param1) == getStatic(param2)) &#123; ... &#125; <span class="comment">// 总是相等</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：第三种情况，并不是要我们完全不要返回，譬如我们需要某类型的唯一实例，返回函数局部静态变量是可行的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Person&amp; <span class="title">getPerson</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Person p;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>避免返回对象内部成分（私有成员：数据和函数）的句柄（指针或引用），例外：operator[]。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rect</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">Point&amp; <span class="title">getPoint</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> _point; &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Point _point;</span><br><span class="line">&#125;;</span><br><span class="line">Point t;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> Rect r;</span><br><span class="line">    t = r.getPoint();</span><br><span class="line">    t.setX(<span class="number">100</span>); <span class="comment">/* 我们更改了常对象内部的值 */</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">int</span> x = t.getX(); <span class="comment">/* r已被析构，t现在为空悬指针了，wops... */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><p>优良的C++代码很少使用转型，但是也无法完全摆脱转型。考虑使用转型时，需要遵守下列准则：</p>
+<ul>
+<li>尝试使用无需转型操作的设计替代转型动作，譬如：使用类的多态特性取代dynamic_cast转型；</li>
+<li>将转型操作隐藏在某个函数背后，如果需要转型时，调用该函数，而不是直接将转型操作放进代码内；</li>
+<li>使用C++新式转型操作取代旧式转型操作。</li>
+</ul>
+<p>转型操作有时很难避免，因此我们需要清楚的掌握四种转型操作（static_cast、const_cast、reinterpret_cast、dynamic_cast）的差异与缺陷：</p>
+<ul>
+<li><code>dynamic_cast</code>：影响程序效率，同时也是程序异常的潜在因素，尽量拒绝使用dynamic_cast转型操作；</li>
+<li><code>const_cast</code>：去除常量性，如果需要获取常量性，需要使用static_cast；</li>
+<li><code>reinterpret_cast</code>：不可移植，在指针转换的时候可以使用，但是要慎用；</li>
+<li><code>static_cast</code>：上面三种转型之外的转型操作都可以由static_cast来负责。</li>
+</ul>
+<blockquote>
+<p>转型操作切记试图揣摩编译器中对象的布局，因为对象的布局是随着不同的编译器而不同的。</p>
+</blockquote>
+<h3 id="资源释放"><a href="#资源释放" class="headerlink" title="资源释放"></a>资源释放</h3><p>通过良好的接口实现，<strong>接口使用者，无须考虑资源释放等问题</strong>。资源释放问题可以通过智能指针很好的解决。使用std::shared_ptr和删除器，我们能很好的解决资源释放问题。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Resource&gt; <span class="title">res</span><span class="params">(getResource(), releaseResource)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="异常安全"><a href="#异常安全" class="headerlink" title="异常安全"></a>异常安全</h3><p>当异常被抛出后，异常安全的函数不会泄露任何资源，也不允许数据败坏。异常安全函数能够提供下列三种保证之一：</p>
+<ul>
+<li>基本承诺：如果异常被抛出，程序内的任何事物都保持在有效状态下（并不保证是原来的状态）。</li>
+<li>强烈保证：如果异常被抛出，如果函数成功，就会完全成功，如果函数失败，就会恢复到调用函数之前的状态。</li>
+<li>不抛保证：绝不抛出异常，程序总能完成它们原先承诺的功能。</li>
+</ul>
+<blockquote>
+<p>我们推荐：对于C++函数，需要提供强烈保证，尽量不抛保证。</p>
+</blockquote>
+<p>为了完成异常安全保证，我们需要知道哪些操作不抛异常，哪些操作会抛出异常，哪些操作有助于异常安全保证：</p>
+<ul>
+<li>作用于内置类型身上的所有操作都是nothrow保证的；</li>
+<li>动态内存如果无法找到足够内存以满足需求会抛出bad_alloc异常；</li>
+<li>swap函数提供不抛保证，利用<em>copy-and-swap</em>特性能够很轻松的完成强烈异常保证（当然也存在例外）；</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PMImpl</span> &#123;</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Image&gt; _image;</span><br><span class="line">    <span class="keyword">int</span> imageChanges;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Menu</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex _mutex;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PMImpl&gt; _pImpl;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Menu::change</span><span class="params">(<span class="built_in">std</span>::istream&amp; src)</span> </span>&#123;</span><br><span class="line">    <span class="function">Lock <span class="title">m</span><span class="params">(&amp;_mutex)</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PMImpl&gt; <span class="title">p</span><span class="params">(<span class="keyword">new</span> PMImpl(*_pImpl);</span></span></span><br><span class="line"><span class="function"><span class="params">    p-&gt;_image.reset(<span class="keyword">new</span> Image(src));</span></span></span><br><span class="line"><span class="function"><span class="params">    ++p-&gt;imageChanges;</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="built_in">std</span>::swap(_pImpl, p);</span></span></span><br><span class="line"><span class="function"><span class="params">&#125;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>有时候我们是做不到强烈异常保证的，譬如消耗过大、程序结构复杂、历史代码等，这个时候就需要退而取其次——基本保证。函数提供的异常安全性保证通常最高只等于其所调用的各个函数的异常安全保证中的最弱者。所以，即使我们努力的保证了自己写的代码是强烈异常安全的，我们还是可能调用非此保证的代码。</p>
+<blockquote>
+<p>标准库版本的swap函数时不抛出异常的，如果我们需要自己实现swap函数，也务必要保证其不抛出异常——因为swap的一个最好的应用是帮助classes提供强烈的异常安全性保证。</p>
+</blockquote>
+<p>我们还需要注意一定：<strong>构造函数和析构函数一定不能抛出异常，否则会导致资源泄漏。</strong></p>
+<h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3>
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/foundation/effective-cplusplus-reading/"> https://www.freehacker.cn/foundation/effective-cplusplus-reading/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://wx1.sinaimg.cn/large/61b57e82gy1fd9wp28v5ij20zk0c2q5f.jpg)" href="/foundation/time/">
+			<section class="post">
+				<h3>计算机世界中的时间</h1>
+				<p>浅析计算机世界中的时间概念。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1fb2cstahfqj20zi0bzaak.jpg)" href="/comm/codec-yuv-rgb/">
+			<section class="post">
+				<h3>视频像素格式YUV和RGB</h1>
+				<p>简述YUV和RGB视频像素格式。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/foundation/effective-cplusplus-reading/';
+        this.page.identifier = 'foundation/effective-cplusplus-reading/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

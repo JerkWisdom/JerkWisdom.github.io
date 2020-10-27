@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>计算机世界中的时间 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="浅析计算机世界中的时间概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机世界中的时间">
+<meta property="og:url" content="https://www.freehacker.cn/foundation/time/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="浅析计算机世界中的时间概念。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-03-02T14:54:11.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.360Z">
+<meta property="article:author" content="ZeroJiu">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://wx1.sinaimg.cn/large/61b57e82gy1fd9wp28v5ij20zk0c2q5f.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">计算机世界中的时间</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    At
+    <time class="post-date" datetime="2017-03-02T14:54:11.000Z" >
+          2017-03-02
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>时间永远不够用。</p>
+</blockquote>
+<p>长久以来，编程中遇到的时间概念，让我很迷惑。故而特定整理成此篇博文——浅析计算机世界中的时间。<a id="more"></a></p>
+<h2 id="时间单位"><a href="#时间单位" class="headerlink" title="时间单位"></a>时间单位</h2><p>时间的单位可以为second、millisecond、microsecond、nanosecond，相互之间的关系如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int64_t</span> MillisecsPerSec = INT64_C(<span class="number">1000</span>);</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int64_t</span> MicrosecsPerSec = INT64_C(<span class="number">1000000</span>);</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int64_t</span> NanosecsPerSec = INT64_C(<span class="number">1000000000</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="时间的标准"><a href="#时间的标准" class="headerlink" title="时间的标准"></a>时间的标准</h2><h3 id="IAT"><a href="#IAT" class="headerlink" title="IAT"></a>IAT</h3><p>IAT，International Atomic Time，原子时，又称国际原子时，是一种通过原子钟得到的时间标准，原子钟是世界上已知最准确的时间测量和频率标准，原子钟在 37 亿年的误差不超过 1 秒。</p>
+<p>原子时计量的基本单位是原子时秒，由原子钟导出定义为：在零磁场下，铯-133原子基态两个超精细能级间跃迁辐射9,192,631,770周所持续的时间。</p>
+<h3 id="UT"><a href="#UT" class="headerlink" title="UT"></a>UT</h3><p>UT，Universal Time，世界时，是一种以格林尼治子夜起算的平太阳时。世界时是以地球自转为基准得到的时间尺度,其精度受到地球自转不均匀变化和极移的影响，为了解决这种影响，1955年国际天文联合会定义了UT0、UT1和UT2三个系统。</p>
+<h3 id="UTC"><a href="#UTC" class="headerlink" title="UTC"></a>UTC</h3><p><code>UTC Time</code>，Coordinated Universal Time，协调世界时或世界标准时间。协调世界时是以原子时秒长为基础，在时刻上尽量接近于世界时的一种时间计量系统。国际原子时的误差为每日数纳秒，世界时的误差为每日数毫秒，UTC 便是这两种时标的一种折中。</p>
+<p><code>UTC Time</code>被广泛应用于互联网标准中，<code>NTP</code>（网络时间协议）就是协调世界时在互联网中使用的一种方式。在计算机的世界中，<code>UTC Time</code>和<code>GMT</code>（Greenwich Mean Time，格林尼治平均时间）是相等的，都与英国伦敦的本地时间相同。</p>
+<h3 id="GMT"><a href="#GMT" class="headerlink" title="GMT"></a>GMT</h3><p>GMT，Greenwich Mean Time，格林尼治标准时间，指位于伦敦郊区的皇家格林尼治天文台的标准时间，因为本初子午线被定义在通过那里的经线。 格林尼治时间已经不再被作为标准时间使用。现在的标准时间（UTC）由原子钟提供。</p>
+<h3 id="DST"><a href="#DST" class="headerlink" title="DST"></a>DST</h3><p>DST，Daylight Saving Time，夏令时与冬令时。又称“日光节约时制”和“夏令时间”，是一种为节约能源而人为规定地方时间的制度，在这一制度实行期间所采用的统一时间称为“夏令时间”。一般在天亮早的夏季人为将时间提前一小时，可以使人早起早睡，减少照明量，以充分利用光照资源，从而节约照明用电。使用夏令时和冬令时即在夏季将时间拨快一个小时，等到冬季再将时间拨慢一个小时。</p>
+<h2 id="时间的表示"><a href="#时间的表示" class="headerlink" title="时间的表示"></a>时间的表示</h2><h3 id="NTP-Time"><a href="#NTP-Time" class="headerlink" title="NTP Time"></a>NTP Time</h3><p><code>NTP Time</code>，是以Network Time Protocol协议为基础的时间表示，也可以称为<code>NTP Timestamp</code>或<code>WallClock Time</code>。其值为从<strong>1900-01-01 00:00:00 UTC</strong>开始所经过的秒数。</p>
+<p>NTP使用64比特的时间戳，其中32位表示秒，32位表示秒的小数，给出一个每2^32秒（136年）才会翻转的时间尺度，理论分辨率2^−32秒（233皮秒）。NTP以1900年1月1日作为开始时间，因此第一次翻转将在2036年2月7日发生。</p>
+<h3 id="Epoch-Time"><a href="#Epoch-Time" class="headerlink" title="Epoch Time"></a>Epoch Time</h3><p><code>Epoch Time</code>，新纪元时间，其中，<code>Epoch</code>指的是一个特定的<code>UTC Time</code>：1970-01-01 00:00:00 UTC。</p>
+<p>Unix/Linux的时间系统（Unix Time/POSIX Time/Unix TimeStamp）就是从<code>Epoch</code>开始计算的——是从Epoch开始所经过的秒数，不考虑闰秒。</p>
+<p>32位的<code>Epoch Time</code>只能表示的时间领域为[1901~2038]，也就是当时间超过<strong>2038-01-18 22:14:07</strong>，时间会转为负数，负数意味着时间跑到1970年之前去了。</p>
+<p>64位的<code>Epoch Time</code>并不会遇到这个问题，所以当2038年来临，要么升级到64位系统，要么穿越到1970年之前吧。</p>
+<h3 id="WallClock-Time"><a href="#WallClock-Time" class="headerlink" title="WallClock Time"></a>WallClock Time</h3><p><code>WallClock Time</code>为绝对日期和时间，使用NTP时间戳格式来表示，其值为从<strong>1900-01-01 00:00:00 UTC</strong>开始所经过的秒数。</p>
+<p>NTP时间戳是64位无符号浮点数，其中高32位为整数部分，低32位为小数部分。与32位Epoch Time类似，NTP时间戳在2036年会变成零。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/foundation/time/"> https://www.freehacker.cn/foundation/time/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww2.sinaimg.cn/large/61b57e82gw1f5ydd0qj48j21hc0i240x.jpg)" href="/platform/virtual-ip/">
+			<section class="post">
+				<h3>区分物理IP和虚拟机IP</h1>
+				<p>从Windows平台下众多IP中找到需要的物理IP或虚拟机IP。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)" href="/foundation/effective-cplusplus-reading/">
+			<section class="post">
+				<h3>如何设计C++类——《Effective C++》读后感</h1>
+				<p>探讨如何设计高效的C++类，如何利用C++封装、继承、动态特性，实现高效、优雅、易于维护的代码。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/foundation/time/';
+        this.page.identifier = 'foundation/time/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

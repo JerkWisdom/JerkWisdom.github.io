@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>面向对象分析与设计-概念 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="面向对象分析与设计全书分为理论和应用两部分，深刻剖析了面向对象分析与设计的概念和方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面向对象分析与设计-概念">
+<meta property="og:url" content="https://www.freehacker.cn/reading/ooad/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="面向对象分析与设计全书分为理论和应用两部分，深刻剖析了面向对象分析与设计的概念和方法。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-10-27T04:47:05.373Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.373Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="OOP">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://wx3.sinaimg.cn/large/61b57e82gy1fpclodaaxoj21hc0gon6r.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">面向对象分析与设计-概念</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/OOP/'>OOP</a>
+    
+    
+    At
+    <time class="post-date" datetime="2020-10-27T04:47:05.373Z" >
+          2020-10-27
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>“Success isn’t about how your life looks to others. It’s about how it feels to you.”</p>
+</blockquote>
+<p>面向对象分析与设计全书分为理论和应用两部分，深刻剖析了面向对象分析与设计的概念和方法。<a id="more"></a></p>
+<h2 id="复杂性"><a href="#复杂性" class="headerlink" title="复杂性"></a>复杂性</h2><blockquote>
+<p>软件的复杂性是一个基本特征，而不是偶然如此。——Brooks</p>
+</blockquote>
+<p>如上所述，软件的复杂性是其固有的属性。这种固有的复杂性有4个原因：</p>
+<ul>
+<li>问题域的复杂性</li>
+<li>管理开发过程的困难性</li>
+<li>软件中随处可能出现的灵活性</li>
+<li>刻画离散系统行为的问题</li>
+</ul>
+<p>正因为这种复杂性的本质，所有复杂系统都存在5个共同的属性：</p>
+<ul>
+<li>层次结构</li>
+</ul>
+<blockquote>
+<p>复杂性常常以层次结构的形式存在。复杂的系统由一些相关的子系统组成。这些子系统又有自己的系统，如此下去，直到达到某种最低层次的基本组件。</p>
+</blockquote>
+<ul>
+<li>相对本原</li>
+<li>分离关注</li>
+<li>共同模式</li>
+<li>稳定的中间形式</li>
+</ul>
+<p>软件开发面临的困境是：要开发的软件系统的复杂性在增加，而我们处理复杂性的能力却有局限。怎样才能解决这个困境？</p>
+<ul>
+<li>分解</li>
+<li>抽象</li>
+<li>层次结构</li>
+</ul>
+<h2 id="对象模型"><a href="#对象模型" class="headerlink" title="对象模型"></a>对象模型</h2><p>对象模型主要是为了解决大规模编程的遇到的问题。使用对象模型能够帮助我们探索基于对象和面向对象编程语言的表达能力。利用对象模式不仅鼓励软件的复用，而且鼓励整个设计的复用，这导致了可复用应用框架的产生。使用对象模型将得到构建在稳定的中间状态之上的系统，这样的系统更适合变化。</p>
+<h3 id="OOP、OOD、OOA"><a href="#OOP、OOD、OOA" class="headerlink" title="OOP、OOD、OOA"></a>OOP、OOD、OOA</h3><p><strong>究竟什么是面向对象编程（OOP）？</strong></p>
+<blockquote>
+<p>面向对象编程是一种实现的方法，在这种方法中，程序被组织成许多组相互协作的对象，每个对象代表某个类的一个实例，而类则属于一个通过继承关系形成的层次结构。</p>
+</blockquote>
+<p>该定义的要点在于三点，一个程序如果不满足这三点，就不是面向对象编程：</p>
+<ul>
+<li>利用对象作为基本逻辑构建块</li>
+<li>每个对象都是某个类的一个实例</li>
+<li>类与类之间可以通过继承关系联系在一起</li>
+</ul>
+<p><strong>究竟什么是面向对象设计（OOD）？</strong></p>
+<blockquote>
+<p>面向对象设计是一种设计方法，包括面向对象分解的过程和一种表示法，这种表示法用于展示被设计系统的逻辑模型和物理模型、静态模型和动态模型。</p>
+</blockquote>
+<p>对面向对象分解的支持是面向对象设计与结构化设计的不同之处：前者利用类和对象抽象来构建逻辑系统结构，后者则利用算法抽象。</p>
+<p><strong>究竟什么是面向对象分析（OOA）？</strong></p>
+<blockquote>
+<p>面向对象分析是一种分析方法，这种方法利用从问题域的词汇表中找到的类和对象来分析需求。</p>
+</blockquote>
+<p>面向对象分析的重点在于构建真实世界的模型，利用面向对象的观点来看世界。</p>
+<p><strong>OOA、OOD、OOP三者关系如何？</strong></p>
+<p>面向对象分析的结构可以作为开始面向对象设计的模型，面对对象设计的结果可以作为蓝图，利用面向对象编程方法最终实现一个系统。</p>
+<h3 id="对象模型要素"><a href="#对象模型要素" class="headerlink" title="对象模型要素"></a>对象模型要素</h3><p>每一种编程风格都是基于它自己的概念框架。对于所有面向对象的东西，概念框架就是对象模型。这个模型有四个主要要素：</p>
+<ul>
+<li>抽象</li>
+</ul>
+<blockquote>
+<p>抽象描述了一个对象的基本特征，可以将这个对象与所有其他类型的对象区分开来，因此提供了清晰定义的概念边界，它与观察者的视角有关。</p>
+<p>对于给定的问题域决定一组正确的抽象，就是面向对象设计的核心问题。</p>
+</blockquote>
+<ul>
+<li>封装</li>
+</ul>
+<blockquote>
+<p>封装是一个过程，它分隔构成抽象的结构和行为的元素。封装的作用是分离抽象的概念结构及其实现。</p>
+<p>抽象关注对象的可以观察到的行为，而封装关注这种行为的实现。</p>
+</blockquote>
+<ul>
+<li>模块化</li>
+</ul>
+<blockquote>
+<p>模块化是一个系统的属性，这个系统被分解为一组高内聚（将逻辑上相关的抽象放在一起）、低耦合（减少模块间的依赖关系）的模块。</p>
+<p>抽象、封装、模块化的原则是相辅相成的。一个对象围绕单一的抽象提供一个明确的边界，封装和模块化都围绕这个抽象提供了屏障。</p>
+</blockquote>
+<ul>
+<li>层次结构</li>
+</ul>
+<blockquote>
+<p>层次结构是抽象的一种分级或排序。在复杂系统中，最重要的层次结果是它的类结构（“是一种”层次结构——继承/派生）和对象结构（“组成部分”层次结构——聚合/组合）。</p>
+</blockquote>
+<p>所谓“主要”，指的是如果一个模型不具备这些元素之一，就不是面向对象的。</p>
+<p>对象模型有三个次要要素：</p>
+<ul>
+<li>类型</li>
+</ul>
+<blockquote>
+<p>类型是关于一个对象的类的强制规定，这样一来，不同类型的对象不能够互换使用，或者至少它们的互换使用受到非常严格的限制。</p>
+</blockquote>
+<ul>
+<li>并发</li>
+</ul>
+<blockquote>
+<p>并发时一种属性，它区分主动对象和非主动对象。主动对象可以代表一个独立的控制线程。我们可以将世界概念化为一组协作的对象，其中某些是主动的，因此作为独立活动的中心。</p>
+</blockquote>
+<ul>
+<li>持久</li>
+</ul>
+<blockquote>
+<p>持久是对象的一种属性，利用这种属性，对象跨越时间（例如，当对象的创建不存在了的时候，对象仍然存在）和空间（例如，对象的位置从它被创建的地址空间移开）而存在。</p>
+</blockquote>
+<p>所谓“次要”，指的是这些要素是对象模型的有用组成部分，但不是本质的。</p>
+<h2 id="类与对象"><a href="#类与对象" class="headerlink" title="类与对象"></a>类与对象</h2><h3 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h3><p>对象的定义：</p>
+<blockquote>
+<p>一个对象是一个具有状态、行为和标识符的实体。结构和行为类似的对象定义在他们共同的类中。“实例”和“对象”这两个术语可以互换使用。</p>
+</blockquote>
+<p>对象的状态：</p>
+<blockquote>
+<p>对象的状态包括这个对象的所有属性（通常是静态的）以及每个属性当前的值（通常是动态的）。</p>
+<p>一个属性是一种内在或独特的特征、特点、品质或特性，使一个对象区别于别的对象。</p>
+</blockquote>
+<p>对象的行为：</p>
+<blockquote>
+<p>行为是对象在状态改变和消息传递方面的动作和反应的方式。对象的行为代表了它外部可见的活动。</p>
+<p>对象的状态影响对象行为的结果，对象的行为改变了对象的状态，一个对象的状态代表了它的行为的积累效果。</p>
+<p>一个对象的行为包含了其操作的综合。常见的操作如下：</p>
+<ul>
+<li>修改操作</li>
+<li>选择操作</li>
+<li>遍历操作</li>
+<li>构造操作</li>
+<li>析构操作</li>
+</ul>
+</blockquote>
+<p>对象的标识符：</p>
+<blockquote>
+<p>标识符是一个对象的属性，它区分这个对象与其他所有对象。</p>
+</blockquote>
+<p>对象之间的关系</p>
+<blockquote>
+<p>链接代表了具体的关联，通过这种关联，一个对象（客户）请求另一个对象（服务提供者）的服务，或者通过这种关联从一个对象导航到另一个对象。</p>
+<p>聚合表明一种整体/部分层次关系，提供了从整体导航到它的部分的能力。</p>
+</blockquote>
+<h3 id="类的本质"><a href="#类的本质" class="headerlink" title="类的本质"></a>类的本质</h3><p>类的定义：</p>
+<blockquote>
+<p>类是一组对象，它们拥有共同的结构、共同的行为和共同的语义。一个对象就是类的一个实例。类起到的作用是在一种抽象和所有它的客户之间建立起协议。通过在类的接口中记录下这些决定，一种强类型的编程语言可以在编译时检查是否违反了这一协议。</p>
+</blockquote>
+<p>类之间的关系：</p>
+<blockquote>
+<p>类之间存在三种基本关系：一般/特殊关系（是“一种”关系，玫瑰是一种花）、整体/部分关系（是”组成部分“关系，花瓣是花的部分）、关联（语义上的依赖关系，瓢虫和花之间的关系）。</p>
+</blockquote>
+<ul>
+<li>继承：一个类实现一个接口或一个类泛化另一个类。是一种<em>is a</em>语意。</li>
+<li>组成：一个类和另一个类是关联的，两个类之间是整体和部分的关系，是一种<em>has a</em>语意。表现为：持有对方的指针，并占有对方的所有权。</li>
+<li>聚合：一个类和另一个类是关联的，两个类之间是整体和局部的关系，是一种<em>has a</em>语意。表现为：持有对方的指针或引用，但不占用对方的所有权。</li>
+<li>关联：一个类和另一个类有关联，两个类之间是平等的关系，是一种<em>has a</em>语意。表现为：持有对方的指针或引用，但不占有对方的所有权。</li>
+<li>依赖：一个类依赖于另一个类的定义，是一种<em>use a</em>语意。表现为：局部变量、方法参数、静态方法调用等。</li>
+</ul>
+<h3 id="类与对象的互动"><a href="#类与对象的互动" class="headerlink" title="类与对象的互动"></a>类与对象的互动</h3><p>在分析阶段和设计的早期阶段，开发者主要有两项任务：</p>
+<ul>
+<li>从问题域的词汇表中确定出类</li>
+<li>创建一些结构，让多组对象一起工作，提供满足问题需求的行为。</li>
+</ul>
+<p>这些类和对象统称为问题的”关键抽象“，把这些协作结构称为实现的”机制“。开发者必须关注这些关键抽象和机制的外部视图——代表系统的逻辑框架，包含了系统的类结构和对象结构。</p>
+<h3 id="创造高品质的类与对象"><a href="#创造高品质的类与对象" class="headerlink" title="创造高品质的类与对象"></a>创造高品质的类与对象</h3><p>如何评判一种抽象的品质：</p>
+<ul>
+<li>耦合</li>
+</ul>
+<blockquote>
+<p>一个模块与另一个模块之间建立起的关联强度的测量。继承引入了严重的耦合。</p>
+<p>创建松散耦合的类——Demeter法则：类的方法不应该以任何方式依赖于任何类的结构，除了他自己类的当前结构之外，而且每个方法只能够对一个非常有限的类集的对象发出消息。</p>
+</blockquote>
+<ul>
+<li>内聚</li>
+</ul>
+<blockquote>
+<p>内聚测量了单个模块内各个元素的联系程度。尽量减少偶然性内聚，使用功能性内聚——一个类或模式的各元素一同工作，提供某种清晰界定的行为。</p>
+</blockquote>
+<ul>
+<li>充分性</li>
+</ul>
+<blockquote>
+<p>充分指的是类或模块应该记录某个抽象足够多的特征，从而允许有意义的、有效的交互。充分意味着最小接口——缺少某个接口该抽象的意义将不存在。</p>
+</blockquote>
+<ul>
+<li>完整性</li>
+</ul>
+<blockquote>
+<p>完整值得是类或模块的接口记录了某个抽象全部有意义的特征。一个完整的接口以为这该接口包含了某个抽象的所有方向。</p>
+</blockquote>
+<ul>
+<li>基础性</li>
+</ul>
+<blockquote>
+<p>基础性操作就是只有访问该抽象的底层表现形式才能够有效地实现的那些操作。譬如对于一个集合的Add操作必须知道该集合的底层表现形式。而Add四个元素并不是基础性操作。</p>
+</blockquote>
+<p>上面这些选项都是创建类时需要考虑的。对于类的操作，是选择太多的函数还是较少的函数；对于类之间的关系，是采用继承、聚合，还是依赖；对于类之间的交互，如何确定对象之间的可见性——这些都需要进行折中权衡考虑。</p>
+<h2 id="面向对象分析"><a href="#面向对象分析" class="headerlink" title="面向对象分析"></a>面向对象分析</h2><ul>
+<li>经典方法</li>
+</ul>
+<blockquote>
+<p>根据问题域来源来区分</p>
+</blockquote>
+<ul>
+<li>行为分析</li>
+</ul>
+<blockquote>
+<p>将对象的行为作为类和对象的主要来源</p>
+</blockquote>
+<ul>
+<li>领域分析</li>
+</ul>
+<blockquote>
+<p>将领域分析定义为“确定对象、操作和关系的尝试，领域专家认为这些对象、操作和关系对这个领域很重要”。领域分析的步骤如下：</p>
+<ul>
+<li>咨询领域专家，构建一个通用的模型草稿</li>
+<li>检查领域中原有的系统，以一种通用的格式展示出这方面的理解</li>
+<li>咨询领域专家，确定系统间的相似与差异</li>
+<li>精化通用模型，以包含原有的系统。</li>
+</ul>
+<p>清楚设计问题要做的就是让一名领域专家和一名架构师或开发者进行简短的会晤。——领域专家通常不会是一名开发者，其通常是某个领域的用户。</p>
+</blockquote>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/reading/ooad/"> https://www.freehacker.cn/reading/ooad/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(https://wx3.sinaimg.cn/large/61b57e82ly1g1vmw909c0j21gs0i3jwn.jpg)" href="/timecapsule/the-road-to-entrepreneurship/">
+			<section class="post">
+				<h3>过去与未来：创业之路</h1>
+				<p>创业至今三年，仍在创业路上，持续思考，把握未来。</p>
+			</section>
+		</a>
+	
+
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/reading/ooad/';
+        this.page.identifier = 'reading/ooad/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>多线程同步问题 - 条件变量和Event | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="线程同步相关踩坑记录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程同步问题 - 条件变量和Event">
+<meta property="og:url" content="https://www.freehacker.cn/foundation/cpp-thread-sync-event-condition_varaiable/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="线程同步相关踩坑记录。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-05-25T13:04:12.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.356Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="CPlusPlus">
+<meta property="article:tag" content="Thread">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f2ro2bxcqjj21gs0i2wlw.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">多线程同步问题 - 条件变量和Event</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/CPlusPlus/'>CPlusPlus</a> /
+    
+    <a href='/tags/Thread/'>Thread</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-05-25T13:04:12.000Z" >
+          2017-05-25
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>网络是二十一世纪的图标。</p>
+</blockquote>
+<p>本文记录Poco::Condition使用过程中遇到的坑点，并且延伸到Windows Event和C++11中的std::condition_variable相关内容。<a id="more"></a></p>
+<h2 id="Poco-Condition实现"><a href="#Poco-Condition实现" class="headerlink" title="Poco::Condition实现"></a>Poco::Condition实现</h2><p>首先让我们看看Poco::Condition中的wait/signal两个操作的代码实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Mtx</span>&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">wait</span><span class="params">(Mtx&amp; mutex)</span> </span>&#123;</span><br><span class="line">    <span class="function">ScopedUnlock&lt;Mtx&gt; <span class="title">unlock</span><span class="params">(mutex, <span class="literal">false</span>)</span></span>;</span><br><span class="line">    Event event;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">FastMutex::ScopedLock <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line">        mutex.unlock();</span><br><span class="line">        enqueue(event);</span><br><span class="line">    &#125;</span><br><span class="line">    event.wait();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Condition::signal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="function">FastMutex::ScopedLock <span class="title">lock</span><span class="params">(mutex_)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!waitQueue_.empty())</span><br><span class="line">    &#123;</span><br><span class="line">        waitQueue_.front()-&gt;<span class="built_in">set</span>();</span><br><span class="line">        dequeue();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，Poco::Condition底层是基于Poco::Event来实现的，wait操作将Poco::Event对象加入到队列中，并等待其相应置位，signal操作从队列中pop出Poco::Event并置位，wait操作和signal操作通过FastMutex对象来保证对队列的互斥操作。</p>
+<h2 id="问题再现"><a href="#问题再现" class="headerlink" title="问题再现"></a>问题再现</h2><p>在程序中使用了Poco的Condition类，代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Poco::Condition cond;</span><br><span class="line">Poco::Mutex mtx;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">wait</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    mtx.lock();</span><br><span class="line">    cond.wait(mtx);</span><br><span class="line">    mtx.unlock();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">signal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    cond.signal();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::thread([]()&#123;</span><br><span class="line">        dosomething();</span><br><span class="line">        signal();</span><br><span class="line">    &#125;);</span><br><span class="line">    wait();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于多线程执行顺序的不可预期性，上面的代码存在一定的概率会导致cond.signal操作调用之后，cond.wait才开始执行，导致cond.wait函数一直block。</p>
+<h2 id="修改代码"><a href="#修改代码" class="headerlink" title="修改代码"></a>修改代码</h2><p>我们按照linux下的条件变量的调用方法，将上述代码做一定的修改：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Poco::Condition cond;</span><br><span class="line">Poco::Mutex mtx;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span></span>&#123;</span><br><span class="line">    mtx.lock();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">wait</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    cond.wait(mtx);</span><br><span class="line">    mtx.unlock();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">signal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    mtx.lock();</span><br><span class="line">    cond.signal();</span><br><span class="line">    mtx.unlock();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    lock();</span><br><span class="line">    <span class="built_in">std</span>::thread([]()&#123;</span><br><span class="line">        dosomething();</span><br><span class="line">        signal();</span><br><span class="line">    &#125;);</span><br><span class="line">    wait();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>要使wait函数能够成功返回的最重要的一点是：要保证先执行wait函数，然后再执行signal函数。这个保证能够确保在cond.signal操作执行时，Poco::Condition的等待队列中一定会存在一个Poco::Event对象。只有队列中存在Poco::Event对象，cond.signal中的置位操作才会执行。</p>
+<p>由于多线程执行顺序的不确定性，具体的函数执行顺序可能如下：</p>
+<blockquote>
+<p>wait函数中<code>enqueue(event)</code>执行完毕 → 切换时间片 → signal函数中<code>waitQueue_.front()-&gt;set()</code>执行完毕 → wait函数中<code>event.wait()</code>开始执行。</p>
+</blockquote>
+<p>这个时候面临另外一个问题：在Poco::Event对象置位时，该对象可能并没有处于wait状态，那么此时，会不会遗漏该置位请求，导致cond.wait操作卡死？由于Poco::Event在Windows下的实现就是基于Event，所以翻译过来就是：如果Event对象调用<code>setEvent</code>或<code>PulseEvent</code>时，此时并没有线程<code>WaitForSingleObject</code>等待该Event置位，这个<code>setEvent</code>或<code>PulseEvent</code>请求会不会遗失掉？事实是不会的，在Event对象被置位后，调用<code>WaitForSingleObject</code>函数时会立即返回的。</p>
+<h2 id="Event的置位请求有没有可能丢失？"><a href="#Event的置位请求有没有可能丢失？" class="headerlink" title="Event的置位请求有没有可能丢失？"></a>Event的置位请求有没有可能丢失？</h2><p>在《Win32多线程编程》一书中有说到：</p>
+<blockquote>
+<p>要求苏醒的请求并不会被存储起来，可能会遗失掉。如果一个AutoReset event对象调用SetEvent或PulseEvent，而此时并没有线程在等待，这个event会被遗失。如Wait…()函数还没来得及调用就发生了Context Switch，这个时候SetEvent，这个要求苏醒的请求会被遗失，然后调用Wait…()函数线程卡死。</p>
+</blockquote>
+<p>我一直以为事实就是如此，不过代码证明结果并不是这样的，看看下面代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Windows.h&gt;</span></span></span><br><span class="line">HANDLE ghWriteEvent;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ghWriteEvent = CreateEvent(<span class="literal">NULL</span>, TRUE, FALSE, TEXT(<span class="string">&quot;WriteEvent&quot;</span>));</span><br><span class="line">    SetEvent(ghWriteEvent);</span><br><span class="line">    DWORD dwWaitResult = WaitForSingleObject(ghWriteEvent, INFINITE);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码并不会卡死在WaitForSingleObject函数，该函数会立即返回。因此采用上文中修改后的代码能够解决Poco::Condition存在的问题，虽然不如直接使用Poco::Event优雅。</p>
+<h2 id="std-condition-variable的notify请求有没有可能丢失？"><a href="#std-condition-variable的notify请求有没有可能丢失？" class="headerlink" title="std::condition_variable的notify请求有没有可能丢失？"></a>std::condition_variable的notify请求有没有可能丢失？</h2><p>我们现在可以确定Event的置位请求不会丢失，那么std::condition_variable的notify请求会不会丢失呢？我们来看一段简单的代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::condition_variable cv;</span><br><span class="line"><span class="built_in">std</span>::mutex mtx;</span><br><span class="line">cv.notify_one();</span><br><span class="line"><span class="built_in">std</span>::unique_lock &lt;<span class="built_in">std</span>::mutex&gt; lck(mtx);</span><br><span class="line">cv.wait(lck);</span><br></pre></td></tr></table></figure>
+
+<p>执行这段代码会发现，cv.wait操作会block。目前还没有深入了解condition_variable的底层实现，具体原因未知。不过可以找到不少方案保证cv.notify_one操作执行之前，cv.wait操作一定已经执行。譬如增加标志位，标志notify_one操作是否已经执行。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::mutex mtx;</span><br><span class="line"><span class="built_in">std</span>::condition_variable cv;</span><br><span class="line"><span class="keyword">bool</span> ready = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">do_print_id</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::unique_lock &lt;<span class="built_in">std</span>::mutex&gt; lck(mtx);</span><br><span class="line">    <span class="keyword">while</span> (!ready) cv.wait(lck);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;thread &quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">go</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::unique_lock &lt;<span class="built_in">std</span>::mutex&gt; lck(mtx);</span><br><span class="line">    ready = <span class="literal">true</span>;</span><br><span class="line">    cv.notify_all();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::thread threads[<span class="number">10</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; ++i) threads[i] = <span class="built_in">std</span>::thread(do_print_id, i);</span><br><span class="line">    go();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp; th : threads) th.join();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>《C++并发编程》一书中给出了另外一个例子，使用std::condition_variable的wait操作的第二个版本来解决该问题：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::mutex mut;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">queue</span>&lt;data_chunk&gt; data_queue;  </span><br><span class="line"><span class="built_in">std</span>::condition_variable data_cond;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">data_preparation_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(more_data_to_prepare())</span><br><span class="line">    &#123;</span><br><span class="line">        data_chunk <span class="keyword">const</span> data=prepare_data();</span><br><span class="line">        <span class="function"><span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; <span class="title">lk</span><span class="params">(mut)</span></span>;</span><br><span class="line">        data_queue.push(data);  </span><br><span class="line">        data_cond.notify_one();  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">data_processing_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; <span class="title">lk</span><span class="params">(mut)</span></span>;</span><br><span class="line">        data_cond.wait(</span><br><span class="line">            lk,[]&#123;<span class="keyword">return</span> !data_queue.empty();&#125;);  </span><br><span class="line">        data_chunk data=data_queue.front();</span><br><span class="line">        data_queue.pop();</span><br><span class="line">        lk.unlock();</span><br><span class="line">        process(data);</span><br><span class="line">        <span class="keyword">if</span>(is_last_chunk(data))</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，wait()会去检查这些条件(通过调用所提供的lambda函数)，当条件满足(lambda函数返回true)时返回。如果条件不满足(lambda函数返回false)，wait()函数将解锁互斥量，并且将这个线程(上段提到的处理数据的线程)置于阻塞或等待状态。当准备数据的线程调用notify_one()通知条件变量时，处理数据的线程从睡眠状态中苏醒，重新获取互斥锁，并且对条件再次检查，在条件满足的情况下，从wait()返回并继续持有锁。当条件不满足时，线程将对互斥量解锁，并且重新开始等待。</p>
+<p>必须通过额外的辅助条件才能很好地利用条件变量。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于Poco库的使用还是存在不少坑点，只有踩坑之后才能更好的掌握。同时，对于过去掌握的知识点，一定不能轻信，书本的内容也可能存在错误，有机会自己写点demo，验证所学习的内容。</p>
+<p>Event和std::condition_variable对于置位/notify请求的处理是不一样的。这在平时使用的时候需要注意。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/foundation/cpp-thread-sync-event-condition_varaiable/"> https://www.freehacker.cn/foundation/cpp-thread-sync-event-condition_varaiable/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://wx3.sinaimg.cn/large/61b57e82gy1ffwn7rwuzyj21hc0imads.jpg)" href="/timecapsule/concept/">
+			<section class="post">
+				<h3>概念</h1>
+				<p>追求最清晰明了的思维模式。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://wx1.sinaimg.cn/large/61b57e82gy1fd9wp28v5ij20zk0c2q5f.jpg)" href="/pragmatic/dry/">
+			<section class="post">
+				<h3>如何在团队中避免重复</h1>
+				<p>总结软件团队中如何避免重复。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/foundation/cpp-thread-sync-event-condition_varaiable/';
+        this.page.identifier = 'foundation/cpp-thread-sync-event-condition_varaiable/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>

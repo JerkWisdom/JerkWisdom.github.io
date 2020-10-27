@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>字符编码Unicode、UTF-8和ANSI | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="之前一直对Unicode、ANSI、ASCII、UTF-8的概念混淆不清，今天特地查询资料整理下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字符编码Unicode、UTF-8和ANSI">
+<meta property="og:url" content="https://www.freehacker.cn/platform/unicode-ansi-utf8-difference/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="之前一直对Unicode、ANSI、ASCII、UTF-8的概念混淆不清，今天特地查询资料整理下。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-06-14T03:12:55.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.369Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Platform">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f5yx2tnicqj20ef054jsi.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">字符编码Unicode、UTF-8和ANSI</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Platform/'>Platform</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-06-14T03:12:55.000Z" >
+          2016-06-14
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>ANSI、UTF-8、Unicode为字符代码的三种编码格式，一个字符可以被编码成ANSI、UTF-8或Unicode格式，这三种格式只是表现形式不一样，其表示内容是一样的。<a id="more"></a></p>
+</blockquote>
+<h2 id="ANSI、UTF-8、Unicode"><a href="#ANSI、UTF-8、Unicode" class="headerlink" title="ANSI、UTF-8、Unicode"></a>ANSI、UTF-8、Unicode</h2><p>ANSI、UTF-8、Unicode为字符代码的三种编码格式，一个字符可以被编码成ANSI、UT-F8或Unicode格式，这三种格式只是表现形式不一样，其表示内容是一样的。如下表：</p>
+<table>
+<thead>
+<tr>
+<th align="center">char</th>
+<th align="center">ANSI(GBK)</th>
+<th align="center">Unicode</th>
+<th align="center">UTF-8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">中</td>
+<td align="center">0xD6D0</td>
+<td align="center">0x4E2D</td>
+<td align="center">0xE4B8AD</td>
+</tr>
+</tbody></table>
+<h3 id="ANSI编码"><a href="#ANSI编码" class="headerlink" title="ANSI编码"></a>ANSI编码</h3><blockquote>
+<p>ANSI表示英文字符时用一个字节，表示中文用两个字节</p>
+</blockquote>
+<p>为了使计算机支持多种语言，不同的国家和地区制定了不同的标准，由此产生了 GB2312, BIG5, JIS 等各自的编码标准。这些使用 2 个字节来代表一个字符的各种汉字延伸编码方式，称为 ANSI 编码。在简体中文系统下，ANSI 编码代表 GB2312 编码，在日文操作系统下，ANSI 编码代表 JIS 编码。</p>
+<p>对于ANSI编码而言，<code>0x00~0x7F</code>之间的字符，依旧是1个字节代表一个字符(<strong>ASCII编码</strong>)，而这之外的字符通常是使用<code>0x80~0xFF</code>范围内的两个字节来表示一个字符。比如汉字找那个的’中’在简体中文中使用<code>[0xD6, 0xD0]</code>这两个字节存储。</p>
+<p>下表中展示了<strong>文</strong>在不同ANSI标准下的编码：</p>
+<table>
+<thead>
+<tr>
+<th align="center">char</th>
+<th align="center">ANSI(GBK)</th>
+<th align="center">ANSI(Big5)</th>
+<th align="center">ANSI(JIS)</th>
+<th align="center">Unicode</th>
+<th align="center">UTF-8</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">文</td>
+<td align="center">0xCEC4</td>
+<td align="center">0xA4E5</td>
+<td align="center">0x95B6</td>
+<td align="center">0x6587</td>
+<td align="center">0xE69687</td>
+</tr>
+</tbody></table>
+<p>可以看出，不同ANSI编码之间互不兼容，当信息在国际间交流时，无法将属于两种语言的文字，存储在同一段 ANSI 编码的文本中。<strong>需要将不同的ANSI编码都转换成UTF-8编码，进而存储</strong>。</p>
+<h3 id="Unicode编码"><a href="#Unicode编码" class="headerlink" title="Unicode编码"></a>Unicode编码</h3><p>Unicode字符集编码全称：Universal Multiple-Octet Coded Character Set，通用多八位编码字符集。Unicode字符集是国际组织制定的可以容纳世界上所有文字和符号的编码方案。</p>
+<p>Unicode编码使用两个字节（<code>0x0000－0xFFFF</code>）来表示一个字符，世界上任何文字和符号都对应于Unicode字符集中的一个二进制代码，但是：</p>
+<blockquote>
+<p>Unicode只是一个符号集, 它只规定了符号的二进制代码, 却没有规定这个二进制代码应该如何存储。</p>
+</blockquote>
+<p>Unicode编码的优点是覆盖了世界上所有的文字和符号，缺陷则是对于英文字符浪费了一个字节。例如：英文A在unicode中表示为0x0041。</p>
+<h3 id="UTF-8编码"><a href="#UTF-8编码" class="headerlink" title="UTF-8编码"></a>UTF-8编码</h3><blockquote>
+<p>UTF-8是Unicode的实现方式之一。</p>
+</blockquote>
+<p>UTF-8全称：8bit Unicode Transformation Format，8比特Unicode通用转换格式。UTF-8是一种针对Unicode的可变长度字符编码。可以表示Unicode标准中的任何一个字符，且其编码中的第一个字节仍然与ASCII兼容。</p>
+<p>UTF-8是一种变长的编码方式，可以使用1~6个字节对Unicode字符集进行编码，编码规则如下：</p>
+<ol>
+<li><p>对于单字节的符号, 字节的第一位设为0, 后面7位为这个符号的unicode码. 因此对于<br>英语字母, UTF-8编码和ASCII码是相同的.</p>
+</li>
+<li><p>对于n字节的符号(n&gt;1), 第一个字节的前n位都设为1, 第n+1位设为0, 后面字节的前<br>两位一律设为10. 剩下的没有提及的二进制位, 全部为这个符号的unicode码.</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th>Unicode符号范围</th>
+<th align="right">UTF-8编码方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>0000 0000 - 0000 007F</td>
+<td align="right">0xxxxxxx</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0000 0080 - 0000 07FF</td>
+<td align="right">110xxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0000 0800 - 0000 FFFF</td>
+<td align="right">1110xxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0001 0000 - 0010 FFFF</td>
+<td align="right">11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0020 0000 - 03FF FFFF</td>
+<td align="right">111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td>6</td>
+<td>0400 0000 - 7FFF FFFF</td>
+<td align="right">1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+</tbody></table>
+<p>注：在UTF-8编码中，英文字符占一个字节，中文字符占用3个字节。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>1、中文操作系统默认ansi编码，生成的txt文件默认为ansi编码。</p>
+<p>2、国际文档（txt和xml）使用unicode编码是正宗做法；操作系统和浏览器都能够“理解”unicode编码。浏览器“迫于压力”才“理解”utf-8编码。但是，操作系统有时只认unicode编码。</p>
+<p>3、Windows记事本有四个编码选项：ANSI、Unicode、Unicode Big Endian和UTF-8。</p>
+<ul>
+<li>ANSI是默认的编码方式。对于英文文件是ASCII编码，对于简体中文文件是GB2312编码（只针对Windows简体中文版，如果是繁体中文版会采用Big5码）。</li>
+<li>Unicode编码指的是UCS-2编码方式，即直接用两个字节存入字符的Unicode码。这个选项用的little endian格式。</li>
+<li>Unicode big endian编码与上一个选项相对应。采用big endian格式。</li>
+<li>UTF-8指带BOM 的UTF-8。</li>
+</ul>
+<h2 id="ANSI、UTF-8、Unicode转换"><a href="#ANSI、UTF-8、Unicode转换" class="headerlink" title="ANSI、UTF-8、Unicode转换"></a>ANSI、UTF-8、Unicode转换</h2><h3 id="Windows-Unicode-and-Character-Sets"><a href="#Windows-Unicode-and-Character-Sets" class="headerlink" title="Windows Unicode and Character Sets"></a>Windows Unicode and Character Sets</h3><p>Unicode编码字符集是最通用的字符编码标准，Windows应用程序使用Unicode字符集的UTF-16实现版本。同时，Windows也支持传统的字符集：单字节字符集（Single-byte character sets, SBCS）和多字节字符集（Multibyte character sets）。</p>
+<p>很多Windows API函数拥有“A”和“W”版本，“A”版本基于Windows Code Page，而“W”版本则基于Unicode字符。应用程序可以通过<strong>WideCharToMultiByte</strong>和<strong>MultiByteToWideChar</strong>两个函数来转换Unicode字符串和基于Windows Code Page字符串。虽然函数名中含有“MultiByte”，这些函数实际上能处理SBCS、DBCS和multibyte character set Code page。</p>
+<h3 id="编码转换"><a href="#编码转换" class="headerlink" title="编码转换"></a>编码转换</h3><p>在Windows平台下，ANSI、UTF-8、Unicode三者之间的转换主要依赖于<strong>WideCharToMultiByte</strong>和<strong>MultiByteToWideChar</strong>两个函数。</p>
+<ul>
+<li>Unicode转UFT-8：设置<code>WideCharToMultiByte</code>的CodePage参数为CP_UTF8；</li>
+<li>UTF-8转Unicode：设置<code>MultiByteToWideChar</code>的CodePage参数为CP_UTF8</li>
+<li>Unicode转ANSI：设置<code>WideCharToMultiByte</code>的CodePage参数为CP_ACP；</li>
+<li>ANSI转Unicode：设置<code>MultiByteToWideChar</code>的CodePage参数为CP_ACP；</li>
+<li>UTF-8转ANSI：先将UTF-8转换为Unicode，再将Unicode转换成ANSI；</li>
+<li>ANSI转UTF-8：先将ANSI转换为Unciode，再将Unicode转换成ANSI。</li>
+</ul>
+<h2 id="注"><a href="#注" class="headerlink" title="注"></a>注</h2><p>本文内容应该存在错误或者是以偏概全的问题，后续会继续深入了解。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/platform/unicode-ansi-utf8-difference/"> https://www.freehacker.cn/platform/unicode-ansi-utf8-difference/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww2.sinaimg.cn/large/61b57e82gw1f5ywyw4s7jj21he0hzgmw.jpg)" href="/hacks/libcurl-curl_easy_perform-blocking-problem/">
+			<section class="post">
+				<h3>libcurl中curl_easy_perform卡死问题</h1>
+				<p>Libcurl为一个免费开源的，客户端url传输库，本文主要分析使用过程中遇到的卡死问题</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f5yx95mdzmj20rs09f0tt.jpg)" href="/platform/dos-current-path/">
+			<section class="post">
+				<h3>批处理中%cd%与%~dp0的区别</h1>
+				<p>Windows下批处理遇到的一个坑点，记录下来。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/platform/unicode-ansi-utf8-difference/';
+        this.page.identifier = 'platform/unicode-ansi-utf8-difference/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+</html>
