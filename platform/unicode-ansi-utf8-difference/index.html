@@ -112,48 +112,56 @@
 <p>ANSI、UTF-8、Unicode为字符代码的三种编码格式，一个字符可以被编码成ANSI、UTF-8或Unicode格式，这三种格式只是表现形式不一样，其表示内容是一样的。<a id="more"></a></p>
 </blockquote>
 <h2 id="ANSI、UTF-8、Unicode"><a href="#ANSI、UTF-8、Unicode" class="headerlink" title="ANSI、UTF-8、Unicode"></a>ANSI、UTF-8、Unicode</h2><p>ANSI、UTF-8、Unicode为字符代码的三种编码格式，一个字符可以被编码成ANSI、UT-F8或Unicode格式，这三种格式只是表现形式不一样，其表示内容是一样的。如下表：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">char</th>
-<th align="center">ANSI(GBK)</th>
-<th align="center">Unicode</th>
-<th align="center">UTF-8</th>
+<th style="text-align:center">char</th>
+<th style="text-align:center">ANSI(GBK)</th>
+<th style="text-align:center">Unicode</th>
+<th style="text-align:center">UTF-8</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">中</td>
-<td align="center">0xD6D0</td>
-<td align="center">0x4E2D</td>
-<td align="center">0xE4B8AD</td>
+<tbody>
+<tr>
+<td style="text-align:center">中</td>
+<td style="text-align:center">0xD6D0</td>
+<td style="text-align:center">0x4E2D</td>
+<td style="text-align:center">0xE4B8AD</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h3 id="ANSI编码"><a href="#ANSI编码" class="headerlink" title="ANSI编码"></a>ANSI编码</h3><blockquote>
 <p>ANSI表示英文字符时用一个字节，表示中文用两个字节</p>
 </blockquote>
 <p>为了使计算机支持多种语言，不同的国家和地区制定了不同的标准，由此产生了 GB2312, BIG5, JIS 等各自的编码标准。这些使用 2 个字节来代表一个字符的各种汉字延伸编码方式，称为 ANSI 编码。在简体中文系统下，ANSI 编码代表 GB2312 编码，在日文操作系统下，ANSI 编码代表 JIS 编码。</p>
 <p>对于ANSI编码而言，<code>0x00~0x7F</code>之间的字符，依旧是1个字节代表一个字符(<strong>ASCII编码</strong>)，而这之外的字符通常是使用<code>0x80~0xFF</code>范围内的两个字节来表示一个字符。比如汉字找那个的’中’在简体中文中使用<code>[0xD6, 0xD0]</code>这两个字节存储。</p>
 <p>下表中展示了<strong>文</strong>在不同ANSI标准下的编码：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">char</th>
-<th align="center">ANSI(GBK)</th>
-<th align="center">ANSI(Big5)</th>
-<th align="center">ANSI(JIS)</th>
-<th align="center">Unicode</th>
-<th align="center">UTF-8</th>
+<th style="text-align:center">char</th>
+<th style="text-align:center">ANSI(GBK)</th>
+<th style="text-align:center">ANSI(Big5)</th>
+<th style="text-align:center">ANSI(JIS)</th>
+<th style="text-align:center">Unicode</th>
+<th style="text-align:center">UTF-8</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">文</td>
-<td align="center">0xCEC4</td>
-<td align="center">0xA4E5</td>
-<td align="center">0x95B6</td>
-<td align="center">0x6587</td>
-<td align="center">0xE69687</td>
+<tbody>
+<tr>
+<td style="text-align:center">文</td>
+<td style="text-align:center">0xCEC4</td>
+<td style="text-align:center">0xA4E5</td>
+<td style="text-align:center">0x95B6</td>
+<td style="text-align:center">0x6587</td>
+<td style="text-align:center">0xE69687</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>可以看出，不同ANSI编码之间互不兼容，当信息在国际间交流时，无法将属于两种语言的文字，存储在同一段 ANSI 编码的文本中。<strong>需要将不同的ANSI编码都转换成UTF-8编码，进而存储</strong>。</p>
 <h3 id="Unicode编码"><a href="#Unicode编码" class="headerlink" title="Unicode编码"></a>Unicode编码</h3><p>Unicode字符集编码全称：Universal Multiple-Octet Coded Character Set，通用多八位编码字符集。Unicode字符集是国际组织制定的可以容纳世界上所有文字和符号的编码方案。</p>
 <p>Unicode编码使用两个字节（<code>0x0000－0xFFFF</code>）来表示一个字符，世界上任何文字和符号都对应于Unicode字符集中的一个二进制代码，但是：</p>
@@ -166,51 +174,51 @@
 </blockquote>
 <p>UTF-8全称：8bit Unicode Transformation Format，8比特Unicode通用转换格式。UTF-8是一种针对Unicode的可变长度字符编码。可以表示Unicode标准中的任何一个字符，且其编码中的第一个字节仍然与ASCII兼容。</p>
 <p>UTF-8是一种变长的编码方式，可以使用1~6个字节对Unicode字符集进行编码，编码规则如下：</p>
-<ol>
-<li><p>对于单字节的符号, 字节的第一位设为0, 后面7位为这个符号的unicode码. 因此对于<br>英语字母, UTF-8编码和ASCII码是相同的.</p>
-</li>
-<li><p>对于n字节的符号(n&gt;1), 第一个字节的前n位都设为1, 第n+1位设为0, 后面字节的前<br>两位一律设为10. 剩下的没有提及的二进制位, 全部为这个符号的unicode码.</p>
-</li>
-</ol>
+<p>1) 对于单字节的符号, 字节的第一位设为0, 后面7位为这个符号的unicode码. 因此对于<br>   英语字母, UTF-8编码和ASCII码是相同的.</p>
+<p>2) 对于n字节的符号(n&gt;1), 第一个字节的前n位都设为1, 第n+1位设为0, 后面字节的前<br>   两位一律设为10. 剩下的没有提及的二进制位, 全部为这个符号的unicode码.</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
 <th>n</th>
 <th>Unicode符号范围</th>
-<th align="right">UTF-8编码方式</th>
+<th style="text-align:right">UTF-8编码方式</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>0000 0000 - 0000 007F</td>
-<td align="right">0xxxxxxx</td>
+<td style="text-align:right">0xxxxxxx</td>
 </tr>
 <tr>
 <td>2</td>
 <td>0000 0080 - 0000 07FF</td>
-<td align="right">110xxxxx 10xxxxxx</td>
+<td style="text-align:right">110xxxxx 10xxxxxx</td>
 </tr>
 <tr>
 <td>3</td>
 <td>0000 0800 - 0000 FFFF</td>
-<td align="right">1110xxxx 10xxxxxx 10xxxxxx</td>
+<td style="text-align:right">1110xxxx 10xxxxxx 10xxxxxx</td>
 </tr>
 <tr>
 <td>4</td>
 <td>0001 0000 - 0010 FFFF</td>
-<td align="right">11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+<td style="text-align:right">11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
 </tr>
 <tr>
 <td>5</td>
 <td>0020 0000 - 03FF FFFF</td>
-<td align="right">111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+<td style="text-align:right">111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
 </tr>
 <tr>
 <td>6</td>
 <td>0400 0000 - 7FFF FFFF</td>
-<td align="right">1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+<td style="text-align:right">1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>注：在UTF-8编码中，英文字符占一个字节，中文字符占用3个字节。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>1、中文操作系统默认ansi编码，生成的txt文件默认为ansi编码。</p>
 <p>2、国际文档（txt和xml）使用unicode编码是正宗做法；操作系统和浏览器都能够“理解”unicode编码。浏览器“迫于压力”才“理解”utf-8编码。但是，操作系统有时只认unicode编码。</p>

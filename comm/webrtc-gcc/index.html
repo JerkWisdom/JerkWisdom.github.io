@@ -134,26 +134,21 @@
 <p>基于丢包的TCP协议无法满足实时流媒体应用的低时延需求。</p>
 </blockquote>
 <p>WebRTC里针对拥塞控制，采用了谷歌拥塞控制算法（Google Congestion Control，GCC），该算法包含两部分：发送端基于丢包的码率控制和接收端基于延迟的码率控制。这两种部分都是通过调节数据发送端码率来达到拥塞控制的目的。GCC算法架构如下：</p>
-<img src="../../assets/media/webrtc/webrtc-gcc.png" alt="GCC Architecture" width=700>
-
+<p><img src="../../assets/media/webrtc/webrtc-gcc.png" alt="GCC Architecture" width=700></p>
 <h2 id="发送端基于丢包的码率控制"><a href="#发送端基于丢包的码率控制" class="headerlink" title="发送端基于丢包的码率控制"></a>发送端基于丢包的码率控制</h2><p>发送端的码率控制是根据丢包率来计算预期的发送码率，丢包率的信息包含在接收到的RTCP报告报文中。计算公式如下，其中 ${f}<em>{l}({t}</em>{k})$ 表示 ${t}<em>{k}$ 时刻的丢包率，${A}</em>{s}({t}<em>{k})$ 表示 ${t}</em>{k}$ 时刻发送端的码率：</p>
-<img src="../../assets/media/webrtc/webrtc-loss-based-controller.png" alt="GCC Loss-based Controller" width=500>
-
+<p><img src="../../assets/media/webrtc/webrtc-loss-based-controller.png" alt="GCC Loss-based Controller" width=500></p>
 <h2 id="接收端基于延迟的码率控制"><a href="#接收端基于延迟的码率控制" class="headerlink" title="接收端基于延迟的码率控制"></a>接收端基于延迟的码率控制</h2><p>发送端的码率控制是根据延迟来计算预期的发送码率，计算出来的码率信息会通过RTCP REMB报文反馈给发送端。计算公式如下，其中${t}<em>{i}$表示第$i$个视频帧被接收的时间，<code>η=1.05</code>，<code>α=0.85</code>，${R}</em>{r}({t}_{i})$ 表示接收端在最近500ms中测量的接收码率：</p>
-<img src="../../assets/media/webrtc/webrtc-delay-based-controller.png" alt="GCC Delay-based Controller" width=380 >
-
+<p><img src="../../assets/media/webrtc/webrtc-delay-based-controller.png" alt="GCC Delay-based Controller" width=380 ></p>
 <p>如GCC算法结构图所示，基于延迟的码率控制包含五个模块：Arrival-time Filter、Overuse Detector、Remote Rate Controller、Adaptive Threshold、Remb Processing。GCC论文中给出了这五个模块的关系：</p>
 <blockquote>
 <p>The remote rate controller is a finite state machine in which the state of $σ$ is changed by the signal $s$ produced by the over-use detector based on the output $m({t}<em>{i})$ of the arrival-time filter. The adaptive threshold block dynamically sets the threshold $γ({t}</em>{i})$ used by the over-use detector. The REMB Processing decides when to send a REMB message based on the value of the rate ${A}<em>{r}$. Finally, it is important to notice that ${A}</em>{r}({t}<em>{i})$ is upper bounded by 1.5${R}</em>{r}({t}_{i})$.</p>
 </blockquote>
 <h3 id="Arrival-time-Filter"><a href="#Arrival-time-Filter" class="headerlink" title="Arrival-time Filter"></a>Arrival-time Filter</h3><p>Arrival-time Filter模块用来计算网络延迟$m({t}<em>{i})$，GCC算法采用Kalman Filter来估算该值。Kalman Filter采用单程帧间延迟差值${d}</em>{m}({t}_{i})$，单程帧间延迟差值表示两个数据帧到达接收端的延迟差值。如下图所示：</p>
-<img src="../../assets/media/webrtc/webrtc-one-way-delay-gradient-measurement.png" alt="GCC One Way Delay Gradient Measurement" width=500>
-
+<p><img src="../../assets/media/webrtc/webrtc-one-way-delay-gradient-measurement.png" alt="GCC One Way Delay Gradient Measurement" width=500></p>
 <p>根据该图，我们可以得出 ${d}<em>{m}({t}</em>{i})$ 的计算公式如下：</p>
-<p>$$<br>{d}<em>{m}({t}</em>{i})={t}<em>{i}-{t}</em>{i-1})-({T}<em>{i}-{T}</em>{i-1})<br>$$</p>
-<h3 id="Overuse-Detector"><a href="#Overuse-Detector" class="headerlink" title="Overuse Detector"></a>Overuse Detector</h3><p>Overuse Detector根据Arrival-time Filter计算出的网络延时$m({t}<em>{i})$以及Adaptive Threshold提供的$γ({t}</em>{i})$值来判断当前网络是否过载，并告知Remote Rate Controller对应的信号$s$——<code>overuse</code>、<code>normal</code>、<code>underuse</code>。下图表明Overuse Detector是如何工作的：</p>
-<img src="../../assets/media/webrtc/webrtc-overuse-detector-signalling.png" alt="GCC Overuse Detector Signalling" width=500>
-
+<script type="math/tex; mode=display">
+{d}_{m}({t}_{i})={t}_{i}-{t}_{i-1})-({T}_{i}-{T}_{i-1})</script><h3 id="Overuse-Detector"><a href="#Overuse-Detector" class="headerlink" title="Overuse Detector"></a>Overuse Detector</h3><p>Overuse Detector根据Arrival-time Filter计算出的网络延时$m({t}<em>{i})$以及Adaptive Threshold提供的$γ({t}</em>{i})$值来判断当前网络是否过载，并告知Remote Rate Controller对应的信号$s$——<code>overuse</code>、<code>normal</code>、<code>underuse</code>。下图表明Overuse Detector是如何工作的：</p>
+<p><img src="../../assets/media/webrtc/webrtc-overuse-detector-signalling.png" alt="GCC Overuse Detector Signalling" width=500></p>
 <p>产生<code>overuse</code>、<code>normal</code>、<code>underuse</code>三种信号的条件如下：</p>
 <ul>
 <li>overuse: $m({t}<em>{i})$ &gt; $γ({t}</em>{i})$and keep 100ms</li>
@@ -161,8 +156,7 @@
 <li>normal: -$γ({t}<em>{i})$ &lt; $m({t}</em>{i})$ &lt; $γ({t}_{i})$</li>
 </ul>
 <h3 id="Remote-Rate-Controller"><a href="#Remote-Rate-Controller" class="headerlink" title="Remote Rate Controller"></a>Remote Rate Controller</h3><p>Remote Rate Controller模块根据上文提到的接收端码率计算公式来计算接收端预估码率。该模块是个无线状态机，其状态变动如下图所示：</p>
-<img src="../../assets/media/webrtc/webrtc-remote-rate-controller-fsm.png" alt="GCC Overuse Detector Signalling" width=500>
-
+<p><img src="../../assets/media/webrtc/webrtc-remote-rate-controller-fsm.png" alt="GCC Overuse Detector Signalling" width=500></p>
 <p>结合上文中的公式，我们可以得出：</p>
 <ul>
 <li>当<code>s=overuse</code>，预估码率降低为接收码率的85%，处于<code>decrease</code>状态;</li>
@@ -172,14 +166,11 @@
 <h3 id="Adaptive-Threshold"><a href="#Adaptive-Threshold" class="headerlink" title="Adaptive Threshold"></a>Adaptive Threshold</h3><p>Adaptive Threshold模块用来使算法适应延迟变化的灵敏性。</p>
 <h3 id="Remb-Processing"><a href="#Remb-Processing" class="headerlink" title="Remb Processing"></a>Remb Processing</h3><p>Remb Processing模块用于通知发送端来自接收端预估的码率。该码率通过RTCP REMB报文反馈给发送端。正常情况下，该报文每隔1s发送一次，但如果${A}<em>{r}({t}</em>{i})$ &lt; 0.97${A}<em>{r}({t}</em>{i-1})$，该报文立马发送。</p>
 <h2 id="最终码率计算"><a href="#最终码率计算" class="headerlink" title="最终码率计算"></a>最终码率计算</h2><p>一旦发送端接收到RTCP报告报文，或是接收到携带接收端预估码率${A}<em>{r}$的REMB报文，发送端执行对应的码率控制算法——发送端根据发送端预估码率${A}</em>{s}({t}<em>{k})$、接收端预估${A}</em>{r}({t}<em>{k})$、最大允许码率${A}</em>{max}$最小允许码率${A}<em>{min}$，计算出最终的发送码率${R}</em>{s}({t}_{k})$。</p>
-<p>$$<br>{R}<em>{s}({t}</em>{k})=max(min(min({A}<em>{s}({t}</em>{k}), {A}<em>{r}({t}</em>{k})), {A}<em>{max}), {A}</em>{min})<br>$$</p>
-<h2 id="WebRTC拥塞控制模块"><a href="#WebRTC拥塞控制模块" class="headerlink" title="WebRTC拥塞控制模块"></a>WebRTC拥塞控制模块</h2><p>WebRTC中实现了Google GCC算法，该实现包含发送端和接收端两部分。发送端负责发送端码率预估和计算最终目标码率；接收端负责接收端码率预估和统计丢包信息，并通过REMB报文和RTCP RR反馈给发送端。其总体模块图如下：</p>
-<img src="../../assets/media/webrtc/webrtc-gcc-implementation.png" alt="WebRTC GCC Implementation" width=700>
-
-<h3 id="远端比特率预估模块"><a href="#远端比特率预估模块" class="headerlink" title="远端比特率预估模块"></a>远端比特率预估模块</h3><img src="../../assets/media/webrtc/webrtc-gcc-remote-bitrate-caculate.png" alt="WebRTC GCC Remote Bitrate Calculate" width=1000>
-
-<h3 id="本地比特率计算模块"><a href="#本地比特率计算模块" class="headerlink" title="本地比特率计算模块"></a>本地比特率计算模块</h3><img src="../../assets/media/webrtc/webrtc-gcc-local-bitrate-caculate.png" alt="WebRTC GCC Local Bitrate Calculate" width=1000>
-
+<script type="math/tex; mode=display">
+{R}_{s}({t}_{k})=max(min(min({A}_{s}({t}_{k}), {A}_{r}({t}_{k})), {A}_{max}), {A}_{min})</script><h2 id="WebRTC拥塞控制模块"><a href="#WebRTC拥塞控制模块" class="headerlink" title="WebRTC拥塞控制模块"></a>WebRTC拥塞控制模块</h2><p>WebRTC中实现了Google GCC算法，该实现包含发送端和接收端两部分。发送端负责发送端码率预估和计算最终目标码率；接收端负责接收端码率预估和统计丢包信息，并通过REMB报文和RTCP RR反馈给发送端。其总体模块图如下：</p>
+<p><img src="../../assets/media/webrtc/webrtc-gcc-implementation.png" alt="WebRTC GCC Implementation" width=700></p>
+<h3 id="远端比特率预估模块"><a href="#远端比特率预估模块" class="headerlink" title="远端比特率预估模块"></a>远端比特率预估模块</h3><p><img src="../../assets/media/webrtc/webrtc-gcc-remote-bitrate-caculate.png" alt="WebRTC GCC Remote Bitrate Calculate" width=1000></p>
+<h3 id="本地比特率计算模块"><a href="#本地比特率计算模块" class="headerlink" title="本地比特率计算模块"></a>本地比特率计算模块</h3><p><img src="../../assets/media/webrtc/webrtc-gcc-local-bitrate-caculate.png" alt="WebRTC GCC Local Bitrate Calculate" width=1000></p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
 <li><a target="_blank" rel="noopener" href="http://c3lab.poliba.it/images/6/65/Gcc-analysis.pdf">Analysis and Design of the Google Congestion Control for Web Real-time Communication (WebRTC)</a></li>
 </ul>

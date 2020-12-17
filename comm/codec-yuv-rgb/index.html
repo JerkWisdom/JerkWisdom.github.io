@@ -130,10 +130,10 @@
 <li><code>V/Cb</code>表示饱和度，反映的是RGB输入信号蓝色部分与RGB信号亮度值之同的差异。</li>
 </ul>
 <p>YUV将亮度信息<code>Y</code>与色彩信息<code>U/V</code>分离，没有<code>U/V</code>信息一样可以显示完整的图像，只不过是黑白的，这样的设计很好地解决了彩色电视机与黑白电视的兼容问题。并且，YUV不像RGB那样要求三个独立的视频信号同时传输，所以用YUV方式传送占用极少的频宽。</p>
-<p><img src="../../assets/media/codec/yuv-y-u-v.gif"></p>
+<p><img src="../../assets/media/codec/yuv-y-u-v.gif" alt=""></p>
 <h3 id="YUV采样"><a href="#YUV采样" class="headerlink" title="YUV采样"></a>YUV采样</h3><p>YUV码流的存储格式与其采样方式密切相关，主流的采样方式有三种：YUV4:4:4，YUV4:2:2，YUV4:2:0。</p>
 <p>以黑点表示采样该像素点的Y分量，以空心圆圈表示采用该像素点的UV分量，我们来看看这三种采样方式：</p>
-<p><img src="../../assets/media/codec/yuv-sample.jpg"></p>
+<p><img src="../../assets/media/codec/yuv-sample.jpg" alt=""></p>
 <p>其中：</p>
 <ul>
 <li>YUV 4:4:4采样，每一个Y对应一组UV分量。</li>
@@ -141,19 +141,31 @@
 <li>YUV 4:2:0采样，每四个Y共用一组UV分量。</li>
 </ul>
 <p>我们以八个临近像素为单位来分析下这三种主流的采样格式，假设四个像素的YUV分量分别如下：</p>
-<p>$$<br>\begin{align*}<br>[{Y}<em>{0}{U}</em>{0}{V}<em>{0}][{Y}</em>{1}{U}<em>{1}{V}</em>{1}][{Y}<em>{2}{U}</em>{2}{V}<em>{2}][{Y}</em>{3}{U}<em>{3}{V}</em>{3}] \<br>[{Y}<em>{4}{U}</em>{4}{V}<em>{4}][{Y}</em>{5}{U}<em>{5}{V}</em>{5}][{Y}<em>{6}{U}</em>{6}{V}<em>{6}][{Y}</em>{7}{U}<em>{7}{V}</em>{7}]<br>\end{align*}<br>$$</p>
-<p>1、YUV 4:4:4</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{0}][{Y}_{1}{U}_{1}{V}_{1}][{Y}_{2}{U}_{2}{V}_{2}][{Y}_{3}{U}_{3}{V}_{3}] \\
+[{Y}_{4}{U}_{4}{V}_{4}][{Y}_{5}{U}_{5}{V}_{5}][{Y}_{6}{U}_{6}{V}_{6}][{Y}_{7}{U}_{7}{V}_{7}]
+\end{align*}</script><p>1、YUV 4:4:4</p>
 <p><code>YUV 4:4:4</code>三个信道的抽样率相同，因此在生成的图像里，每个像素的三个分量信息完整(每个分量通常8比特)，经过8比特量化之后，未经压缩的每个像素占用3个字节。采样后八个像素的YUV分量如下：</p>
-<p>$$<br>\begin{align*}<br>[{Y}<em>{0}{U}</em>{0}{V}<em>{0}][{Y}</em>{1}{U}<em>{1}{V}</em>{1}][{Y}<em>{2}{U}</em>{2}{V}<em>{2}][{Y}</em>{3}{U}<em>{3}{V}</em>{3}] \<br>[{Y}<em>{4}{U}</em>{4}{V}<em>{4}][{Y}</em>{5}{U}<em>{5}{V}</em>{5}][{Y}<em>{6}{U}</em>{6}{V}<em>{6}][{Y}</em>{7}{U}<em>{7}{V}</em>{7}]<br>\end{align*}<br>$$</p>
-<p>采样后，八个像素总共占用8Y+8U+8V=8×3=24个字节。</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{0}][{Y}_{1}{U}_{1}{V}_{1}][{Y}_{2}{U}_{2}{V}_{2}][{Y}_{3}{U}_{3}{V}_{3}] \\
+[{Y}_{4}{U}_{4}{V}_{4}][{Y}_{5}{U}_{5}{V}_{5}][{Y}_{6}{U}_{6}{V}_{6}][{Y}_{7}{U}_{7}{V}_{7}]
+\end{align*}</script><p>采样后，八个像素总共占用8Y+8U+8V=8×3=24个字节。</p>
 <p>2、YUV 4:2:2</p>
 <p><code>YUV 4:2:2</code>每个色差信道的抽样率是亮度信道的一半。对非压缩的8bit量化的图像来说，每个由两个水平方向相邻的像素组成的宏像素需要占用4字节内存。采样后八个像素的YUV分量如下：</p>
-<p>$$<br>\begin{align*}<br>[{Y}<em>{0}{U}</em>{0}{V}<em>{1}][{Y}</em>{1}{U}<em>{0}{V}</em>{1}][{Y}<em>{2}{U}</em>{2}{V}<em>{3}][{Y}</em>{3}{U}<em>{2}{V}</em>{3}] \<br>[{Y}<em>{4}{U}</em>{4}{V}<em>{5}][{Y}</em>{5}{U}<em>{4}{V}</em>{5}][{Y}<em>{6}{U}</em>{6}{V}<em>{7}][{Y}</em>{7}{U}<em>{6}{V}</em>{7}]<br>\end{align*}<br>$$</p>
-<p>采样后，八个像素总共占用8Y+8×0.5U+8×0.5V=8×3*2/3=16个字节。</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{1}][{Y}_{1}{U}_{0}{V}_{1}][{Y}_{2}{U}_{2}{V}_{3}][{Y}_{3}{U}_{2}{V}_{3}] \\
+[{Y}_{4}{U}_{4}{V}_{5}][{Y}_{5}{U}_{4}{V}_{5}][{Y}_{6}{U}_{6}{V}_{7}][{Y}_{7}{U}_{6}{V}_{7}]
+\end{align*}</script><p>采样后，八个像素总共占用8Y+8×0.5U+8×0.5V=8×3*2/3=16个字节。</p>
 <p>3、YUV 4:2:0</p>
 <p><code>YUV 4:2:0</code>并不是说没有V分量，而是指对于每一个行，只有一个U或者V分量。相邻的扫描行存储不同的色度分量，如果一行是4:2:0的话，下一行就是4:0:2，再下一行是4:2:0…以此类推。采样后八个像素的YUV分量如下：</p>
-<p>$$<br>\begin{align*}<br>[{Y}<em>{0}{U}</em>{0}{V}<em>{5}][{Y}</em>{1}{U}<em>{0}{V}</em>{5}][{Y}<em>{2}{U}</em>{2}{V}<em>{7}][{Y}</em>{3}{U}<em>{2}{V}</em>{7}] \<br>[{Y}<em>{4}{U}</em>{0}{V}<em>{5}][{Y}</em>{5}{U}<em>{0}{V}</em>{5}][{Y}<em>{6}{U}</em>{2}{V}<em>{7}][{Y}</em>{7}{U}<em>{2}{V}</em>{7}]<br>\end{align*}<br>$$</p>
-<p>采样后，八个像素总共占用8Y+2U+2Y=8×3*2/4=12个字节。</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{5}][{Y}_{1}{U}_{0}{V}_{5}][{Y}_{2}{U}_{2}{V}_{7}][{Y}_{3}{U}_{2}{V}_{7}] \\
+[{Y}_{4}{U}_{0}{V}_{5}][{Y}_{5}{U}_{0}{V}_{5}][{Y}_{6}{U}_{2}{V}_{7}][{Y}_{7}{U}_{2}{V}_{7}]
+\end{align*}</script><p>采样后，八个像素总共占用8Y+2U+2Y=8×3*2/4=12个字节。</p>
 <h3 id="YUV格式"><a href="#YUV格式" class="headerlink" title="YUV格式"></a>YUV格式</h3><p>YUV存储格式有两大类：<code>打包(packed)格式</code>和<code>平面(planar)格式</code>。</p>
 <ul>
 <li>Planar YUV Formats：使用三个数组分开存放YUV三个分量，每个数组分别存储所有像素点的Y、U、V分量。</li>
@@ -163,32 +175,48 @@
 <p>下面我们简要介绍下YUV422的几种存储格式：</p>
 <p>1、UYVY Packed YUV Format</p>
 <p><code>UYVY</code>是YUV 4:2:2采样方式的一种存储格式，其FOURCC码为<code>0x59565955</code>。水平方向上每两个像素作为一个宏像素，第一个像素采集YUV三个分量，第二个像素只采集Y分量。其存储格式如下：</p>
-<p>$$<br>[{U}<em>{0}][{Y}</em>{0}][{V}<em>{0}][{Y}</em>{1}][{U}<em>{2}][{Y}</em>{2}][{V}<em>{2}][{Y}</em>{3}]{U}<em>{4}][{Y}</em>{5}][{V}<em>{4}][{Y}</em>{5}]<br>$$</p>
-<p>按照UYVY格式，每个宏像素32位，每个像素16位。</p>
+<script type="math/tex; mode=display">
+[{U}_{0}][{Y}_{0}][{V}_{0}][{Y}_{1}][{U}_{2}][{Y}_{2}][{V}_{2}][{Y}_{3}]{U}_{4}][{Y}_{5}][{V}_{4}][{Y}_{5}]</script><p>按照UYVY格式，每个宏像素32位，每个像素16位。</p>
 <p>2、YV16 Planar YUV Formats</p>
 <p><code>YV16</code>是YUV 4:2:2采样方式的一种存储格式，其FOURCC码为<code>0x36315659</code>。其存储为三个二维数组：</p>
 <ul>
 <li>Y数组</li>
 </ul>
-<p>$$<br>\begin{gather*}<br>[{Y}<em>{0,0}][{Y}</em>{0,1}]…[{Y}<em>{0,m-1}]\<br>… \<br>[{Y}</em>{n-1,0}][{Y}<em>{n-1,1}]…[{Y}</em>{n-1,m-1}]<br>\end{gather*}<br>$$</p>
-<ul>
+<script type="math/tex; mode=display">
+\begin{gather*}
+[{Y}_{0,0}][{Y}_{0,1}]...[{Y}_{0,m-1}]\\
+... \\
+[{Y}_{n-1,0}][{Y}_{n-1,1}]...[{Y}_{n-1,m-1}]
+\end{gather*}</script><ul>
 <li>U数组</li>
 </ul>
-<p>$$<br>\begin{gather*}<br>[{U}<em>{0,0}][{U}</em>{0,2}]…[{U}<em>{0,(m-1)/2}]\<br>… \<br>[{U}</em>{n-1,0}][{U}<em>{n-1,2}]…[{U}</em>{n-1,(m-1)/2}]<br>\end{gather*}<br>$$</p>
-<p>3、YUV422 Sem-Planar YUV Format</p>
+<script type="math/tex; mode=display">
+\begin{gather*}
+[{U}_{0,0}][{U}_{0,2}]...[{U}_{0,(m-1)/2}]\\
+... \\
+[{U}_{n-1,0}][{U}_{n-1,2}]...[{U}_{n-1,(m-1)/2}]
+\end{gather*}</script><p>3、YUV422 Sem-Planar YUV Format</p>
 <p>这种格式混合了Packed和Planar两种格式，其存储为两个二维数组：</p>
 <ul>
 <li>Y数组</li>
 </ul>
-<p>$$<br>\begin{gather}<br>[{Y}<em>{0,0}][{Y}</em>{0,1}]…[{Y}<em>{0,m-1}]\<br>… \<br>[{Y}</em>{n-1,0}][{Y}<em>{n-1,1}]…[{Y}</em>{n-1,m-1}]<br>\end{gather}<br>$$</p>
-<ul>
+<script type="math/tex; mode=display">
+\begin{gather}
+[{Y}_{0,0}][{Y}_{0,1}]...[{Y}_{0,m-1}]\\
+... \\
+[{Y}_{n-1,0}][{Y}_{n-1,1}]...[{Y}_{n-1,m-1}]
+\end{gather}</script><ul>
 <li>UV数组</li>
 </ul>
-<p>$$<br>\begin{gather*}<br>[{U}<em>{0,0}][{V}</em>{0,0}][{U}<em>{0,2}][{V}</em>{0,2}]…[{U}<em>{0,(m-1)/2}][{V}</em>{0,(m-1)/2}]\<br>… \<br>[{U}<em>{n-1,0}][{V}</em>{n-1,0}][{U}<em>{n-1,2}][{V}</em>{n-1,2}]…[{U}<em>{n-1,(m-1)/2}][{V}</em>{n-1,(m-1)/2}]<br>\end{gather*}<br>$$</p>
-<h2 id="RGB"><a href="#RGB" class="headerlink" title="RGB"></a>RGB</h2><p>RGB色彩空间通过三原色（R、G、B）来表示图像。常见的RGB格式包含RGB24、ARGB32等。</p>
+<script type="math/tex; mode=display">
+\begin{gather*}
+[{U}_{0,0}][{V}_{0,0}][{U}_{0,2}][{V}_{0,2}]...[{U}_{0,(m-1)/2}][{V}_{0,(m-1)/2}]\\
+... \\
+[{U}_{n-1,0}][{V}_{n-1,0}][{U}_{n-1,2}][{V}_{n-1,2}]...[{U}_{n-1,(m-1)/2}][{V}_{n-1,(m-1)/2}]
+\end{gather*}</script><h2 id="RGB"><a href="#RGB" class="headerlink" title="RGB"></a>RGB</h2><p>RGB色彩空间通过三原色（R、G、B）来表示图像。常见的RGB格式包含RGB24、ARGB32等。</p>
 <h3 id="RGB24"><a href="#RGB24" class="headerlink" title="RGB24"></a>RGB24</h3><p>RGB24是24位的颜色值，高八位为R、中间八位为G、低八位是B。</p>
 <h3 id="ARGB32"><a href="#ARGB32" class="headerlink" title="ARGB32"></a>ARGB32</h3><p>ARGB32是32位的颜色值。高八位为A，次八位为R，再次八位为G，最后八位为B。</p>
-<h2 id="YUV-RGB-in-Action"><a href="#YUV-RGB-in-Action" class="headerlink" title="YUV/RGB in Action"></a>YUV/RGB in Action</h2><p><a target="_blank" rel="noopener" href="http://www.fourcc.org/fccyvrgb.php">FOURCC YUV to RGB Conversion</a>给出了YUV和RGB相互转换公式。同时，Windows开发人员也需要详细阅读[Video Rendering with 8-Bit YUV Formats](<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/aa904813%EF%BC%9A">https://msdn.microsoft.com/zh-cn/library/aa904813：</a></p>
+<h2 id="YUV-RGB-in-Action"><a href="#YUV-RGB-in-Action" class="headerlink" title="YUV/RGB in Action"></a>YUV/RGB in Action</h2><p><a target="_blank" rel="noopener" href="http://www.fourcc.org/fccyvrgb.php">FOURCC YUV to RGB Conversion</a>给出了YUV和RGB相互转换公式。同时，Windows开发人员也需要详细阅读[Video Rendering with 8-Bit YUV Formats](<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/aa904813：">https://msdn.microsoft.com/zh-cn/library/aa904813：</a></p>
 <blockquote>
 <p>本文讲述了在 Microsoft Windows 操作系统中呈现视频时推荐使用的 8 位 YUV 格式。本文讲述了可用于在 YUV 格式和 RGB 格式之间进行转换的技术，还提供了用于对 YUV 格式进行上采样的技术。本文适用于在 Windows 中使用 YUV 视频解码或呈现的所有人员。</p>
 </blockquote>
@@ -198,7 +226,7 @@
 <li>2、<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/aa904813">Video Rendering with 8-Bit YUV Formats[原文]</a></li>
 <li>3、<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/ms867704.aspx">使用8位YUV格式的视频呈现[译文]</a></li>
 <li>4、<a target="_blank" rel="noopener" href="http://blog.csdn.net/leixiaohua1020/article/details/50534150">视音频数据处理入门：RGB、YUV像素数据处理[雷霄骅]</a></li>
-<li>5、<a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn/">FreeHacker’s Wikipedia</a></li>
+<li>5、<a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">FreeHacker’s Wikipedia</a></li>
 </ul>
 
             <hr>

@@ -16,8 +16,8 @@
 <meta property="article:published_time" content="2019-02-11T12:46:16.000Z">
 <meta property="article:modified_time" content="2020-10-27T04:47:05.375Z">
 <meta property="article:author" content="ZeroJiu">
-<meta property="article:tag" content="Experience">
 <meta property="article:tag" content="CPlusPlus">
+<meta property="article:tag" content="Experience">
 <meta name="twitter:card" content="summary">
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -96,9 +96,9 @@
     On
     
 	
-    <a href='/tags/Experience/'>Experience</a> /
+    <a href='/tags/CPlusPlus/'>CPlusPlus</a> /
     
-    <a href='/tags/CPlusPlus/'>CPlusPlus</a>
+    <a href='/tags/Experience/'>Experience</a>
     
     
     At
@@ -120,49 +120,47 @@
 <li>方法一：</li>
 </ul>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">reverse_by_swap</span><span class="params">(<span class="keyword">char</span>* str, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *b = str;</span><br><span class="line">  <span class="keyword">char</span>* e = str + n - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span>(b &lt; e) &#123;</span><br><span class="line">    <span class="keyword">char</span> t = *b;</span><br><span class="line">    *b = *e;</span><br><span class="line">    *e = t;</span><br><span class="line">    ++b;</span><br><span class="line">    --e;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>方法二：</li>
 </ul>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">reverse_by_xor</span><span class="params">(<span class="keyword">char</span>* str, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *b = str;</span><br><span class="line">  <span class="keyword">char</span>* e = str + n - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (b &lt; e) &#123;</span><br><span class="line">    *b ^= *e;</span><br><span class="line">    *e ^= *b;</span><br><span class="line">    *b ^= *e;</span><br><span class="line">    ++b;</span><br><span class="line">    --e;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>方法三：</li>
 </ul>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">reverse_by_std</span><span class="params">(<span class="keyword">char</span>* str, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">std</span>::reverse(str, str + n);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>使用下面程序来测试三种方法耗时：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Timestamp ts;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; ++i)</span><br><span class="line">    reverse_by_swap(r, <span class="number">10</span>);</span><br><span class="line"><span class="keyword">int64_t</span> t1 = ts.elapsed();</span><br><span class="line"></span><br><span class="line">ts.update();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; ++i)</span><br><span class="line">    reverse_by_xor(l, <span class="number">10</span>);</span><br><span class="line"><span class="keyword">int</span> t2 = ts.elapsed();</span><br><span class="line"></span><br><span class="line">ts.update();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; ++i)</span><br><span class="line">    <span class="built_in">std</span>::reverse(s, s+ <span class="number">10</span>);</span><br><span class="line"><span class="keyword">int</span> t3 = ts.elapsed();</span><br><span class="line">logger().info(<span class="string">&quot;t1=&quot;</span> + <span class="built_in">std</span>::to_string(t1) + <span class="string">&quot; t2: &quot;</span> + <span class="built_in">std</span>::to_string(t2) + <span class="string">&quot; t3: &quot;</span> + <span class="built_in">std</span>::to_string(t3));</span><br></pre></td></tr></table></figure>
-
 <p>测试的字符串分为长字符串和短字符串两种（样例随机选择，能够支持最后结论就好）：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *str1 = <span class="string">&quot;0123456789&quot;</span>;</span><br><span class="line"><span class="keyword">char</span> *str2 = <span class="string">&quot;012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789&quot;</span>;</span><br></pre></td></tr></table></figure>
-
 <p>三种方法的时间耗时如下表，单位纳秒：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">字符串</th>
-<th align="center">方法一</th>
-<th align="center">方法二</th>
-<th align="center">方法三</th>
+<th style="text-align:center">字符串</th>
+<th style="text-align:center">方法一</th>
+<th style="text-align:center">方法二</th>
+<th style="text-align:center">方法三</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">str1</td>
-<td align="center">4960</td>
-<td align="center">8928</td>
-<td align="center">6447</td>
+<tbody>
+<tr>
+<td style="text-align:center">str1</td>
+<td style="text-align:center">4960</td>
+<td style="text-align:center">8928</td>
+<td style="text-align:center">6447</td>
 </tr>
 <tr>
-<td align="center">str2</td>
-<td align="center">85311</td>
-<td align="center">230144</td>
-<td align="center">11904</td>
+<td style="text-align:center">str2</td>
+<td style="text-align:center">85311</td>
+<td style="text-align:center">230144</td>
+<td style="text-align:center">11904</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>可以看出方法二的复杂度明显高于其他两个方法，以后在面试的时候可以让学生分析为什么会这样。对于方法一和方法三，在字符串较短时方法一更高效，字符串较长时方法三更高效。在网上搜了一圈，没看出<em>std::reverse</em>是怎么实现的。cppreference给出的可能实现如下：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">BidirIt</span>&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">reverse</span><span class="params">(BidirIt first, BidirIt last)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> ((first != last) &amp;&amp; (first != --last)) &#123;</span><br><span class="line">    <span class="built_in">std</span>::iter_swap(first++, last);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>这三种方法的对比得出了几点结论：</p>
 <ul>
 <li>标准库的实现往往是最佳的选择；</li>

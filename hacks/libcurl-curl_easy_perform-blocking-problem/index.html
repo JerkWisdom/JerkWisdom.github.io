@@ -113,21 +113,15 @@
 		  <section class="post-content">
 			<blockquote><p>Don’t Live with Broken Windows<br>不要容忍破窗</p>
 <footer><strong>Andrew Hunt/David Thomas</strong><cite>程序员修炼之道</cite></footer></blockquote>  
-
 <p>Libcurl为一个免费开源的，客户端url传输库，本文主要分析使用过程中遇到的卡死问题。<a id="more"></a></p>
 <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>LibCurl使用阻塞的方式来进行http下载，curl_easy_perform执行后，程序会在这里阻塞等待下载结束（成功OR失败），此时若下载一段时间后出现网络异常，curl_easy_perform不会返回失败，整个线程阻塞卡死。</p>
 <h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>复现：连接无线网络，然后执行curl_easy_perform下载，下载过程中，断开无线网络，curl_easy_perform卡死，阻塞整个线程。</p>
 <p>原因：当断开无线网络时，使用命令行netstat ano | findstr ‘连接ip’, 可以发现LibCurl的http连接并没有断开（不知道是不是windows系统的bug），如果将CURLOPT_TIMEOUT设置为无限等待，curl_easy_perform便会一直阻塞住线程。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>1、如果我们不将CURLOPT_TIMEOUT设置为无限等待，是不会出现上面问题，curl_easy_perform会在执行一段时间（由CURLOPT_TIMEOUR设置），结束并返回失败，但是如果设置合适的CURLOPT_TIMEOUT是个问题。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0); &#x2F;* blocking forever, cannot find a suitable value *&#x2F;</span><br></pre></td></tr></table></figure>
-<p>2、使用multi模式下载, 而不使用easy模式, 此方法的唯一好处就是multi并不会阻塞, 而是立即返回. 但是缺点是带来了问题, 其一就是需要自己去阻塞, 当我们需要返回时再返回, 其二还需要启动一个线程, 需要自己控制整个过程的节奏。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>1、如果我们不将CURLOPT_TIMEOUT设置为无限等待，是不会出现上面问题，curl_easy_perform会在执行一段时间（由CURLOPT_TIMEOUR设置），结束并返回失败，但是如果设置合适的CURLOPT_TIMEOUT是个问题。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0); &#x2F;* blocking forever, cannot find a suitable value *&#x2F;</span><br></pre></td></tr></table></figure><br>2、使用multi模式下载, 而不使用easy模式, 此方法的唯一好处就是multi并不会阻塞, 而是立即返回. 但是缺点是带来了问题, 其一就是需要自己去阻塞, 当我们需要返回时再返回, 其二还需要启动一个线程, 需要自己控制整个过程的节奏。</p>
 <p>3、在下载中, 另起一个线程, 若发现下载状态卡死(可以通过定期检查文件大小来实现), 则从外部中断下载线程. 此方法需另起线程, 而且直接中断线程, 会给整个程序带来不稳定。</p>
 <p>4、设置CURLOPT_TIMEOUT为30s，以30s为间隔断点续传。</p>
-<p>5、使用CURLOPT_LOW_SPEED_LIMIT, CURLOPT_LOW_SPEED_TIME</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">res &#x3D; curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1024L);</span><br><span class="line">res &#x3D; curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);</span><br></pre></td></tr></table></figure>
-
-<p>6、使用CURLOPT_PROGRESSFUNCTION设置进度表回调函数，可以在该回调函数内部检测下载是否出错，如果出现就中断curl_easy_perform，返回下载错误。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;curl&#x2F;curl.h&gt;</span><br><span class="line">int progress_callback(void *clientp,   double dltotal,   double dlnow,   double ultotal,   double ulnow);</span><br><span class="line">CURLcode curl_easy_setopt(CURL *handle, CURLOPT_PROGRESSFUNCTION, progress_callback);</span><br></pre></td></tr></table></figure>
+<p>5、使用CURLOPT_LOW_SPEED_LIMIT, CURLOPT_LOW_SPEED_TIME<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">res &#x3D; curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1024L);</span><br><span class="line">res &#x3D; curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);</span><br></pre></td></tr></table></figure></p>
+<p>6、使用CURLOPT_PROGRESSFUNCTION设置进度表回调函数，可以在该回调函数内部检测下载是否出错，如果出现就中断curl_easy_perform，返回下载错误。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;curl&#x2F;curl.h&gt;</span><br><span class="line">int progress_callback(void *clientp,   double dltotal,   double dlnow,   double ultotal,   double ulnow);</span><br><span class="line">CURLcode curl_easy_setopt(CURL *handle, CURLOPT_PROGRESSFUNCTION, progress_callback);</span><br></pre></td></tr></table></figure></p>
 
             <hr>
             <blockquote>

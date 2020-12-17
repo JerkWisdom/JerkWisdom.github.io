@@ -181,7 +181,6 @@
 <p>所以就需要我们自己实现一个DHCP服务，Google一下你就会发现不少开源的服务，选择一个仔细调试。否则你很有可能被这个水土不服的家伙坑了。你必须要了解DHCP的原理、能够分析抓包获取的数据。（推荐博文<a target="_blank" rel="noopener" href="http://blog.163.com/hlz_2599/blog/static/14237847420134139541993/">DHCP协议原理及报文分析  </a>以及<a target="_blank" rel="noopener" href="https://wenku.baidu.com/view/7aee72277375a417866f8fe6.html">DHCP报文精细分析_加上wireshark抓包</a>）</p>
 <p>DHCP服务需要绑定一个静态IP，这个静态IP的设定必须要正确。可以设置一个IP库，防止IP和主机IP冲突。具体静态IP的设置方法，可以通过命令行：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ netsh interface ip <span class="built_in">set</span> address ..。</span><br></pre></td></tr></table></figure>
-
 <p>不过这个设置是需要找到对于那个的无限承载网络命名信息，这个信息定义在”SYSTEM\CurrentControlSet\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\{GUID Get Before}\Connection”下。</p>
 <p>DHCP实现的最终效果要能满足下面需求：</p>
 <ul>

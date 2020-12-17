@@ -162,13 +162,11 @@
 <ul>
 <li>H.264编码流程</li>
 </ul>
-<img src="../../assets/media/codec/h264-encoder-block-diagram.png">
-
+<p><img src="../../assets/media/codec/h264-encoder-block-diagram.png"></p>
 <ul>
 <li>H.264解码流程</li>
 </ul>
-<img src="../../assets/media/codec/h264-decoder-block-diagram.png">
-
+<p><img src="../../assets/media/codec/h264-decoder-block-diagram.png"></p>
 <h2 id="H-264帧场"><a href="#H-264帧场" class="headerlink" title="H.264帧场"></a>H.264帧场</h2><h3 id="帧与场"><a href="#帧与场" class="headerlink" title="帧与场"></a>帧与场</h3><p>要想了解帧与场的概念，需先掌握<strong>逐行扫描</strong>和<strong>隔行扫描</strong>的区别。在英语中，逐行扫描为<em>Progressive Scanning</em>，隔行扫描为<em>Interlace Scanning</em>。</p>
 <p>逐行比较好理解，假设一帧图像的大小是704x576，那么逐行的话就是576行。隔行图像，是早期电视信号中引入的概念，把一帧图像分为上下两场，两场图像在时间上具有先后，但传输时同时传送到显示端，显示端在显示按各自的时间分开进行显示。该方式主要是利用了人眼的余辉效应，通过隔行显示，提高了显示的流畅性。</p>
 <p><img src="../../assets/media/codec/auvi-interlace-scanning.png" alt="隔行扫描"></p>
@@ -219,161 +217,166 @@
 <p>H.264协议中的变化方式主要有三种：4×4残差变化（整数DCT变换）、16×16帧内模式下4×4亮度直流系数变化（离散哈达玛变化）、2×2色度直流系数变化（离散哈达玛变化）。</p>
 <h3 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h3><p>从<strong>整数变化</strong>阶段得到的系数需要被<a target="_blank" rel="noopener" href="https://www.vcodex.com/h264avc-4x4-transform-and-quantization/"><strong>量化</strong></a>，用以减少整数系数的整体精度，并趋向于消除高频系数，保持感知质量。量化的原则是在不降低视觉效果的前提下尽量减少图像编码长度，减少视觉恢复中不必要的信息。</p>
 <p><img src="../../assets/media/codec/h264-quantization.png" alt="量化"></p>
-<p>一般的标量量化器原理如下：<br>$$<br>{Z}<em>{ij} = round({Y}</em>{ij}/{Q}<em>{step})<br>$$<br>其中，$${Y}</em>{ij}$$表示一个宏块经过整数DCT转换后的系数，$${Z}<em>{ij}$$是输出的量化系数，$${Q}</em>{step}$$是量化步长。<strong>量化步长</strong>决定了量化器的编码压缩率以及图像精度。如果量化步长较大，则量化值$${Z}<em>{ij}$$动态范围较小，其相应的编码长度较小，但反量化会损失较多的图像细节信息；如果量化步长较小，则量化值$${Z}</em>{ij}$$动态范围较大，其相应的编码长度较大，但图像损失较少。H.264编码器根据图像值实际动态范围自动改变量化步长值，在编码长度和图像精度之间折衷，达到整体最佳效果。</p>
-<p>在H.264中，使用量化参数QP（Quantization Parameter）来标识量化步长的序号，亮度编码的量化步长$${Q}<em>{step}$$共有52个值，QP为0-51；色度编码的量化步长$${Q}</em>{step}$$共有39个值，QP为0-39。QP取最小值0 时，表示量化最精细；相反，QP取最大值51/39时，表示量化是最粗糙的。亮度编码的QP每增加6，量化步长$${Q}_{step}$$增加一倍。亮度编码的量化步长信息如下表：</p>
+<p>一般的标量量化器原理如下：</p>
+<script type="math/tex; mode=display">
+{Z}_{ij} = round({Y}_{ij}/{Q}_{step})</script><p>其中，<script type="math/tex">{Y}_{ij}</script>表示一个宏块经过整数DCT转换后的系数，<script type="math/tex">{Z}_{ij}</script>是输出的量化系数，<script type="math/tex">{Q}_{step}</script>是量化步长。<strong>量化步长</strong>决定了量化器的编码压缩率以及图像精度。如果量化步长较大，则量化值<script type="math/tex">{Z}_{ij}</script>动态范围较小，其相应的编码长度较小，但反量化会损失较多的图像细节信息；如果量化步长较小，则量化值<script type="math/tex">{Z}_{ij}</script>动态范围较大，其相应的编码长度较大，但图像损失较少。H.264编码器根据图像值实际动态范围自动改变量化步长值，在编码长度和图像精度之间折衷，达到整体最佳效果。</p>
+<p>在H.264中，使用量化参数QP（Quantization Parameter）来标识量化步长的序号，亮度编码的量化步长<script type="math/tex">{Q}_{step}</script>共有52个值，QP为0-51；色度编码的量化步长<script type="math/tex">{Q}_{step}</script>共有39个值，QP为0-39。QP取最小值0 时，表示量化最精细；相反，QP取最大值51/39时，表示量化是最粗糙的。亮度编码的QP每增加6，量化步长<script type="math/tex">{Q}_{step}</script>增加一倍。亮度编码的量化步长信息如下表：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">QP</th>
-<th align="center">$${Q}_{step}$$</th>
-<th align="center">QP</th>
-<th align="center">$${Q}_{step}$$</th>
-<th align="center">QP</th>
-<th align="center">$${Q}_{step}$$</th>
-<th align="center">QP</th>
-<th align="center">$${Q}_{step}$$</th>
-<th align="center">QP</th>
-<th align="center">$${Q}_{step}$$</th>
+<th style="text-align:center">QP</th>
+<th style="text-align:center"><script type="math/tex">{Q}_{step}</script></th>
+<th style="text-align:center">QP</th>
+<th style="text-align:center"><script type="math/tex">{Q}_{step}</script></th>
+<th style="text-align:center">QP</th>
+<th style="text-align:center"><script type="math/tex">{Q}_{step}</script></th>
+<th style="text-align:center">QP</th>
+<th style="text-align:center"><script type="math/tex">{Q}_{step}</script></th>
+<th style="text-align:center">QP</th>
+<th style="text-align:center"><script type="math/tex">{Q}_{step}</script></th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">0</td>
-<td align="center">0.625</td>
-<td align="center">13</td>
-<td align="center">2.25</td>
-<td align="center">22</td>
-<td align="center">8</td>
-<td align="center">33</td>
-<td align="center">28</td>
-<td align="center">44</td>
-<td align="center">104</td>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.625</td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">2.25</td>
+<td style="text-align:center">22</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">33</td>
+<td style="text-align:center">28</td>
+<td style="text-align:center">44</td>
+<td style="text-align:center">104</td>
 </tr>
 <tr>
-<td align="center">1</td>
-<td align="center">0.6875</td>
-<td align="center">12</td>
-<td align="center">2.5</td>
-<td align="center">23</td>
-<td align="center">9</td>
-<td align="center">34</td>
-<td align="center">32</td>
-<td align="center">45</td>
-<td align="center">112</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0.6875</td>
+<td style="text-align:center">12</td>
+<td style="text-align:center">2.5</td>
+<td style="text-align:center">23</td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">34</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">45</td>
+<td style="text-align:center">112</td>
 </tr>
 <tr>
-<td align="center">2</td>
-<td align="center">0.8125</td>
-<td align="center">13</td>
-<td align="center">2.75</td>
-<td align="center">24</td>
-<td align="center">10</td>
-<td align="center">35</td>
-<td align="center">36</td>
-<td align="center">46</td>
-<td align="center">128</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">0.8125</td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">2.75</td>
+<td style="text-align:center">24</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">35</td>
+<td style="text-align:center">36</td>
+<td style="text-align:center">46</td>
+<td style="text-align:center">128</td>
 </tr>
 <tr>
-<td align="center">3</td>
-<td align="center">0.875</td>
-<td align="center">14</td>
-<td align="center">3.25</td>
-<td align="center">25</td>
-<td align="center">11</td>
-<td align="center">36</td>
-<td align="center">40</td>
-<td align="center">47</td>
-<td align="center">144</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">0.875</td>
+<td style="text-align:center">14</td>
+<td style="text-align:center">3.25</td>
+<td style="text-align:center">25</td>
+<td style="text-align:center">11</td>
+<td style="text-align:center">36</td>
+<td style="text-align:center">40</td>
+<td style="text-align:center">47</td>
+<td style="text-align:center">144</td>
 </tr>
 <tr>
-<td align="center">4</td>
-<td align="center">1</td>
-<td align="center">15</td>
-<td align="center">3.5</td>
-<td align="center">26</td>
-<td align="center">13</td>
-<td align="center">37</td>
-<td align="center">44</td>
-<td align="center">48</td>
-<td align="center">160</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">15</td>
+<td style="text-align:center">3.5</td>
+<td style="text-align:center">26</td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">37</td>
+<td style="text-align:center">44</td>
+<td style="text-align:center">48</td>
+<td style="text-align:center">160</td>
 </tr>
 <tr>
-<td align="center">5</td>
-<td align="center">1.125</td>
-<td align="center">16</td>
-<td align="center">4</td>
-<td align="center">27</td>
-<td align="center">14</td>
-<td align="center">38</td>
-<td align="center">52</td>
-<td align="center">49</td>
-<td align="center">176</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">1.125</td>
+<td style="text-align:center">16</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">27</td>
+<td style="text-align:center">14</td>
+<td style="text-align:center">38</td>
+<td style="text-align:center">52</td>
+<td style="text-align:center">49</td>
+<td style="text-align:center">176</td>
 </tr>
 <tr>
-<td align="center">6</td>
-<td align="center">1.25</td>
-<td align="center">17</td>
-<td align="center">4.5</td>
-<td align="center">28</td>
-<td align="center">16</td>
-<td align="center">39</td>
-<td align="center">56</td>
-<td align="center">50</td>
-<td align="center">208</td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">1.25</td>
+<td style="text-align:center">17</td>
+<td style="text-align:center">4.5</td>
+<td style="text-align:center">28</td>
+<td style="text-align:center">16</td>
+<td style="text-align:center">39</td>
+<td style="text-align:center">56</td>
+<td style="text-align:center">50</td>
+<td style="text-align:center">208</td>
 </tr>
 <tr>
-<td align="center">7</td>
-<td align="center">1.375</td>
-<td align="center">18</td>
-<td align="center">5</td>
-<td align="center">29</td>
-<td align="center">18</td>
-<td align="center">40</td>
-<td align="center">64</td>
-<td align="center">51</td>
-<td align="center">224</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">1.375</td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">29</td>
+<td style="text-align:center">18</td>
+<td style="text-align:center">40</td>
+<td style="text-align:center">64</td>
+<td style="text-align:center">51</td>
+<td style="text-align:center">224</td>
 </tr>
 <tr>
-<td align="center">8</td>
-<td align="center">1.625</td>
-<td align="center">19</td>
-<td align="center">5.5</td>
-<td align="center">30</td>
-<td align="center">20</td>
-<td align="center">41</td>
-<td align="center">72</td>
-<td align="center"></td>
-<td align="center"></td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">1.625</td>
+<td style="text-align:center">19</td>
+<td style="text-align:center">5.5</td>
+<td style="text-align:center">30</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">41</td>
+<td style="text-align:center">72</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
 </tr>
 <tr>
-<td align="center">9</td>
-<td align="center">1.75</td>
-<td align="center">20</td>
-<td align="center">6.5</td>
-<td align="center">31</td>
-<td align="center">22</td>
-<td align="center">42</td>
-<td align="center">80</td>
-<td align="center"></td>
-<td align="center"></td>
+<td style="text-align:center">9</td>
+<td style="text-align:center">1.75</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">6.5</td>
+<td style="text-align:center">31</td>
+<td style="text-align:center">22</td>
+<td style="text-align:center">42</td>
+<td style="text-align:center">80</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
 </tr>
 <tr>
-<td align="center">10</td>
-<td align="center">2</td>
-<td align="center">21</td>
-<td align="center">7</td>
-<td align="center">32</td>
-<td align="center">26</td>
-<td align="center">43</td>
-<td align="center">88</td>
-<td align="center"></td>
-<td align="center"></td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">21</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">26</td>
+<td style="text-align:center">43</td>
+<td style="text-align:center">88</td>
+<td style="text-align:center"></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h3 id="循环滤波"><a href="#循环滤波" class="headerlink" title="循环滤波"></a>循环滤波</h3><p>H.264 / MPEG-4 AVC定义了一种<strong>去块滤波器</strong>（de-blocking filter ），其对16×16宏块和4×4块边界进行操作。 在宏块的情况下，滤波器旨在去除可能由具有不同估计类型（例如，运动与帧内估计）的相邻宏块和/或不同的量化尺度产生的<strong>伪像</strong>。 在块的情况下，滤波器旨在去除可能由变换/量化引起的伪像和相邻块之间的<strong>运动矢量差异</strong>。 循环滤波器通常使用内容自适应非线性滤波器来修改宏块/块边界的任一侧上的两个像素。</p>
 <h3 id="熵编码"><a href="#熵编码" class="headerlink" title="熵编码"></a>熵编码</h3><p>在进行熵编码之前，必须对4x4量化系数进行序列化。 根据这些系数是否是原始的运动估计或帧内估计，选择不同的扫描模式来创建串行化流。 扫描模式将系数从低频到高频排列。 然后，由于较高频率的量化系数趋向于零，所以使用游程长度编码来分组尾随零，导致更有效的熵编码。</p>
 <p>熵编码将表示运动矢量、量化系数和宏块头的符号映射到实际位中，熵编码通过将较少数量的比特分配给频繁使用的符号和较大数量的比特到较不频繁使用的符号来提高编码效率。</p>
 <p><img src="../../assets/media/codec/h264-entropy-coding.png" alt="熵编码"></p>
-<p>下列表格描述了两种主要类型的熵编码：<strong>Variable Length Coding (VLC)**和</strong>Context Adaptive Binary Arithmetic Coding (CABAC)**。</p>
+<p>下列表格描述了两种主要类型的熵编码：<strong>Variable Length Coding (VLC)</strong>和<strong>Context Adaptive Binary Arithmetic Coding (CABAC)</strong>。</p>
 <p><img src="../../assets/media/codec/h264-entropy-coding-comparison.png" alt="熵编码比较"></p>
 <h2 id="Level-和-Profile"><a href="#Level-和-Profile" class="headerlink" title="Level 和 Profile"></a>Level 和 Profile</h2><p>H.264 标准的一个重要方面是通过级别（Level）和档次（Profile）中提供的功能，以最佳的方式支持常见应用和通用格式。Profile 是对视频压缩特性的描述（CABAC 呀、颜色采样数等等），Level 是对视频本身特性的描述（码率、分辨率、帧率）。简单来说，Profile 越高，就说明采用了越高级的压缩特性。Level 越高，视频的码率、分辨率、帧率越高。</p>
 <p>H.264 从低到高划分了很多 Profile 和 Level，在维基百科英文版中能够看到详细的表格，在本节末尾会贴出相关表格内容。</p>
@@ -400,10 +403,9 @@
 <li>具有良好的网络亲和性。</li>
 </ul>
 <p>为此，H.264的功能分为两层：视频编码层（VLC，Video Coding Layer）和网络抽象层（NAL，Network Abstraction Layer）。</p>
-<img src="../../assets/media/codec/h264-layered-architecture.png">
-
+<p><img src="../../assets/media/codec/h264-layered-architecture.png"></p>
 <h3 id="数据格式"><a href="#数据格式" class="headerlink" title="数据格式"></a>数据格式</h3><p>视频编码层进行视频数据压缩、解压缩操作，而网络抽象层专门为视频编码信息提供头文件信息，安排格式以方便网络传输和介质存储。VCL数据即编码处理的输出，它表示被压缩编码后的视频数据序列。在VCL数据传输或存储之前，这些编码的VCL数据，先被映射或封装进NAL单元中。每个NAL单元包含一个原始字节序列负载（RBSP，Raw Byte Sequence Payload）、一组对应于视频编码数据的NAL头信息。其具体结构如下图：</p>
-<p><img src="../../assets/media/codec/h264-nal.jpg"></p>
+<p><img src="../../assets/media/codec/h264-nal.jpg" alt=""></p>
 <p>在H.264编码过程中，存在三种不同的数据形式：</p>
 <ul>
 <li>SODB， String of Data Bits，数据比特串，是最原始的编码数据，即VCL数据；VCL层是对核心算法引擎，块，宏块及片的语法级别的定义，他最终输出编码完的数据SODB</li>
@@ -425,52 +427,54 @@
 <h2 id="H-264语法结构"><a href="#H-264语法结构" class="headerlink" title="H.264语法结构"></a>H.264语法结构</h2><p>NALU，Network Abstract Layer Unit，是H.264的最高抽象层，H.264的所有语法结构最终都被封装成NALU，同时会加入一些网络相关信息。码流中的NALU单元必须定义合适的分隔符，否则无法区分。H.264 视频压缩标准的附录B采用前缀码<code>“00 00 01”/“00 00 00 01”</code>作为NALU的分隔符，可以通过搜索前缀码<code>“00 00 01”/“00 00 00 01”</code>来识别一个NALU。</p>
 <p>H.264视频流是以NAL单元传送的，但在一个NAL单元里面，可能既存放I-Slice（P-Slice或B-Slice），也可能存放图像的其他信息，比如SPS、PPS。根据H.264语法结构，根据的NAL类型可以分为：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">NAL_SLICE     = 1   SLICE非IDR不分割</span><br><span class="line">NAL_SLICE_DPA = 2   SLICE数据分割块A</span><br><span class="line">NAL_SLICE_DPB = 3   SLICE数据分割快B</span><br><span class="line">NAL_SLICE_DPC = 4   SLICE数据分割块C</span><br><span class="line">NAL_SLICE_IDR = 5   SLICE关键帧</span><br><span class="line">NAL_SEI       = 6   补充增强信息单元帧</span><br><span class="line">NAL_SPS       = 7   序列参数集</span><br><span class="line">NAL_PPS       = 8   图像参数集</span><br><span class="line">NAL_AUD       = 9   分界符</span><br><span class="line">NAL_EOSEQ     = 10  序列结束</span><br><span class="line">NAL_EOSTREAM  = 11  码流结束</span><br><span class="line">NAL_FILLER    = 12  填充</span><br><span class="line">              = 13</span><br><span class="line">              = ...</span><br><span class="line">              = 23  13~23保留</span><br><span class="line">              = 24</span><br><span class="line">              = ...</span><br><span class="line">              = 31  24~32不保留，RTP打包时会用到</span><br></pre></td></tr></table></figure>
-
 <p>将数据块分割为A、B、C，主要目的是为了对重要程度不同的数据进行不同程度的保护。其中24~32类型是不保留的，其在RTP打包时会用到：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">类型取值</th>
-<th align="center">对应类型</th>
-<th align="center">功能</th>
+<th style="text-align:center">类型取值</th>
+<th style="text-align:center">对应类型</th>
+<th style="text-align:center">功能</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">24</td>
-<td align="center">STAP-A</td>
-<td align="center">Single-time aggregation packet</td>
+<tbody>
+<tr>
+<td style="text-align:center">24</td>
+<td style="text-align:center">STAP-A</td>
+<td style="text-align:center">Single-time aggregation packet</td>
 </tr>
 <tr>
-<td align="center">25</td>
-<td align="center">STAP-B</td>
-<td align="center">Single-time aggregation packet</td>
+<td style="text-align:center">25</td>
+<td style="text-align:center">STAP-B</td>
+<td style="text-align:center">Single-time aggregation packet</td>
 </tr>
 <tr>
-<td align="center">26</td>
-<td align="center">MTAP16</td>
-<td align="center">Multi-time aggregation packet</td>
+<td style="text-align:center">26</td>
+<td style="text-align:center">MTAP16</td>
+<td style="text-align:center">Multi-time aggregation packet</td>
 </tr>
 <tr>
-<td align="center">27</td>
-<td align="center">MTAP24</td>
-<td align="center">Multi-time aggregation packet</td>
+<td style="text-align:center">27</td>
+<td style="text-align:center">MTAP24</td>
+<td style="text-align:center">Multi-time aggregation packet</td>
 </tr>
 <tr>
-<td align="center">28</td>
-<td align="center">FU-A</td>
-<td align="center">Fragmentation unit</td>
+<td style="text-align:center">28</td>
+<td style="text-align:center">FU-A</td>
+<td style="text-align:center">Fragmentation unit</td>
 </tr>
 <tr>
-<td align="center">29</td>
-<td align="center">FU-B</td>
-<td align="center">Fragmentation unit</td>
+<td style="text-align:center">29</td>
+<td style="text-align:center">FU-B</td>
+<td style="text-align:center">Fragmentation unit</td>
 </tr>
 <tr>
-<td align="center">30-31</td>
-<td align="center">undefined</td>
-<td align="center"></td>
+<td style="text-align:center">30-31</td>
+<td style="text-align:center">undefined</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h3 id="FU-A"><a href="#FU-A" class="headerlink" title="FU_A"></a>FU_A</h3><p>对于比较大的NALU单元，是无法一次通过RTP发送的（RTP的MTU为1500），所以必须要拆包，将较大的NALU拆分为FU-A包。这里面有拆包和解包两个概念：</p>
 <ul>
 <li>拆包：当编码器在编码时需要将原有一个NAL按照FU-A进行分片，原有的NAL的单元头与分片后的FU-A的单元头有如下关系：</li>
@@ -513,7 +517,7 @@
 <li><a target="_blank" rel="noopener" href="http://tcs.rwth-aachen.de/lehre/Komprimierung/SS2012/ausarbeitungen/H264-MPEG4.pdf">H.264/MPEG-4 Advanced Video Coding</a></li>
 <li><a target="_blank" rel="noopener" href="http://www.springer.com/cda/content/document/cda_downloaddocument/9781461422297-c1.pdf">Understanding the Application: An Overview of the H.264 Standard</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.ittiam.com/wp-content/knowledge-center/publications/2005/H.264_Advanced_video_compression_standard.pdf">H.264 Advanced Video Compression Standard</a></li>
-<li><a target="_blank" rel="noopener" href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.142.1068&rep=rep1&type=pdf">Video coding with H.264/AVC: Tools, Performance, and Complexity</a></li>
+<li><a target="_blank" rel="noopener" href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.142.1068&amp;rep=rep1&amp;type=pdf">Video coding with H.264/AVC: Tools, Performance, and Complexity</a></li>
 <li><a target="_blank" rel="noopener" href="https://engineering.purdue.edu/~ace/thesis/igarta/thesis-igarta.pdf">A STUDY OF MPEG-2 AND H.264 VIDEO CODING</a></li>
 <li><a target="_blank" rel="noopener" href="http://lib.mdp.ac.id/ebook/Karya%20Umum/Video-Compression-Video-Coding-for-Next-generation-Multimedia.pdf">H.264 and MPEG-4 Video Compression Video Coding for Next-generation Multimedia</a></li>
 <li><a target="_blank" rel="noopener" href="http://files.cnblogs.com/files/irish/The_H.264_advanced_video_compression_standard.pdf">The H.264 Advanced Video Compression Standard, Second Edition</a></li>

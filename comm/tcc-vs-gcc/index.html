@@ -153,36 +153,32 @@
 </ul>
 <p>相对于Loss-based BWE，Delay-based BWE能够更早的发现网络的拥塞状况，进而提前调整码率，防止拥塞加重。</p>
 <p>因此，在WebRTC中使用Loss-based BWE来适应丢包情况和探测带宽，而使用Delay-based BWE来提前发现网络拥塞，降低队列延迟，提高实时音视频通信的质量。</p>
-<h2 id="Send-side-Delay-based-BWE"><a href="#Send-side-Delay-based-BWE" class="headerlink" title="Send-side Delay-based BWE"></a>Send-side Delay-based BWE</h2><p><img src="../../assets/media/qos/gcc-tcc.png"></p>
+<h2 id="Send-side-Delay-based-BWE"><a href="#Send-side-Delay-based-BWE" class="headerlink" title="Send-side Delay-based BWE"></a>Send-side Delay-based BWE</h2><p><img src="../../assets/media/qos/gcc-tcc.png" alt=""></p>
 <p>Transport-CC将接收端的延迟信息通过RTCP-TCC反馈给发送端，然后在发送端进行Delay-based BWE。WebRTC通过以下两步来实现该方案：</p>
 <ul>
 <li><strong>Transport wide sequence numbers header extension</strong></li>
 </ul>
 <p>x所有的RTP包额外的增加一个头部扩展项，该扩展项用来表示发送序列号。通过SDP来协商是否打开该扩展项：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=extmap:5 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li><strong>Transport Feedback</strong></li>
 </ul>
 <p>接收方向媒体发送方定期发送反馈，提供有关接收到的数据包的信息以及它们之间的延迟。反馈信息通过RTCP-Transport-FB反馈给发送端。通过SDP来协商是否启用：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=rtcp-fb:100 transport-cc </span><br></pre></td></tr></table></figure>
-
 <p>RTCP-Transport-FB默认发送频率1time/100ms，同时其动态适应使用5％的可用带宽，最大频率值为1time/50ms、最小频率值为1time/250ms。以1time/100ms的频率发送，其最大需要耗费16kbps带宽。</p>
-<p><img src="../../assets/media/qos/gcc-tcc-frequency.png"></p>
-<h2 id="Recv-side-Delay-based-BWE"><a href="#Recv-side-Delay-based-BWE" class="headerlink" title="Recv-side Delay-based BWE"></a>Recv-side Delay-based BWE</h2><p><img src="../../assets/media/qos/gcc-remb.png"></p>
+<p><img src="../../assets/media/qos/gcc-tcc-frequency.png" alt=""></p>
+<h2 id="Recv-side-Delay-based-BWE"><a href="#Recv-side-Delay-based-BWE" class="headerlink" title="Recv-side Delay-based BWE"></a>Recv-side Delay-based BWE</h2><p><img src="../../assets/media/qos/gcc-remb.png" alt=""></p>
 <p>Recv-side Delay-based BWE在接收端计算预估码率结果，并通过RTCP-REMB反馈给发送端。实现Recv-side Delay-based BWE需要两步：</p>
 <ul>
 <li><strong>Transport with Absolute Send Time</strong></li>
 </ul>
 <p>绝对发送时间用于表示发送端发送该包的时间，在RTP报头的扩展中发送。需要在SDP中协商是否启用该扩展：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=extmap:3 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li><strong>REMB Feedback</strong></li>
 </ul>
 <p>接收端通过RTCP-REMB反馈预估的码率值，需要在SDP中协商是否启动该反馈：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=rtcp-fb:&lt;payload type&gt; goog-remb</span><br></pre></td></tr></table></figure>
-
 <p>在REMB方案中，其他厂商也给出了一些优化思路：</p>
 <ul>
 <li>WebRTC Gateway反馈的REMB码率结果需要综合考虑同一个会议中其他用户的下行带宽和丢包。</li>
@@ -219,7 +215,7 @@
 <p>Number of Delay-based Decrease Events：$n_{dd}$，降低码率的REMB包数量</p>
 </blockquote>
 <h3 id="Single-GCC-Flow-with-Constant-Avaliable-Bandwidth"><a href="#Single-GCC-Flow-with-Constant-Avaliable-Bandwidth" class="headerlink" title="Single GCC Flow with Constant Avaliable Bandwidth"></a>Single GCC Flow with Constant Avaliable Bandwidth</h3><p>设置$RTT_{m}=50ms$，可利用带宽为$b(t)=2000kbps$，仿真结果如下：</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-flow.png"></p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-flow.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
 <li>GCC预估码率从300kbps上升到2000kbps需要30s左右</li>
@@ -228,8 +224,8 @@
 <li>GCC出现严重带宽时会大大提高FEC的比例，最大可达50%</li>
 <li>当码率接近带宽上限时，RTT增大导致REMB发送频率增加，进而降低码率</li>
 </ul>
-<p>设置$RTT_{m, j} \in \left { 30, 50, 80, 120 \right }ms$，可利用带宽$b_{i} \in \left { 500, 1000, 1500, 2000 \right }kbps$，仿真结果如下：</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-flow-multi-bandwidth-and-delay.png"></p>
+<p>设置$RTT<em>{m, j} \in \left { 30, 50, 80, 120 \right }ms$，可利用带宽$b</em>{i} \in \left { 500, 1000, 1500, 2000 \right }kbps$，仿真结果如下：</p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-flow-multi-bandwidth-and-delay.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
 <li>信道利用率几乎不受带宽和延迟影响，维持在80%左右</li>
@@ -237,35 +233,35 @@
 <li>随着带宽的增加，丢包率随着增加，进而导致FEC的比例逐步增加，最高达到20%</li>
 <li>采用GCC算法后，队列延迟中位数近似于0，90%样本值小于0.25m</li>
 </ul>
-<h3 id="Single-GCC-Flow-with-Variable-Available-Bandwidth"><a href="#Single-GCC-Flow-with-Variable-Available-Bandwidth" class="headerlink" title="Single GCC Flow with Variable Available Bandwidth"></a>Single GCC Flow with Variable Available Bandwidth</h3><p>设置$RTT_{m}=50ms$，可利用带宽先阶梯递增后阶梯递减，增减可选值为$b_{i} \in \left { 500, 1000, 1500, 2000 \right }kbps$，仿真结果如下：</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-flow-step-bandwidth.png"></p>
+<h3 id="Single-GCC-Flow-with-Variable-Available-Bandwidth"><a href="#Single-GCC-Flow-with-Variable-Available-Bandwidth" class="headerlink" title="Single GCC Flow with Variable Available Bandwidth"></a>Single GCC Flow with Variable Available Bandwidth</h3><p>设置$RTT<em>{m}=50ms$，可利用带宽先阶梯递增后阶梯递减，增减可选值为$b</em>{i} \in \left { 500, 1000, 1500, 2000 \right }kbps$，仿真结果如下：</p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-flow-step-bandwidth.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
 <li>随着码率阶梯递增或递减，GCC预估码率能够随之快速递增递减</li>
 <li>码率增长到较高码率时，码率波动明显增加，FEC比例随着增加</li>
 <li>码率从高位下降时，瞬间丢包率增加，会导致发送端码率严重下降，远低于接收端预估码率</li>
 </ul>
-<h3 id="Multiple-GCC-Flow"><a href="#Multiple-GCC-Flow" class="headerlink" title="Multiple GCC Flow"></a>Multiple GCC Flow</h3><p>设置$RTT_{m}=50ms$，可利用带宽$b_{i}  = 1000kbps$，仿真结果如下：</p>
-<p><img src="../../assets/media/qos/gcc-multiple-gcc.png"></p>
+<h3 id="Multiple-GCC-Flow"><a href="#Multiple-GCC-Flow" class="headerlink" title="Multiple GCC Flow"></a>Multiple GCC Flow</h3><p>设置$RTT<em>{m}=50ms$，可利用带宽$b</em>{i}  = 1000kbps$，仿真结果如下：</p>
+<p><img src="../../assets/media/qos/gcc-multiple-gcc.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
 <li>两个GCC流之间的码率竞争呈现无规律性</li>
 </ul>
-<p><img src="../../assets/media/qos/gcc-multiple-gcc-channel.png"></p>
+<p><img src="../../assets/media/qos/gcc-multiple-gcc-channel.png" alt=""></p>
 <p>从上图可以看出：</p>
 <ul>
 <li>在1000kbps和2000kbps时，码率分配十分不公平</li>
 <li>在3000kbps时，码率分配相对公平，但先启动的GCC流仍然分配较多的码率</li>
 </ul>
-<h3 id="Single-GCC-Flow-and-Single-TCP-Flow"><a href="#Single-GCC-Flow-and-Single-TCP-Flow" class="headerlink" title="Single GCC Flow and Single TCP Flow"></a>Single GCC Flow and Single TCP Flow</h3><p>设置$RTT_{m}=50ms$，可利用带宽$b_{i}  = \left { 1000, 2000, 3000 \right }kbps$，考虑两种场景：先启动GCC流，100s后启动TCP流、先启动TCP流，100s后启动GCC流，仿真结果如下：</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp.png"></p>
+<h3 id="Single-GCC-Flow-and-Single-TCP-Flow"><a href="#Single-GCC-Flow-and-Single-TCP-Flow" class="headerlink" title="Single GCC Flow and Single TCP Flow"></a>Single GCC Flow and Single TCP Flow</h3><p>设置$RTT<em>{m}=50ms$，可利用带宽$b</em>{i}  = \left { 1000, 2000, 3000 \right }kbps$，考虑两种场景：先启动GCC流，100s后启动TCP流、先启动TCP流，100s后启动GCC流，仿真结果如下：</p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
 <li>GCC流的信道利用率随着带宽的增加而增加，且普遍低于TCP流的带宽占用率</li>
 <li>GCC流后启动能够帮助GCC流获取到更高的带宽占用率</li>
 </ul>
 <p>将先启动TCP流后启动GCC流这种场景抽出来分析，考虑可利用带宽为$b(t)=1000kbps$和$b(t)=3000kbps$两种情况，仿真结果如下：</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp-detail.png"></p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp-detail.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
 <li>在较低带宽时，GCC流会出现饥饿现象，无法上升到较高的码率</li>
@@ -275,23 +271,25 @@
 <h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>GCC算法能够较好的处理单个GCC流，但是一旦和其他GCC流或TCP流共存时，GCC算法无法提供公平的带宽分配。</p>
 <h2 id="Improvement"><a href="#Improvement" class="headerlink" title="Improvement"></a>Improvement</h2><p>如何解决与TCP流共存时的饥饿问题是后续的优化关键。有研究表明：GCC流与TCP流共存时的饥饿问题，是由于GCC算法的自适应门限机制导致的。</p>
 <p>当GCC算法采用较小的阈值时，Delay-based BWE优于Loss-based BWE。然而当GCC流和TCP流码率达到瓶颈时，较小的阈值会导致GCC流出现饥饿问题。</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp-starvation.png"></p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp-starvation.png" alt=""></p>
 <p>下图给出了自适应门限值对单个GCC流的影响：</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-flow-threshold.png"></p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-flow-threshold.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
-<li>随着门限值的增加，$n_{dd}$数量减少，这是因为较大的门限值，导致在不触发<strong>OVERUSE</strong>信号的情况下，允许更大的$m(t_{i})$变化。</li>
+<li>随着门限值的增加，$n<em>{dd}$数量减少，这是因为较大的门限值，导致在不触发<strong>OVERUSE</strong>信号的情况下，允许更大的$m(t</em>{i})$变化。</li>
 <li>随着门限值的增加，GCC算法偏向于Loss-based BWE，进而带宽占用率逐渐增加，其后果是更大的丢包率和队列延迟。</li>
 <li>随着带宽的增加，带宽占用率逐渐增加，Delay-based-Decrease REMB逐渐减少，队列延时逐渐减小。</li>
 </ul>
-<p>从上图中展示Loss信息的图标，可以看出带宽的增加会导致更大的丢包率，这是为何？假设队列大小为$q(t)$，带宽为$b(t)$，那么我们可以将队列延迟抽象为如下模型：<br>$$<br>T_{q}(t) = \frac{q(t)}{b(t)}<br>$$<br>当$b(t)$较小时，譬如500kbps，那么队列延迟变化变大；当$b(t)$较大时，譬如2000kbps，那么队列延迟变化变小。因此对于较高带宽，Delay-based-Decrease REMB较少，而对于较低带宽，Delay-based-Decrease REMB较多。当带宽较高时，以Loss-based BWE为主，带宽的调整主要是依据丢包信息，因此此时势必会触发更高的丢包率。</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-flow-queue-delay.png"></p>
+<p>从上图中展示Loss信息的图标，可以看出带宽的增加会导致更大的丢包率，这是为何？假设队列大小为$q(t)$，带宽为$b(t)$，那么我们可以将队列延迟抽象为如下模型：</p>
+<script type="math/tex; mode=display">
+T_{q}(t) = \frac{q(t)}{b(t)}</script><p>当$b(t)$较小时，譬如500kbps，那么队列延迟变化变大；当$b(t)$较大时，譬如2000kbps，那么队列延迟变化变小。因此对于较高带宽，Delay-based-Decrease REMB较少，而对于较低带宽，Delay-based-Decrease REMB较多。当带宽较高时，以Loss-based BWE为主，带宽的调整主要是依据丢包信息，因此此时势必会触发更高的丢包率。</p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-flow-queue-delay.png" alt=""></p>
 <p>下图给出了自适应门限值对GCC流和TCP流并发时的影响：</p>
-<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp-influence.png"></p>
+<p><img src="../../assets/media/qos/gcc-single-gcc-and-single-tcp-influence.png" alt=""></p>
 <p>从仿真结果可以看出：</p>
 <ul>
 <li>随着门限值的增加，GCC流的带宽占用率逐步增加</li>
-<li>随着门限值的增加，$n_{dd}$数量减少，相对于单个GCC流，此时的$n_{dd}$数量不在一个数量级</li>
+<li>随着门限值的增加，$n<em>{dd}$数量减少，相对于单个GCC流，此时的$n</em>{dd}$数量不在一个数量级</li>
 </ul>
 <p>对比单GCC流和并发GCC/TCP流可以看出：</p>
 <ul>

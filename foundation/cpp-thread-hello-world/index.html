@@ -113,7 +113,6 @@
 		  <section class="post-content">
 			<blockquote><p>在所有弱点中，最大的弱点是害怕暴露弱点。</p>
 <footer><strong>J.B. Bossuet</strong><cite>Politics from Holy Writ</cite></footer></blockquote>
-
 <p>C++11中引入了多线程编程，一般教科书中都没有涉及到这个概念，但是在工作中多线程却又是必不可少的。<a id="more"></a>本文会展示最基本的Hello World, Concurrency程序。</p>
 <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>C++11之后，多线程终于被支持了，C++开发者再也不需要借助boost等第三方库的力量，来实现跨平台的并行编程。语言层面上的支持，能够让开发者更加专注于业务逻辑，从而减少对系统平台的关注。C++11多线程的引入，让C++编程更加高效和简便。</p>
 <p>最近一直研究多线程编程，忽然有感，如果我每掌握一个知识点，便分享出来，这比我蒙头死学更加高效。如果我的使用不正确，也有机会被指出来。所以便想整理网络或者书籍上所能学到的东西，写一个教程出来，力求能让刚入门不久的C++开发者，也能轻松的掌握并发编程的奥妙。</p>
@@ -121,7 +120,6 @@
 <p>如果没有特殊提及，本教程的所以代码都是基于Visual Studio 2013，如果更换其他编译器有可能无法运行。</p>
 <h2 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h2><p>经典的Hello World式开端。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;thread&gt;</span><br><span class="line">void hello()</span><br><span class="line">&#123;</span><br><span class="line">	std::cout &lt;&lt; &quot;Hello world, concurrency&quot; &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	std::thread t(hello);</span><br><span class="line">	t.join(); &#x2F;* 没有这句话，会Debug Error的 *&#x2F;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>这段代码很简单，如果用过boost多线程编程，那么应该对这个了如指掌了。首先包含线程库头文件<thread>，然后定义一个线程对象t，线程对象负责管理以hello()函数作为初始函数的线程，join()等待线程函数执行完成——这儿是阻塞的。</p>
 <p>这个最简单的Hello World已经包含了多线程编程的基本结构，至于线程管理、数据共享、线程同步、原子操作，以及一系列进阶操作都会在后面详细阐述。</p>
 

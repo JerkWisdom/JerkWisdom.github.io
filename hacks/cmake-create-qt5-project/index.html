@@ -128,27 +128,19 @@
 <h2 id="生成ui头文件"><a href="#生成ui头文件" class="headerlink" title="生成ui头文件"></a>生成ui头文件</h2><p>GUI界面使用Qt Designer进行简单的设计，将设计的test.ui文件保存到工程目录中的<code>//form</code>下。</p>
 <p>如果我们这儿不使用CMake，而直接使用Visual Studio，我们可以将ui文件添加到Visual Studio工程中，然后直接右键test.ui文件编译。Visual Studio会调用Qt的uic工具编译test.ui文件，进而生成ui_test.h头文件。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Uicing ..\..\..\form\test.ui...</span><br><span class="line">Generate ui_test.h</span><br></pre></td></tr></table></figure>
-
 <p>考虑到跨平台，我们需要使用CMake来完成上述操作。CMake提供了<code>QT5_WRAP_UI</code>命令，该命令用来生成ui文件对应的头文件。</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE(GLOB FORMS &quot;form/*.ui&quot;)</span><br><span class="line">QT5_WRAP_UI(FORMS_UIC $&#123;FORMS&#125;)</span><br></pre></td></tr></table></figure>
-
 <p><code>QT5_WRAP_UI</code>等价于下面命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uic –o ui_test.h test.ui</span><br></pre></td></tr></table></figure>
-
 <h2 id="生成moc、qrc头文件"><a href="#生成moc、qrc头文件" class="headerlink" title="生成moc、qrc头文件"></a>生成moc、qrc头文件</h2><p>和生成ui头文件类似，CMake提供了<code>QT5_WRAP_UI</code>和<code>QT5_ADD_RESOURCES</code>两个命令来生成对应的头文件。</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE(GLOB MOCS &quot;inc/test.h&quot;)</span><br><span class="line">QT5_WRAP_CPP(HEADERS_MOC $&#123;MOCS&#125;)</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE(GLOB RES &quot;qrc/*.qrc&quot;)</span><br><span class="line">QT5_ADD_RESOURCES(RES_RCC $&#123;RES&#125;)</span><br></pre></td></tr></table></figure>
-
 <h2 id="将生成的文件添加到项目中"><a href="#将生成的文件添加到项目中" class="headerlink" title="将生成的文件添加到项目中"></a>将生成的文件添加到项目中</h2><p>这些生成的文件都被保存在<code>CMAKE_CURRENT_BINARY_DIR</code>文件中，为了使用这些文件，需要：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES($&#123;CMAKE_CURRENT_BINARY_DIR&#125;)</span><br></pre></td></tr></table></figure>
-
 <p>然后将这些文件添加到项目中：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADD_EXECUTABLE(gui $&#123;FILES&#125; $&#123;HEADERS_MOC&#125; $&#123;FORMS_UIC&#125; $&#123;RES_RCC&#125;)</span><br></pre></td></tr></table></figure>
-
 <h2 id="使用更多的Qt模块"><a href="#使用更多的Qt模块" class="headerlink" title="使用更多的Qt模块"></a>使用更多的Qt模块</h2><p>如果想要在项目中使用其他的Qt模块，也必须要在CMake中显式的指明。</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET(QT_USE_QTOPENGL TRUE)</span><br></pre></td></tr></table></figure>
-
 <p>常用的模块包括下列：</p>
 <ul>
 <li>QT_USE_QTNETWORK</li>

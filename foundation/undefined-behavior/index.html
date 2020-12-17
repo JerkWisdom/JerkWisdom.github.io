@@ -115,14 +115,10 @@
 <h2 id="一个问题"><a href="#一个问题" class="headerlink" title="一个问题"></a>一个问题</h2><p>此问题摘自知乎：</p>
 <blockquote>
 <p>对顺序容器 ( vector ) 的访问:</p>
-</blockquote>
-<blockquote>
 <ul>
 <li>如果使用 operator[] 访问容器，下标越界是未定义行为。</li>
 <li>使用 at 访问，下标越界，则抛出一个 out_of_range 异常。</li>
 </ul>
-</blockquote>
-<blockquote>
 <p>下标越界应该是明显错误的，但是为什么 C++ 标准选择把 operator[] 列为未定义行为，而加入at成员在对成员访问时进行下标检查？</p>
 </blockquote>
 <p>同样摘取一些回答</p>
@@ -156,11 +152,9 @@
 <p>7、试图比较两个无关地址是未定义行为</p>
 <p>8、对于那些没有指定执行顺序的运算符来说，如果表达式指向并修改了同一个对象，将会引发错误并产生未定义的行为。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i=<span class="number">0</span>;</span><br><span class="line"><span class="built_in">cout</span>&lt;&lt;i&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;++i&lt;&lt;<span class="built_in">endl</span>; <span class="comment">/* 未定义 */</span></span><br><span class="line"><span class="comment">/* 编译器可能先求++i的值，再求i的值；也可能先求i的值，再求++i的值。注意与print函数的区别。 */</span></span><br><span class="line">*beg=<span class="built_in">toupper</span>(*beg++); <span class="comment">/* 未定义 */</span></span><br></pre></td></tr></table></figure>
-
 <p>9、对有符号数进行左移操作可能会改变符号位的值，因此是一种未定义的行为。移位运算符右侧的运算对象一定不能为负，而且值必须严格小于结果的位数，否则就会产生未定义的行为。</p>
 <p>10、使用static_cast将void*转换成其他类型指针，必须确保转换后所得的类型就是指针所指的类型。类型一旦不符，将产生未定义行为。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> d;</span><br><span class="line"><span class="keyword">void</span>* p=&amp;d;</span><br><span class="line"><span class="keyword">double</span> *dp=<span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>*&gt;(p);</span><br></pre></td></tr></table></figure>
-
 <p>11、const_cast只能改变运算对象的底层const，如果对象本身是一个常量，使用const_cast执行写操作就会产生未定义行为。</p>
 <p>12、不要使用get初始化另一个智能指针或为智能指针赋值，否则将会产生两个独立的shared_ptr指向相同的内存，这将产生未定义行为。</p>
 <p>13、delete []p;如果忘记[]，其行为是未定义的。 删除单一对象的指针加[]，其行为也是未定义的。</p>
