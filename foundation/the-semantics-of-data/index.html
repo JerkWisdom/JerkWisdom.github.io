@@ -13,21 +13,21 @@
 <meta property="og:site_name" content="小熊糖否——木子兮的自留地">
 <meta property="og:description" content="本文主要针对于C++数据成员语意学，通过分析C++类对象的大小、数据成员的绑定等来分析类的数据成员语意。">
 <meta property="og:locale">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-memory.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-memory-alignment.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-memory-merge.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-with-vptr-memory.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-multiple-inheritance.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-multiple-inheritance-memory.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-virtual-inheritance.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-virtual-inheritance-memory.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-single-inheritance-memory.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-single-inheritance-memory-alignment.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-single-inheritance-memory-merge.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-single-inheritance-with-vptr-memory.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-multiple-inheritance.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-multiple-inheritance-memory.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-virtual-inheritance.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-virtual-inheritance-memory.png">
 <meta property="article:published_time" content="2016-04-25T00:19:46.000Z">
-<meta property="article:modified_time" content="2020-10-27T04:47:05.360Z">
+<meta property="article:modified_time" content="2021-02-24T11:59:40.430Z">
 <meta property="article:author" content="ZeroJiu">
 <meta property="article:tag" content="CPlusPlus">
 <meta property="article:tag" content="OOP">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.freehacker.cn/assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-memory.png">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/foundation/the-semantics-of-data-single-inheritance-memory.png">
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -143,9 +143,9 @@
 <h2 id="数据成员的存取"><a href="#数据成员的存取" class="headerlink" title="数据成员的存取"></a>数据成员的存取</h2><h3 id="静态数据成员"><a href="#静态数据成员" class="headerlink" title="静态数据成员"></a>静态数据成员</h3><p>类的静态数据成员只有一个实体，其存取不会导致空间上或执行时间上的额外负担。</p>
 <h3 id="非静态数据成员"><a href="#非静态数据成员" class="headerlink" title="非静态数据成员"></a>非静态数据成员</h3><p>非静态数据成员存在于每一个对象实体内部，通过隐含的this指针来存取。欲对一个非静态数据成员进行存取操作，编译器需要把对象起始地址加上数据成员的偏移量。对于每个类来说，该偏移量都能在编译时期获得。</p>
 <h2 id="数据成员在继承体系中的布局"><a href="#数据成员在继承体系中的布局" class="headerlink" title="数据成员在继承体系中的布局"></a>数据成员在继承体系中的布局</h2><h3 id="只要继承不要多态"><a href="#只要继承不要多态" class="headerlink" title="只要继承不要多态"></a>只要继承不要多态</h3><p>单一继承而且没有虚函数存在，这个时候的内存布局相对来说是最简单的。来看下面的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class Point2d&#123;</span><br><span class="line">protected:</span><br><span class="line">  float x, y;</span><br><span class="line">&#125;;</span><br><span class="line">class Point3d: public Point2d&#123;</span><br><span class="line">protected:</span><br><span class="line">  float z;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>类Point2d和Point3d的内存布局如下：<br><img src="../../assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-memory.png" alt="数据布局：单一继承"/></p>
-<p>这种继承关系并没有带来额外的内存损耗，但是下面的例子为了表现类体系之抽象化，由于内存对齐浪费了很多内存：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">class x&#123;</span><br><span class="line">private:</span><br><span class="line">  int val;</span><br><span class="line">  char bit1;</span><br><span class="line">  char bit2;</span><br><span class="line">  char bit3;</span><br><span class="line">&#125;;</span><br><span class="line">class a&#123;</span><br><span class="line">private:</span><br><span class="line">  int val;</span><br><span class="line">  char bit1;</span><br><span class="line">&#125;;</span><br><span class="line">class b : public a&#123;</span><br><span class="line">private:</span><br><span class="line">  char bit2;</span><br><span class="line">&#125;</span><br><span class="line">class c : public b&#123;</span><br><span class="line">private:</span><br><span class="line">  char bit3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>类x、a、b、c的内存布局如下：<br><img src="../../assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-memory-alignment.png" alt="数据布局：单一继承并内存对齐"/></p>
-<p>为什么会不把多余的填充字节去掉呢？如果把派生类成员和基类子对象捆绑在一起，除去填充字节会发生什么？这个时候如果派生类对象给其基类子对象进行复制操作时会破坏派生类数据成员。<br><img src="../../assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-memory-merge.png" alt="数据布局：单一继承并去除填充字节"/></p>
+<p>类Point2d和Point3d的内存布局如下：<br><img src="../../assets/foundation/the-semantics-of-data-single-inheritance-memory.png" alt="数据布局：单一继承"/></p>
+<p>这种继承关系并没有带来额外的内存损耗，但是下面的例子为了表现类体系之抽象化，由于内存对齐浪费了很多内存：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">class x&#123;</span><br><span class="line">private:</span><br><span class="line">  int val;</span><br><span class="line">  char bit1;</span><br><span class="line">  char bit2;</span><br><span class="line">  char bit3;</span><br><span class="line">&#125;;</span><br><span class="line">class a&#123;</span><br><span class="line">private:</span><br><span class="line">  int val;</span><br><span class="line">  char bit1;</span><br><span class="line">&#125;;</span><br><span class="line">class b : public a&#123;</span><br><span class="line">private:</span><br><span class="line">  char bit2;</span><br><span class="line">&#125;</span><br><span class="line">class c : public b&#123;</span><br><span class="line">private:</span><br><span class="line">  char bit3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>类x、a、b、c的内存布局如下：<br><img src="../../assets/foundation/the-semantics-of-data-single-inheritance-memory-alignment.png" alt="数据布局：单一继承并内存对齐"/></p>
+<p>为什么会不把多余的填充字节去掉呢？如果把派生类成员和基类子对象捆绑在一起，除去填充字节会发生什么？这个时候如果派生类对象给其基类子对象进行复制操作时会破坏派生类数据成员。<br><img src="../../assets/foundation/the-semantics-of-data-single-inheritance-memory-merge.png" alt="数据布局：单一继承并去除填充字节"/></p>
 <p>如上图所示，如果对b的基类子对象进行复制操作，bit2的值一定会被填充字节破坏掉。</p>
 <h3 id="带有多态的继承"><a href="#带有多态的继承" class="headerlink" title="带有多态的继承"></a>带有多态的继承</h3><p>多态给类带来空间和存取时间的额外负担：</p>
 <ul>
@@ -156,13 +156,13 @@
 </ul>
 <p>请看下例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class Point2d&#123;</span><br><span class="line">public:</span><br><span class="line">  virtual float Z() const;</span><br><span class="line">protected:</span><br><span class="line">  float x, y;</span><br><span class="line">&#125;;</span><br><span class="line">class Point3d: public Point2d&#123;</span><br><span class="line">public:</span><br><span class="line">  virtual float Z() const;</span><br><span class="line">protected:</span><br><span class="line">  float z;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
 <p>上例中引入了虚函数，C++标准没有规定虚函数指针在内存布局中的位置，这都是由编译器决定。Point2d和Point3d这种单一继承并含有虚函数情况下的内存布局如下：</p>
-<p><img src="../../assets/foundation/cplusplus/the-semantics-of-data-single-inheritance-with-vptr-memory.png" alt="数据布局：单一继承并含虚拟函数"/></p>
+<p><img src="../../assets/foundation/the-semantics-of-data-single-inheritance-with-vptr-memory.png" alt="数据布局：单一继承并含虚拟函数"/></p>
 <h3 id="多重继承"><a href="#多重继承" class="headerlink" title="多重继承"></a>多重继承</h3><p>多重继承的问题主要发生于派生类和其第二个或后继的基类对象之间的转换，考虑下面的继承体系。</p>
-<p><img src="../../assets/foundation/cplusplus/the-semantics-of-data-multiple-inheritance.png" alt="多重继承体系"/></p>
+<p><img src="../../assets/foundation/the-semantics-of-data-multiple-inheritance.png" alt="多重继承体系"/></p>
 <p>其内存布局如下：</p>
-<p><img src="../../assets/foundation/cplusplus/the-semantics-of-data-multiple-inheritance-memory.png" alt="数据布局：多重继承"/></p>
-<h3 id="虚拟继承"><a href="#虚拟继承" class="headerlink" title="虚拟继承"></a>虚拟继承</h3><p>考虑如下继承体系：<br><img src="../../assets/foundation/cplusplus/the-semantics-of-data-virtual-inheritance.png" alt="虚拟继承体系"/></p>
-<p>其内存布局如下：<br><img src="../../assets/foundation/cplusplus/the-semantics-of-data-virtual-inheritance-memory.png" alt="内存布局：虚拟继承体系"/></p>
+<p><img src="../../assets/foundation/the-semantics-of-data-multiple-inheritance-memory.png" alt="数据布局：多重继承"/></p>
+<h3 id="虚拟继承"><a href="#虚拟继承" class="headerlink" title="虚拟继承"></a>虚拟继承</h3><p>考虑如下继承体系：<br><img src="../../assets/foundation/the-semantics-of-data-virtual-inheritance.png" alt="虚拟继承体系"/></p>
+<p>其内存布局如下：<br><img src="../../assets/foundation/the-semantics-of-data-virtual-inheritance-memory.png" alt="内存布局：虚拟继承体系"/></p>
 
             <hr>
             <blockquote>

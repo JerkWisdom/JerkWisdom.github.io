@@ -13,14 +13,14 @@
 <meta property="og:site_name" content="小熊糖否——木子兮的自留地">
 <meta property="og:description" content="从WebRTC帧率调整策略窥探实时视频应用需要考虑的帧率问题。">
 <meta property="og:locale">
-<meta property="og:image" content="https://www.freehacker.cn/assets/media/webrtc/webrtc-leaky-bucket-algorithm.jpg">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-leaky-bucket-algorithm.jpg">
 <meta property="article:published_time" content="2017-12-09T04:36:45.000Z">
-<meta property="article:modified_time" content="2020-10-27T04:47:05.352Z">
+<meta property="article:modified_time" content="2021-02-24T12:00:03.629Z">
 <meta property="article:author" content="ZeroJiu">
 <meta property="article:tag" content="Media">
 <meta property="article:tag" content="WebRTC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.freehacker.cn/assets/media/webrtc/webrtc-leaky-bucket-algorithm.jpg">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/comm/webrtc-leaky-bucket-algorithm.jpg">
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -209,7 +209,7 @@ fps=\frac{90000 \times (sizeof(T_f)-1) + \frac{T_{diff}}{2}}{T_{diff}}</script><
 </ul>
 <p>因此，摄像头采集帧率并不等于编码器的实际输入帧率，<strong>MediaOptimization</strong>类中得到的编码器实际输入帧率，需要在下次编码前设置为编码器的输入帧率。</p>
 <h3 id="恒定码率丢帧策略"><a href="#恒定码率丢帧策略" class="headerlink" title="恒定码率丢帧策略"></a>恒定码率丢帧策略</h3><p>除了上文所述的采集编码丢帧策略，WebRTC还实现了一种漏桶算法的变体，用于跟踪何时应该主动丢帧，以避免编码器无法保持其比特率时，产生过高的比特率。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Leaky_bucket">漏桶算法</a>的示意图如下：</p>
-<p><img src="../../assets/media/webrtc/webrtc-leaky-bucket-algorithm.jpg"></p>
+<p><img src="../../assets/comm/webrtc-leaky-bucket-algorithm.jpg"></p>
 <p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Leaky_bucket">漏桶算法</a>的实现位于<em>“webrtc/modules/video_coding/frame_dropper.cc”</em>中的<strong>FrameDropper</strong>类，其实现了三个关键方法：</p>
 <ul>
 <li><em>Fill()</em></li>
@@ -297,7 +297,7 @@ fps=\frac{90000 \times (sizeof(T_f)-1) + \frac{T_{diff}}{2}}{T_{diff}}</script><
 	
 
 	
-		<a class="read-next-story prev" style="background-image: url(http://wx2.sinaimg.cn/large/61b57e82gy1fp01j6z7tsj21hc0i2aip.jpg)" href="/timecapsule/2017-improve/">
+		<a class="read-next-story prev" style="background-image: url(http://wx2.sinaimg.cn/large/61b57e82gy1fp01j6z7tsj21hc0i2aip.jpg)" href="/republic/2017-improve/">
 			<section class="post">
 				<h3>三月——迟来的总结和反思</h1>
 				<p>三省吾身</p>

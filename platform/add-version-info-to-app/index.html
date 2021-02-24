@@ -13,14 +13,14 @@
 <meta property="og:site_name" content="小熊糖否——木子兮的自留地">
 <meta property="og:description" content="右键应用程序的可执行文件，查看详细信息，能够看到应用程序的详细描述，这是怎么加的呢？">
 <meta property="og:locale">
-<meta property="og:image" content="https://www.freehacker.cn/assets/platform/wins/app-version-info.jpg">
+<meta property="og:image" content="https://www.freehacker.cn/assets/platform/app-version-info.jpg">
 <meta property="article:published_time" content="2016-09-29T02:39:11.000Z">
-<meta property="article:modified_time" content="2020-10-27T04:47:05.366Z">
+<meta property="article:modified_time" content="2021-02-24T11:58:13.297Z">
 <meta property="article:author" content="ZeroJiu">
 <meta property="article:tag" content="Platform">
 <meta property="article:tag" content="Win32">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.freehacker.cn/assets/platform/wins/app-version-info.jpg">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/platform/app-version-info.jpg">
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -117,7 +117,7 @@
 <p>如果某个想法是你唯一的想法，再也没有比这个更危险的事情了。</p>
 </blockquote>
 <p>右键应用程序的可执行文件，查看详细信息，能够看到应用程序的详细描述，这是怎么加的呢？<a id="more"></a></p>
-<p><img src="../../assets/platform/wins/app-version-info.jpg"  alt="应用程序详细信息" /></p>
+<p><img src="../../assets/platform/app-version-info.jpg"  alt="应用程序详细信息" /></p>
 <h2 id="创建资源（rc）文件"><a href="#创建资源（rc）文件" class="headerlink" title="创建资源（rc）文件"></a>创建资源（rc）文件</h2><p>在Visual Studio 2014中，按照下面顺序：右键项目→Add→Resource，我们就可以在Solution Explorer中看到多了一个<code>resource.h</code>和<code>project.rc</code>文件。project.rc包含了项目的资源信息，包括版本号、icon等。</p>
 <h2 id="生成版本信息"><a href="#生成版本信息" class="headerlink" title="生成版本信息"></a>生成版本信息</h2><p>目前大多数应用程序的版本号都是4位，前三位手动设置，最后一位根据git提交次数来设置。git计算提交次数的指令如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;%git_path%&quot;\git rev-list --count HEAD &gt;&gt; version.h</span><br></pre></td></tr></table></figure>

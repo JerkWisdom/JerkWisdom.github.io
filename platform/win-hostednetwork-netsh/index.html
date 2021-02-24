@@ -13,17 +13,17 @@
 <meta property="og:site_name" content="小熊糖否——木子兮的自留地">
 <meta property="og:description" content="无线承载网络是Windows7和之后的操作系统所支持的新特性，其主要是实现物理网卡虚拟化和软件AP。本文主要是用netsh命令来管理无线承载网络。">
 <meta property="og:locale">
-<meta property="og:image" content="https://www.freehacker.cn/assets/platform/wins/netsh-wlan-no-drivers.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/platform/wins/netsh-wlan-drivers-info.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/platform/wins/netsh-wlan-hostednetwork-state.png">
-<meta property="og:image" content="https://www.freehacker.cn/assets/platform/wins/netsh-wlan-hostednetwork-security.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/platform/netsh-wlan-no-drivers.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/platform/netsh-wlan-drivers-info.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/platform/netsh-wlan-hostednetwork-state.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/platform/netsh-wlan-hostednetwork-security.png">
 <meta property="article:published_time" content="2016-08-24T09:14:37.000Z">
-<meta property="article:modified_time" content="2020-10-27T04:47:05.370Z">
+<meta property="article:modified_time" content="2021-02-24T11:58:43.513Z">
 <meta property="article:author" content="ZeroJiu">
 <meta property="article:tag" content="Platform">
 <meta property="article:tag" content="Win32">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.freehacker.cn/assets/platform/wins/netsh-wlan-no-drivers.png">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/platform/netsh-wlan-no-drivers.png">
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -122,9 +122,9 @@
 <h2 id="无线网卡驱动管理"><a href="#无线网卡驱动管理" class="headerlink" title="无线网卡驱动管理"></a>无线网卡驱动管理</h2><p>netsh命令如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ netsh wlan show drivers</span><br></pre></td></tr></table></figure>
 <p>该命令能够检测出：<br>1、系统上是否有无线网卡，如果没有无线网卡会提示<em>系统上没有无线接口</em></p>
-<p><img src="../../assets/platform/wins/netsh-wlan-no-drivers.png"  alt="无线网卡驱动" /></p>
+<p><img src="../../assets/platform/netsh-wlan-no-drivers.png"  alt="无线网卡驱动" /></p>
 <p>2、无线网卡驱动是否支持无线承载网络功能，以及支持的无线电类型</p>
-<p><img src="../../assets/platform/wins/netsh-wlan-drivers-info.png"  alt="无线网卡驱动" /></p>
+<p><img src="../../assets/platform/netsh-wlan-drivers-info.png"  alt="无线网卡驱动" /></p>
 <h2 id="无线承载网络管理"><a href="#无线承载网络管理" class="headerlink" title="无线承载网络管理"></a>无线承载网络管理</h2><p>1、设置无线承载网络</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ netsh wlan <span class="built_in">set</span> hostednetwork mode=allow ssid=hotspot key=12345678</span><br><span class="line">承载网络模式已设置为允许。</span><br><span class="line">已成功更改承载网络的 SSID。</span><br><span class="line">已成功更改托管网络的用户密钥密码。</span><br></pre></td></tr></table></figure>
 <p>2、启动无线承载网络</p>
@@ -133,9 +133,9 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ netsh wlan stop hostednetwork</span><br></pre></td></tr></table></figure>
 <p>4、查看无线承载网络设置和状态</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ netsh wlan show hostednetwork</span><br></pre></td></tr></table></figure>
-<p><img src="../../assets/platform/wins/netsh-wlan-hostednetwork-state.png"  alt="无线承载网络设置和状态" /></p>
+<p><img src="../../assets/platform/netsh-wlan-hostednetwork-state.png"  alt="无线承载网络设置和状态" /></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ netsh wlan show hostednetwork setting=security</span><br></pre></td></tr></table></figure>
-<p><img src="../../assets/platform/wins/netsh-wlan-hostednetwork-security.png"  alt="无线承载网络安全设置" /></p>
+<p><img src="../../assets/platform/netsh-wlan-hostednetwork-security.png"  alt="无线承载网络安全设置" /></p>
 <p>5、刷新无限承载网络安全密钥</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ netsh wlan refresh hostednetwork key</span><br><span class="line">已成功刷新承载网络的安全密钥。</span><br></pre></td></tr></table></figure>
 
@@ -180,7 +180,7 @@
 	
 
 	
-		<a class="read-next-story prev" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f780e13af2j21gr0i2mz4.jpg)" href="/timecapsule/no-more-waiting/">
+		<a class="read-next-story prev" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f780e13af2j21gr0i2mz4.jpg)" href="/republic/no-more-waiting/">
 			<section class="post">
 				<h3>我不在等以后了</h1>
 				<p>没有人给我等的机会，包括我自己。</p>

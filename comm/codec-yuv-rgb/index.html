@@ -13,15 +13,15 @@
 <meta property="og:site_name" content="小熊糖否——木子兮的自留地">
 <meta property="og:description" content="简述YUV和RGB视频像素格式。">
 <meta property="og:locale">
-<meta property="og:image" content="https://www.freehacker.cn/assets/media/codec/yuv-y-u-v.gif">
-<meta property="og:image" content="https://www.freehacker.cn/assets/media/codec/yuv-sample.jpg">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/yuv-y-u-v.gif">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/yuv-sample.jpg">
 <meta property="article:published_time" content="2017-04-23T06:33:54.000Z">
-<meta property="article:modified_time" content="2020-10-27T04:47:05.349Z">
+<meta property="article:modified_time" content="2021-02-24T12:01:39.272Z">
 <meta property="article:author" content="ZeroJiu">
 <meta property="article:tag" content="Media">
 <meta property="article:tag" content="Codec">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.freehacker.cn/assets/media/codec/yuv-y-u-v.gif">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/comm/yuv-y-u-v.gif">
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -130,10 +130,10 @@
 <li><code>V/Cb</code>表示饱和度，反映的是RGB输入信号蓝色部分与RGB信号亮度值之同的差异。</li>
 </ul>
 <p>YUV将亮度信息<code>Y</code>与色彩信息<code>U/V</code>分离，没有<code>U/V</code>信息一样可以显示完整的图像，只不过是黑白的，这样的设计很好地解决了彩色电视机与黑白电视的兼容问题。并且，YUV不像RGB那样要求三个独立的视频信号同时传输，所以用YUV方式传送占用极少的频宽。</p>
-<p><img src="../../assets/media/codec/yuv-y-u-v.gif" alt=""></p>
+<p><img src="../../assets/comm/yuv-y-u-v.gif" alt=""></p>
 <h3 id="YUV采样"><a href="#YUV采样" class="headerlink" title="YUV采样"></a>YUV采样</h3><p>YUV码流的存储格式与其采样方式密切相关，主流的采样方式有三种：YUV4:4:4，YUV4:2:2，YUV4:2:0。</p>
 <p>以黑点表示采样该像素点的Y分量，以空心圆圈表示采用该像素点的UV分量，我们来看看这三种采样方式：</p>
-<p><img src="../../assets/media/codec/yuv-sample.jpg" alt=""></p>
+<p><img src="../../assets/comm/yuv-sample.jpg" alt=""></p>
 <p>其中：</p>
 <ul>
 <li>YUV 4:4:4采样，每一个Y对应一组UV分量。</li>

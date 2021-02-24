@@ -13,15 +13,15 @@
 <meta property="og:site_name" content="小熊糖否——木子兮的自留地">
 <meta property="og:description" content="本文主要简述gRPC的使用方式，并介绍了简单的同步单向gRPC。">
 <meta property="og:locale">
-<meta property="og:image" content="https://www.freehacker.cn/assets/io/rpc/grpc_concept_diagram.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/grpc_concept_diagram.png">
 <meta property="article:published_time" content="2017-02-05T14:59:48.000Z">
-<meta property="article:modified_time" content="2020-10-27T04:47:05.350Z">
+<meta property="article:modified_time" content="2021-02-24T12:00:39.112Z">
 <meta property="article:author" content="ZeroJiu">
 <meta property="article:tag" content="Network">
 <meta property="article:tag" content="Architecture">
 <meta property="article:tag" content="MicroServices">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.freehacker.cn/assets/io/rpc/grpc_concept_diagram.png">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/comm/grpc_concept_diagram.png">
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -128,7 +128,7 @@
 <li>实现服务端</li>
 <li>实现客户端</li>
 </ul>
-<p><img src="../../assets/io/rpc/grpc_concept_diagram.png"  alt="grpc concept" /></p>
+<p><img src="../../assets/comm/grpc_concept_diagram.png"  alt="grpc concept" /></p>
 <p>上图是gRPC原理图，gRPC服务端实现具体的RPC服务，客户端通过gRPC Stub来调用这些RPC服务。客户端和服务端是通过信道（<code>Channel</code>）来连接的。</p>
 <p>gRPC有四种使用场景：单向RPC（一问一答）、服务端流式RPC（一问多答）、客户端流式RPC（多问一答）、双向流式RPC（多问多答）。gRPC的调用方式又分为同步(阻塞)和异步（非阻塞），所以我们需要根据需求，来选择使用场景和调用方式。四类服务方法如下：</p>
 <ul>
