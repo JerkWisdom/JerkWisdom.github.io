@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>批处理中%cd%与%~dp0的区别 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="Windows下批处理遇到的一个坑点，记录下来。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="批处理中%cd%与%~dp0的区别">
+<meta property="og:url" content="https://www.freehacker.cn/platform/dos-current-path/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="Windows下批处理遇到的一个坑点，记录下来。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-06-15T01:06:19.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.367Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Platform">
+<meta property="article:tag" content="Win32">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f5yx95mdzmj20rs09f0tt.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">批处理中%cd%与%~dp0的区别</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Platform/'>Platform</a> /
+    
+    <a href='/tags/Win32/'>Win32</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-06-15T01:06:19.000Z" >
+          2016-06-15
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>Windows下批处理中%cd%和%~dp0都能用来表示当前目录，但是他们在不同的使用场景下，功能却不相同。<a id="more"></a></p>
+</blockquote>
+<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>假设我们要在批处理a.bat里调用执行批处理b.bat，b.bat需要知道b.bat的当前位置，并执行run.exe，如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> * directory structure</span><br><span class="line"> * c:</span><br><span class="line"> * -a.bat</span><br><span class="line"> * -program</span><br><span class="line"> *        -b.bat</span><br><span class="line"> *        -run.exe</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">/* a.bat */</span><br><span class="line">call <span class="string">&quot;%cd%\program\b.bat&quot;</span></span><br><span class="line"></span><br><span class="line">/* b.bat */</span><br><span class="line"><span class="string">&quot;%cd%\run.exe&quot;</span></span><br></pre></td></tr></table></figure>
+<p>那么现在能不能成功执行run.exe呢？</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>%cd%和%~dp0都能用来表示当前目录，但是他们在不同的使用场景下，功能却不相同：</p>
+<ul>
+<li>%cd%代表的是当前工作目录（current working directory，variable）；</li>
+<li>%~dp0代表的是当前批处理文件所在完整目录（the batch file’s directory，fixed）。</li>
+</ul>
+<p>我们来看看下面的例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> * directory structure</span><br><span class="line"> * c:</span><br><span class="line"> * -c.bat</span><br><span class="line"> * -program</span><br><span class="line"> *        -d.bat</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">/* c.bat */</span><br><span class="line">call <span class="string">&quot;%cd%\program\d.bat&quot;</span></span><br><span class="line"></span><br><span class="line">/* d.bat */</span><br><span class="line">@<span class="built_in">echo</span> off</span><br><span class="line"><span class="built_in">echo</span> <span class="built_in">cd</span> = %<span class="built_in">cd</span>%</span><br><span class="line"><span class="built_in">echo</span> dp0 = %~dp0</span><br></pre></td></tr></table></figure>
+<p>直接运行d.bat，结果为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> = C:\program</span><br><span class="line">dp0 = C:\program\</span><br></pre></td></tr></table></figure>
+<p>直接运行c.bat，结果为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> = C:\</span><br><span class="line">dp0 = C:\program\</span><br></pre></td></tr></table></figure>
+<p>从上面的结果可以看出：</p>
+<ul>
+<li>执行d.bat时，当前工作目录为d.bat所在目录；</li>
+<li>执行c.bat时，当前工作目录为c.bat所在目录，即使在调用d.bat后，该工作目录依旧是c.bat所在目录。</li>
+</ul>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>让我们再来看看问题描述中提及的问题——能不能成功执行run.exe呢？</p>
+<p>答案是：<strong>不能</strong>。“%cd%\run.exe”表示的是“C:\run.exe”，并非“C:\program\run.exe”。那么如何更改呢？有两种方案：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">/* plan A */</span><br><span class="line">/*  change the current working directory */</span><br><span class="line"></span><br><span class="line">/* a.bat */</span><br><span class="line"><span class="built_in">cd</span> <span class="string">&quot;%~dp0&quot;</span></span><br><span class="line">call <span class="string">&quot;%cd%\program\b.bat&quot;</span></span><br><span class="line"></span><br><span class="line">/* b.bat */</span><br><span class="line"><span class="built_in">cd</span> <span class="string">&quot;%~dp0&quot;</span></span><br><span class="line"><span class="string">&quot;%cd%\run.exe&quot;</span></span><br><span class="line"></span><br><span class="line">/* plan B */</span><br><span class="line">/*  using %~dp0 directly */</span><br><span class="line"></span><br><span class="line">/* a.bat *、</span><br><span class="line">call <span class="string">&quot;%~dp0program\b.bat&quot;</span></span><br><span class="line"></span><br><span class="line">/* b.bat */</span><br><span class="line"><span class="string">&quot;%~dp0run.exe&quot;</span></span><br></pre></td></tr></table></figure>
+<h2 id="问题延伸"><a href="#问题延伸" class="headerlink" title="问题延伸"></a>问题延伸</h2><p>上面的解决方案中plan A通过更改当前目录来解决该问题，可以这里面也存在另外一个问题，让我们看下面的例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> * directory structure</span><br><span class="line"> * c:</span><br><span class="line"> * -program</span><br><span class="line"> *        -f.bat</span><br><span class="line"> * d:</span><br><span class="line"> * -e.bat</span><br><span class="line"></span><br><span class="line"> * plan A</span><br><span class="line"> *  change the current working directory</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">/* e.bat */</span><br><span class="line"><span class="built_in">cd</span> <span class="string">&quot;%~dp0&quot;</span></span><br><span class="line">call <span class="string">&quot;c:\program\f.bat&quot;</span></span><br><span class="line"></span><br><span class="line">/* f.bat */</span><br><span class="line"><span class="built_in">cd</span> <span class="string">&quot;%~dp0&quot;</span></span><br><span class="line"><span class="string">&quot;%cd%\run.exe&quot;</span></span><br></pre></td></tr></table></figure>
+<p>现在e.bat和f.bat不在同一个盘符了，从e.bat切换当前工作目录到f.bat直接使用cd是不行的，必须要使用:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /d <span class="string">&quot;%~dp0&quot;</span></span><br></pre></td></tr></table></figure>
+<p><strong>这个地方容易疏忽，切记不要犯错</strong>。</p>
+<h2 id="问题总结"><a href="#问题总结" class="headerlink" title="问题总结"></a>问题总结</h2><p>我们来重申下%~dp0和%cd%的区别，%cd%和%~dp0都能用来表示当前目录，但是他们在不同的使用场景下，功能却不相同：</p>
+<ul>
+<li>%cd%代表的是当前工作目录（current working directory，variable）；</li>
+<li>%~dp0代表的是当前批处理文件所在完整目录（the batch file’s directory，fixed）。</li>
+</ul>
+<p>从目前我们的使用情况来看，尽量使用%~dp0，不建议使用%cd%，有其他需求除外。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/platform/dos-current-path/"> https://www.freehacker.cn/platform/dos-current-path/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f5yx2tnicqj20ef054jsi.jpg)" href="/platform/unicode-ansi-utf8-difference/">
+			<section class="post">
+				<h3>字符编码Unicode、UTF-8和ANSI</h1>
+				<p>之前一直对Unicode、ANSI、ASCII、UTF-8的概念混淆不清，今天特地查询资料整理下。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f5ydh2b6dgj20sg09smyh.jpg)" href="/hacks/git-autocrlf/">
+			<section class="post">
+				<h3>换行符与Git CRLF</h1>
+				<p>本文着重分析操作系统换行符与git在跨平台是对换行符的处理。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/platform/dos-current-path/';
+        this.page.identifier = 'platform/dos-current-path/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

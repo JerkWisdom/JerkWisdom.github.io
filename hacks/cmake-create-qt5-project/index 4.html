@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>使用CMake构建Qt5工程指南 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="使用CMake来构建Qt工程，方便跨平台项目使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用CMake构建Qt5工程指南">
+<meta property="og:url" content="https://www.freehacker.cn/hacks/cmake-create-qt5-project/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="使用CMake来构建Qt工程，方便跨平台项目使用。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-12-18T09:44:25.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.362Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Tools">
+<meta property="article:tag" content="Qt">
+<meta property="article:tag" content="CMake">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82jw1fav3axslguj218g0ek767.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">使用CMake构建Qt5工程指南</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Tools/'>Tools</a> /
+    
+    <a href='/tags/Qt/'>Qt</a> /
+    
+    <a href='/tags/CMake/'>CMake</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-12-18T09:44:25.000Z" >
+          2016-12-18
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>下辈子，我要成为太阳。</p>
+</blockquote>
+<p>由于项目需求，需要使用一个GUI界面来操作音视频，选择使用Qt来实现这个简单的界面。由于项目需要跨平台，采用CMake来构建工程，所以Qt工程的构建也需要采用CMake。<a id="more"></a></p>
+<h2 id="Qt文件的处理程序"><a href="#Qt文件的处理程序" class="headerlink" title="Qt文件的处理程序"></a>Qt文件的处理程序</h2><p>Qt会对某些文件进行特殊处理，我们使用CMake来生成Qt工程，必须要显式的处理这些文件。</p>
+<ul>
+<li>带有<code>Q_OBJECT</code>宏的头文件，需要被<code>moc</code>程序处理</li>
+<li><code>.ui</code>界面设计文件，需要被<code>uic</code>程序处理</li>
+<li><code>.qrc</code>资源文件，需要被<code>rcc</code>程序处理</li>
+</ul>
+<p>接下来，我们会看到，在CMake文件中，如何对上述三种文件进行针对性处理。</p>
+<h2 id="生成ui头文件"><a href="#生成ui头文件" class="headerlink" title="生成ui头文件"></a>生成ui头文件</h2><p>GUI界面使用Qt Designer进行简单的设计，将设计的test.ui文件保存到工程目录中的<code>//form</code>下。</p>
+<p>如果我们这儿不使用CMake，而直接使用Visual Studio，我们可以将ui文件添加到Visual Studio工程中，然后直接右键test.ui文件编译。Visual Studio会调用Qt的uic工具编译test.ui文件，进而生成ui_test.h头文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Uicing ..\..\..\form\test.ui...</span><br><span class="line">Generate ui_test.h</span><br></pre></td></tr></table></figure>
+<p>考虑到跨平台，我们需要使用CMake来完成上述操作。CMake提供了<code>QT5_WRAP_UI</code>命令，该命令用来生成ui文件对应的头文件。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE(GLOB FORMS &quot;form/*.ui&quot;)</span><br><span class="line">QT5_WRAP_UI(FORMS_UIC $&#123;FORMS&#125;)</span><br></pre></td></tr></table></figure>
+<p><code>QT5_WRAP_UI</code>等价于下面命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uic –o ui_test.h test.ui</span><br></pre></td></tr></table></figure>
+<h2 id="生成moc、qrc头文件"><a href="#生成moc、qrc头文件" class="headerlink" title="生成moc、qrc头文件"></a>生成moc、qrc头文件</h2><p>和生成ui头文件类似，CMake提供了<code>QT5_WRAP_UI</code>和<code>QT5_ADD_RESOURCES</code>两个命令来生成对应的头文件。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE(GLOB MOCS &quot;inc/test.h&quot;)</span><br><span class="line">QT5_WRAP_CPP(HEADERS_MOC $&#123;MOCS&#125;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE(GLOB RES &quot;qrc/*.qrc&quot;)</span><br><span class="line">QT5_ADD_RESOURCES(RES_RCC $&#123;RES&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="将生成的文件添加到项目中"><a href="#将生成的文件添加到项目中" class="headerlink" title="将生成的文件添加到项目中"></a>将生成的文件添加到项目中</h2><p>这些生成的文件都被保存在<code>CMAKE_CURRENT_BINARY_DIR</code>文件中，为了使用这些文件，需要：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">INCLUDE_DIRECTORIES($&#123;CMAKE_CURRENT_BINARY_DIR&#125;)</span><br></pre></td></tr></table></figure>
+<p>然后将这些文件添加到项目中：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADD_EXECUTABLE(gui $&#123;FILES&#125; $&#123;HEADERS_MOC&#125; $&#123;FORMS_UIC&#125; $&#123;RES_RCC&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="使用更多的Qt模块"><a href="#使用更多的Qt模块" class="headerlink" title="使用更多的Qt模块"></a>使用更多的Qt模块</h2><p>如果想要在项目中使用其他的Qt模块，也必须要在CMake中显式的指明。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET(QT_USE_QTOPENGL TRUE)</span><br></pre></td></tr></table></figure>
+<p>常用的模块包括下列：</p>
+<ul>
+<li>QT_USE_QTNETWORK</li>
+<li>QT_USE_QTOPENGL</li>
+<li>QT_USE_QTSQL</li>
+<li>QT_USE_QTXML</li>
+<li>QT_USE_QTSVG</li>
+<li>QT_USE_QTTEST</li>
+<li>QT_USE_QTDBUS</li>
+<li>QT_USE_QTSCRIPT</li>
+<li>QT_USE_QTWEBKIT</li>
+<li>QT_USE_QTXMLPATTERNS</li>
+<li>QT_USE_PHONON</li>
+</ul>
+<h2 id="项目链接"><a href="#项目链接" class="headerlink" title="项目链接"></a>项目链接</h2><p>github项目<a target="_blank" rel="noopener" href="https://github.com/JerkWisdom/pro-cmake">pro-cmake</a>给出了使用cmake来构建项目的通用模板。其中gui文件夹中，给出了使用cmake来生成Qt5工程的示例。</p>
+<h2 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h2><p>对于uic、moc、rcc操作，cmake还提供了<code>AUTOMOC</code>、<code>AUTOUIC</code>、<code>AUTORCC</code>三个操作，详情可以看参考文献<a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/v3.0/manual/cmake-qt.7.html">cmake-qt</a></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://doc.qt.io/qt-5/cmake-manual.html">Qt Documentation: Qt 5.7 CMake Manual</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/jingwenlai_scut/article/details/5821928">用CMake 构建Qt 项目</a></li>
+<li><a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/v3.0/manual/cmake-qt.7.html">cmake-qt</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/hacks/cmake-create-qt5-project/"> https://www.freehacker.cn/hacks/cmake-create-qt5-project/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)" href="/foundation/define-variable-in-header-file/">
+			<section class="post">
+				<h3>头文件中定义变量</h1>
+				<p>在头文件中定义变量往往会出错，需要注意一些基本点。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1fb2cstahfqj20zi0bzaak.jpg)" href="/comm/audio-video-process/">
+			<section class="post">
+				<h3>视频会议中的音视频处理技术（Media Foundation）</h1>
+				<p>视频会议中主要的视频处理技术，在Windows平台上的Media Foundation，跨平台的OpenH264、x264。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/hacks/cmake-create-qt5-project/';
+        this.page.identifier = 'hacks/cmake-create-qt5-project/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

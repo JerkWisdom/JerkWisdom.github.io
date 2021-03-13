@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>Linux常用的10组命令、6个快捷操作、九个常用符号详解 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="Linux新手入门，掌握最常用的10组Linux命令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux常用的10组命令、6个快捷操作、九个常用符号详解">
+<meta property="og:url" content="https://www.freehacker.cn/platform/linux-common-command-details/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="Linux新手入门，掌握最常用的10组Linux命令。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-09-11T06:59:07.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.367Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Platform">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f7pnzyuagmj21hc0i276s.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">Linux常用的10组命令、6个快捷操作、九个常用符号详解</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Platform/'>Platform</a> /
+    
+    <a href='/tags/Linux/'>Linux</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-09-11T06:59:07.000Z" >
+          2016-09-11
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote><p>衡量一个人是否真正的自信，就看他是否能真心为他人的成功而毫无芥蒂地感到高兴。</p>
+<footer><strong>李笑来</strong><cite>新生——七年就是一辈子</cite></footer></blockquote>
+<p>Linux命令繁多，需要掌握和不需要掌握的都很多，我们需要在掌握一些基本命令的前提下，才能更高效的使用Linux，并开展后续深入的学习。<a id="more"></a></p>
+<h2 id="ls"><a href="#ls" class="headerlink" title="ls"></a>ls</h2><p>Linux <code>ls（list）命令</code>用于显示指定工作目录下之内容（列出目前工作目录所含之文件及子目录)。</p>
+<p>对于ls命令，我们需要注意下面几个参数与使用组合。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ls                <span class="comment"># 显示当前目录信息</span></span><br><span class="line">$ ls testdir        <span class="comment"># 显示testdir目录信息</span></span><br><span class="line">$ ls -a             <span class="comment"># 显示目录下的一切文件，包含以.起始的隐藏文件或文件夹</span></span><br><span class="line">$ ls -l             <span class="comment"># 显示文件的具体信息，包括文件形态、权限、拥有者、文件大小等信息</span></span><br><span class="line">$ ls | grep dirname <span class="comment"># 显示文件/文件夹名包含“dirname”的文件或者文件夹</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：在Linux中，文件以“.”开头的就是隐藏文件，并且每个文件，文件夹，设备或者命令都是以文件对待。</p>
+</blockquote>
+<h2 id="cd"><a href="#cd" class="headerlink" title="cd"></a>cd</h2><p>Linux <code>cd（change directory）命令</code>用于切换当前工作目录至 dirName(目录参数)。</p>
+<p>对于cd命令，需要和一些快捷符号联系在一起操作。我们可以用<code>pwd命令</code>来显示当前目录。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span>    <span class="comment"># 切换到家目录</span></span><br><span class="line">$ <span class="built_in">cd</span> ~  <span class="comment"># 切换到家目录</span></span><br><span class="line">$ <span class="built_in">cd</span> /  <span class="comment"># 切换到根目录</span></span><br><span class="line">$ <span class="built_in">cd</span> -  <span class="comment"># 切换到上一个工作目录</span></span><br><span class="line">$ <span class="built_in">cd</span> .  <span class="comment"># 切换到当前目录</span></span><br><span class="line">$ <span class="built_in">cd</span> .. <span class="comment"># 切换到当前目录上一层目录</span></span><br></pre></td></tr></table></figure>
+<h2 id="cp-mv-rm-touch-mkdir"><a href="#cp-mv-rm-touch-mkdir" class="headerlink" title="cp/mv/rm/touch/mkdir"></a>cp/mv/rm/touch/mkdir</h2><h3 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux <code>cp命令</code>主要用于复制文件或目录。</li>
+<li>Linux <code>rm命令</code>用于删除一个文件或者目录。</li>
+<li>Linux <code>mv命令</code>用来为文件或目录改名、或将文件或目录移入其它位置。</li>
+<li>Linux <code>touch命令</code>用于修改文件或者目录的时间属性，包括存取时间和更改时间。若文件不存在，系统会建立一个新的文件。</li>
+<li>Linux <code>mkdir命令</code>用于建立名称为 dirName 之子目录。</li>
+</ul>
+<h3 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cp</span></span><br><span class="line">$ cp testfile1 testfile2</span><br><span class="line">$ cp -v testfile1 testfile2  <span class="comment"># 显示拷贝详情</span></span><br><span class="line"><span class="string">&#x27;testfile1&#x27;</span> -&gt; <span class="string">&#x27;testfile2&#x27;</span></span><br><span class="line">$ cp –r testdir/ newtestdir  <span class="comment"># 若给出的源文件是一个目录文件，此时将复制该目录下所有的子目录和文件。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># mv</span></span><br><span class="line">$ mv testfile1 testfile2 <span class="comment"># 将源文件名改为目标文件名</span></span><br><span class="line">$ mv testfile testdir    <span class="comment"># 将文件移动到目标目录</span></span><br><span class="line">$ mv testdir1/ testdir2  <span class="comment"># 目标目录已存在，将源目录移动到目标目录；目标目录不存在则改名</span></span><br><span class="line">$ mv testdir testfile    <span class="comment"># 出错：将目录移动到目标文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># rm</span></span><br><span class="line">$ rm -i testfile  <span class="comment"># 删除前逐一询问确认</span></span><br><span class="line">rm: remove regular empty file <span class="string">&#x27;testfile1&#x27;</span>? y</span><br><span class="line"></span><br><span class="line">$ rm -f testfile <span class="comment"># 即使原档案属性设为唯读，亦直接删除，无需逐一确认</span></span><br><span class="line"></span><br><span class="line">$ rm testdir <span class="comment"># 删除文件可以直接使用rm命令，若删除目录则必须配合选项&quot;-r&quot;</span></span><br><span class="line">rm: cannot remove <span class="string">&#x27;testdir&#x27;</span>: Is a directory</span><br><span class="line"></span><br><span class="line">$ rm -ir testdir <span class="comment"># 将目录及以下之档案亦逐一删除 #</span></span><br><span class="line">rm: remove directory <span class="string">&#x27;testdir&#x27;</span>? y</span><br><span class="line"></span><br><span class="line">$ rm -rf * <span class="comment"># 删除当前目录下的所有文件及目录，无法恢复</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># touch</span></span><br><span class="line">$ touch testfile <span class="comment"># 创建空白文件或者修改文件的时间属性</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># mkdir</span></span><br><span class="line">$ mkdir testdir  <span class="comment"># 创建目录testdir</span></span><br><span class="line">$ mkdir -p testdir1/testdir2 <span class="comment"># 在当前目录下的testdir1目录中创建一个目录testdir2，若testdir1目录不存在，则建立一个，不加-p会失败</span></span><br></pre></td></tr></table></figure>
+<h2 id="echo-cat-more-less"><a href="#echo-cat-more-less" class="headerlink" title="echo/cat/more/less"></a>echo/cat/more/less</h2><h3 id="作用-1"><a href="#作用-1" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux <code>echo命令</code>用于显示输入的内容</li>
+<li>Linux <code>cat命令</code>用于把档案串连接后传到基本输出（屏幕或加 &gt; fileName 到另一个档案）</li>
+<li>Linux <code>more命令</code>以翻页形式显示文件内容，按空白键（space）就往下一页显示，按 b 键就会往回（back）一页显示</li>
+<li>Linux <code>less命令</code>与<code>more命令</code>功能正好相反</li>
+</ul>
+<h3 id="使用示例-1"><a href="#使用示例-1" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># echo</span></span><br><span class="line">$ <span class="built_in">echo</span> It is a <span class="built_in">test</span>.</span><br><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;\&quot;It is a test\&quot;&quot;</span></span><br><span class="line">$ <span class="built_in">read</span> name</span><br><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$name</span> It is a test&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># cat</span></span><br><span class="line">$ cat -n textfile1 &gt; textfile2 <span class="comment"># 把 textfile1 的档案内容加上行号后输入 textfile2 这个档案里</span></span><br><span class="line">$ cat -b textfile1 textfile2 &gt;&gt; textfile3 <span class="comment"># 把 textfile1 和 textfile2 的档案内容加上行号（空白行不加）之后将内容附加到 textfile3 里。</span></span><br><span class="line">$ cat /dev/null &gt; /etc/test.txt <span class="comment"># 清空/etc/test.txt档案内容</span></span><br><span class="line">$ cat /dev/fd0 &gt; OUTFILE <span class="comment"># 用来制作镜像文件</span></span><br><span class="line">$ cat IMG_FILE &gt; /dev/fd0 <span class="comment"># 把 image file 写到软碟</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># more</span></span><br><span class="line">$ more -s testfile <span class="comment"># 逐页显示 testfile 文档内容，如有连续两行以上空白行则以一行空白行显示。</span></span><br><span class="line">$ more +20 testfile <span class="comment"># 从第 20 行开始显示 testfile 之文档内容</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># less</span></span><br><span class="line">$ less log2013.log</span><br><span class="line">$ ps -ef |less  <span class="comment"># ps查看进程信息并通过less分页显示</span></span><br></pre></td></tr></table></figure>
+<h2 id="shutdown-poweroff-reboot"><a href="#shutdown-poweroff-reboot" class="headerlink" title="shutdown/poweroff/reboot"></a>shutdown/poweroff/reboot</h2><h3 id="作用-2"><a href="#作用-2" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux <code>shutdown命令</code>可以用来进行关机程序，并且在关机以前传送讯息给所有使用者正在执行的程序，shutdown 也可以用来重开机。</li>
+<li>Linux <code>poweroff命令</code>立即执行关机指令</li>
+<li>Linux <code>reboot命令</code>立即执行重启指令</li>
+</ul>
+<h3 id="使用示例-2"><a href="#使用示例-2" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shutdown</span></span><br><span class="line">$ sudo shutdown -h now  <span class="comment"># 立刻关机</span></span><br><span class="line">$ sudo shutdown +5 “System will shutdown after 5 minutes” <span class="comment"># 5分钟够关机并显示警告信息</span></span><br><span class="line">$ sudo shutdown -r now <span class="comment"># 立刻重启</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># poweroff</span></span><br><span class="line">$ sudo poweroff</span><br><span class="line"></span><br><span class="line"><span class="comment"># reboot</span></span><br><span class="line">$ sudo reboot</span><br></pre></td></tr></table></figure>
+<h2 id="zip-unzip-gzip-tar"><a href="#zip-unzip-gzip-tar" class="headerlink" title="zip/unzip/gzip/tar"></a>zip/unzip/gzip/tar</h2><h3 id="作用-3"><a href="#作用-3" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux <code>zip命令</code>用于压缩文件</li>
+<li>Linux <code>unzip命令</code>用于解压缩zip文件</li>
+<li>Linux <code>gzip命令</code>用于压缩文件</li>
+<li>Linux <code>tar命令</code>用于备份文件</li>
+</ul>
+<h3 id="使用示例-3"><a href="#使用示例-3" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># zip</span></span><br><span class="line">$ zip -v cp.zip a.c b.c c.c e.c  <span class="comment"># 压缩文件</span></span><br><span class="line">$ zip -r cp3.zip /root/          <span class="comment"># 压缩目录</span></span><br><span class="line">$ zip -dv cp.zip a.c             <span class="comment"># 从压缩文件中删除文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># unzip</span></span><br><span class="line">$ unzip -l abc.zip     <span class="comment"># 显示压缩文件信息</span></span><br><span class="line">$ unzip -v abc.zip     <span class="comment"># 解压文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># gzip</span></span><br><span class="line">$ gzip *     <span class="comment"># 压缩目录下的所有文件</span></span><br><span class="line">$ gzip -dv * <span class="comment"># 解压文件，并列出详细信息</span></span><br><span class="line">$ gzip -l *  <span class="comment"># 显示压缩文件的信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># tar</span></span><br><span class="line">$ tar -cvf test.tar /etc     <span class="comment"># 归档文件</span></span><br><span class="line">$ tar -xvf test.tar          <span class="comment"># 还原文件</span></span><br><span class="line">$ tar -tvf test.tar          <span class="comment"># 列出文件内容</span></span><br><span class="line">$ tar -czvf test.tar.gz /etc <span class="comment"># 归档并压缩文件</span></span><br><span class="line">$ tar -xzvf test.tar.gz      <span class="comment"># 还原并解压文件</span></span><br></pre></td></tr></table></figure>
+<h2 id="chmod-chown-chgrp"><a href="#chmod-chown-chgrp" class="headerlink" title="chmod/chown/chgrp"></a>chmod/chown/chgrp</h2><h3 id="作用-4"><a href="#作用-4" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux/Unix 的文件调用权限分为三级 : 文件拥有者、群组、其他。利用 chmod 可以藉以控制文件如何被他人所调用。</li>
+<li>利用 chown 将指定文件的拥有者改为指定的用户或组，用户可以是用户名或者用户ID；组可以是组名或者组ID；文件是以空格分开的要改变权限的文件列表，支持通配符。</li>
+</ul>
+<h3 id="chmod参数含义"><a href="#chmod参数含义" class="headerlink" title="chmod参数含义"></a>chmod参数含义</h3><ul>
+<li>u 表示该文件的拥有者，g 表示与该文件的拥有者属于同一个群体(group)者，o 表示其他以外的人，a 表示这三者皆是。</li>
+<li><ul>
+<li>表示增加权限、- 表示取消权限、= 表示唯一设定权限。</li>
+</ul>
+</li>
+<li>r 表示可读取，w 表示可写入，x 表示可执行，X 表示只有当该文件是个子目录或者该文件已经被设定过为可执行。</li>
+</ul>
+<h3 id="使用示例-4"><a href="#使用示例-4" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># chmod</span></span><br><span class="line">$ chmod ugo+r file1.txt   <span class="comment"># 将文件 file1.txt 设为所有人皆可读取</span></span><br><span class="line">$ chmod u+x ex1.py        <span class="comment"># 将 ex1.py 设定为只有该文件拥有者可以执行</span></span><br><span class="line">$ chmod 777 file          <span class="comment">#</span></span><br><span class="line">$ chmod abc file          <span class="comment"># a,b,c各为一个数字，分别表示User、Group、及Other的权限。r=4，w=2，x=1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># chown</span></span><br><span class="line">$ chown jessie:users file1.txt   <span class="comment"># 将文件 file1.txt 的拥有者设为 users 群体的使用者 jessie</span></span><br></pre></td></tr></table></figure>
+<h2 id="yum-apt-rpm"><a href="#yum-apt-rpm" class="headerlink" title="yum/apt/rpm"></a>yum/apt/rpm</h2><h3 id="作用-5"><a href="#作用-5" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux <code>yum命令</code>是一个在Fedora和RedHat以及SUSE中的Shell前端软件包管理器</li>
+<li>Linux <code>apt命令</code>是一个为Debian系列系统（Ubuntu，Kubuntu等等）开发的高级包管理器</li>
+<li>Linux <code>rpm命令</code>是RPM软件包的管理工具</li>
+</ul>
+<h3 id="yum常用命令"><a href="#yum常用命令" class="headerlink" title="yum常用命令"></a>yum常用命令</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">命令</th>
+<th style="text-align:left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">yum check-update</td>
+<td style="text-align:left">列出所有可更新的软件清单命令</td>
+</tr>
+<tr>
+<td style="text-align:center">yum update</td>
+<td style="text-align:left">更新所有软件命令</td>
+</tr>
+<tr>
+<td style="text-align:center">yum install <package_name></td>
+<td style="text-align:left">仅安装指定的软件命令</td>
+</tr>
+<tr>
+<td style="text-align:center">yum update <package_name></td>
+<td style="text-align:left">仅更新指定的软件命令</td>
+</tr>
+<tr>
+<td style="text-align:center">yum list</td>
+<td style="text-align:left">列出所有可安裝的软件清单命令</td>
+</tr>
+<tr>
+<td style="text-align:center">yum remove <package_name></td>
+<td style="text-align:left">删除软件包命令</td>
+</tr>
+<tr>
+<td style="text-align:center">yum search <keyword></td>
+<td style="text-align:left">查找软件包命令</td>
+</tr>
+<tr>
+<td style="text-align:center">yum clean packages</td>
+<td style="text-align:left">清除缓存目录下的软件包</td>
+</tr>
+<tr>
+<td style="text-align:center">yum clean headers</td>
+<td style="text-align:left">清除缓存目录下的 headers</td>
+</tr>
+<tr>
+<td style="text-align:center">yum clean oldheaders</td>
+<td style="text-align:left">清除缓存目录下旧的 headers</td>
+</tr>
+<tr>
+<td style="text-align:center">yum clean all</td>
+<td style="text-align:left">清除缓存目录下的软件包及旧的headers</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="yum国内源"><a href="#yum国内源" class="headerlink" title="yum国内源"></a>yum国内源</h3><blockquote>
+<p>具体帮助指南见<a target="_blank" rel="noopener" href="http://mirrors.163.com/.help/centos.html">163CentOS镜像使用帮助</a></p>
+</blockquote>
+<p>1、首先备份/etc/yum.repos.d/CentOS-Base.repo</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup</span><br></pre></td></tr></table></figure>
+<p>2、下载对应版本repo文件, 放入/etc/yum.repos.d/</p>
+<ul>
+<li>CentOS5 ：<a target="_blank" rel="noopener" href="http://mirrors.163.com/.help/CentOS5-Base-163.repo">http://mirrors.163.com/.help/CentOS5-Base-163.repo</a></li>
+<li>CentOS6 ：<a target="_blank" rel="noopener" href="http://mirrors.163.com/.help/CentOS6-Base-163.repo">http://mirrors.163.com/.help/CentOS6-Base-163.repo</a></li>
+<li>CentOS7 ：<a target="_blank" rel="noopener" href="http://mirrors.163.com/.help/CentOS7-Base-163.repo">http://mirrors.163.com/.help/CentOS7-Base-163.repo</a></li>
+</ul>
+<p>3、运行以下命令生成缓存</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum clean all</span><br><span class="line">yum makecache</span><br></pre></td></tr></table></figure>
+<h3 id="apt常用命令"><a href="#apt常用命令" class="headerlink" title="apt常用命令"></a>apt常用命令</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">命令</th>
+<th style="text-align:left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">apt-cache pkgnames</td>
+<td style="text-align:left">列出所有的软件包</td>
+</tr>
+<tr>
+<td style="text-align:center">apt-cache search</td>
+<td style="text-align:left">查找软件包</td>
+</tr>
+<tr>
+<td style="text-align:center">apt-cache depends</td>
+<td style="text-align:left">显示软件包的依赖性关系</td>
+</tr>
+<tr>
+<td style="text-align:center">apt-get update</td>
+<td style="text-align:left">更新本地apt-get的本地数据库</td>
+</tr>
+<tr>
+<td style="text-align:center">apt-get install <package_name></td>
+<td style="text-align:left">安装某个软件包及其相关软件包</td>
+</tr>
+<tr>
+<td style="text-align:center">apt-get remove package_name</td>
+<td style="text-align:left">删除该软件包，同时会删除依赖于它的软件包</td>
+</tr>
+<tr>
+<td style="text-align:center">apt-get clean</td>
+<td style="text-align:left">删除保存在缓存目录下(/var/cache/apt/archives)的被下载的软件包</td>
+</tr>
+<tr>
+<td style="text-align:center">apt-get upgrade <package_name></td>
+<td style="text-align:left">升级指定的软件包，并升级其依赖的软件包</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="rpm常用参数命令"><a href="#rpm常用参数命令" class="headerlink" title="rpm常用参数命令"></a>rpm常用参数命令</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">命令</th>
+<th style="text-align:left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">rpm -q <package-name></td>
+<td style="text-align:left">查询程序是否安装</td>
+</tr>
+<tr>
+<td style="text-align:center">rpm -ivh <package-name>.rpm</td>
+<td style="text-align:left">安装rpm程序</td>
+</tr>
+<tr>
+<td style="text-align:center">rpm -e <package-name></td>
+<td style="text-align:left">卸载rpm程序</td>
+</tr>
+<tr>
+<td style="text-align:center">rpm -Uvh <package-name>.rpm</td>
+<td style="text-align:left">升级rpm程序</td>
+</tr>
+<tr>
+<td style="text-align:center">rpm -qpR <package-name>.rpm</td>
+<td style="text-align:left">查看程序依赖关系</td>
+</tr>
+<tr>
+<td style="text-align:center">rpm -ivh —relocate /=/opt/gaim <package-name>.rpm</td>
+<td style="text-align:left">指定安装目录</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="常用帮助命令"><a href="#常用帮助命令" class="headerlink" title="常用帮助命令"></a>常用帮助命令</h2><h3 id="作用-6"><a href="#作用-6" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux <code>man命令</code>用户查看帮助信息</li>
+<li>Linux <code>info命令</code>用于查看帮助信息</li>
+<li>Linux <code>help参数</code>用于查看帮助信息</li>
+<li>Linux <code>version参数</code>用于查看程序版本</li>
+<li>Linux <code>history命令</code>用于查看历史命令</li>
+<li>Linux <code>uname命令</code>用于显示系统信息</li>
+<li>Linux <code>who命令</code>用于查看当前用户登录状态</li>
+</ul>
+<h3 id="使用示例-5"><a href="#使用示例-5" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># man</span></span><br><span class="line">$ man ls  <span class="comment"># 显示ls命令的使用手册</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># info</span></span><br><span class="line">$ info ls  <span class="comment"># 查看ls命令信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># help</span></span><br><span class="line">$ ls --<span class="built_in">help</span>  <span class="comment"># 查看ls命令帮助</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># version</span></span><br><span class="line">$ ls --version <span class="comment"># 查看ls命令版本</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># history</span></span><br><span class="line">$ <span class="built_in">history</span> | grep ssh <span class="comment"># 查找历史命令，并列出包含ssh的项</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># uname</span></span><br><span class="line">$ uname -a  <span class="comment"># 显示系统信息。</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="常用系统命令"><a href="#常用系统命令" class="headerlink" title="常用系统命令"></a>常用系统命令</h2><h3 id="作用-7"><a href="#作用-7" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>Linux <code>su</code>用于切换用户</li>
+<li>Linux <code>sudo</code>用于执行管理员权限操作</li>
+<li>Linux <code>passwd</code>用于改变用户密码</li>
+<li>Linux <code>exit</code>用于用于退出当前shell</li>
+</ul>
+<h3 id="使用示例-6"><a href="#使用示例-6" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># su</span></span><br><span class="line">$ su   <span class="comment"># su   不改变环境变量</span></span><br><span class="line">$ su - <span class="comment">#  su - 改变环境变量</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># sudo</span></span><br><span class="line">$ sudo</span><br><span class="line"></span><br><span class="line"><span class="comment"># passwd</span></span><br><span class="line">$ passwd <span class="comment"># 用于改变用户密码</span></span><br></pre></td></tr></table></figure>
+<h2 id="6个快捷操作"><a href="#6个快捷操作" class="headerlink" title="6个快捷操作"></a>6个快捷操作</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">操作</th>
+<th style="text-align:left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">ctrl+alt+[F1]~[F7]</td>
+<td style="text-align:left">纯文本接口和图形界面切换</td>
+</tr>
+<tr>
+<td style="text-align:center">ctrl+r</td>
+<td style="text-align:left">反向搜索执行过的命令</td>
+</tr>
+<tr>
+<td style="text-align:center">ctrl+z</td>
+<td style="text-align:left">暂停某个程序</td>
+</tr>
+<tr>
+<td style="text-align:center">ctrl+c</td>
+<td style="text-align:left">中止某个程序</td>
+</tr>
+<tr>
+<td style="text-align:center">ctrl+d</td>
+<td style="text-align:left">键盘输入结束（EOF）</td>
+</tr>
+<tr>
+<td style="text-align:center">tab</td>
+<td style="text-align:left">命令和文档补全</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="九个常用符号"><a href="#九个常用符号" class="headerlink" title="九个常用符号"></a>九个常用符号</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">符号</th>
+<th style="text-align:left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">/</td>
+<td style="text-align:left">根目录</td>
+</tr>
+<tr>
+<td style="text-align:center">~</td>
+<td style="text-align:left">家目录</td>
+</tr>
+<tr>
+<td style="text-align:center">-</td>
+<td style="text-align:left">上一个工作目录</td>
+</tr>
+<tr>
+<td style="text-align:center">.</td>
+<td style="text-align:left">当前目录</td>
+</tr>
+<tr>
+<td style="text-align:center">..</td>
+<td style="text-align:left">当前目录上一层目录</td>
+</tr>
+<tr>
+<td style="text-align:center">&amp;</td>
+<td style="text-align:left">放在启动参数后面表示设置此进程为后台进程</td>
+</tr>
+<tr>
+<td style="text-align:center">!</td>
+<td style="text-align:left">从历史记录中使用命令号来运行命令，譬如!233</td>
+</tr>
+<tr>
+<td style="text-align:center">#</td>
+<td style="text-align:left">root用户提示符</td>
+</tr>
+<tr>
+<td style="text-align:center">$</td>
+<td style="text-align:left">一般用户提示符</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="Linux环境变量"><a href="#Linux环境变量" class="headerlink" title="Linux环境变量"></a>Linux环境变量</h2><p>环境变量和其他命令结合在一起使用，需要使用<code>$</code>符号作为前缀一起使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ LANG=en_US</span><br><span class="line">$ <span class="built_in">echo</span> <span class="variable">$LANG</span></span><br></pre></td></tr></table></figure>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">变量名</th>
+<th style="text-align:left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">LANG</td>
+<td style="text-align:left">当前语系</td>
+</tr>
+<tr>
+<td style="text-align:center">PATH</td>
+<td style="text-align:left">当前环境路径</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://www.runoob.com/linux">linux命令大全</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.oschina.net/translate/useful-linux-commands-for-newbies">对 Linux 新手非常有用的 20 个命令</a></li>
+<li><a target="_blank" rel="noopener" href="http://man.linuxde.net/rpm">Linux命令大全</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/platform/linux-common-command-details/"> https://www.freehacker.cn/platform/linux-common-command-details/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f780e13af2j21gr0i2mz4.jpg)" href="/republic/no-more-waiting/">
+			<section class="post">
+				<h3>我不在等以后了</h1>
+				<p>没有人给我等的机会，包括我自己。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f2ro2bxcqjj21gs0i2wlw.jpg)" href="/foundation/cpp-thread-hello-world/">
+			<section class="post">
+				<h3>C++并发编程0——欢迎来到多线程的世界</h1>
+				<p>C++11中引入了多线程编程，一般教科书中都没有涉及到这个概念，但是在工作中多线程却又是必不可少的。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/platform/linux-common-command-details/';
+        this.page.identifier = 'platform/linux-common-command-details/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

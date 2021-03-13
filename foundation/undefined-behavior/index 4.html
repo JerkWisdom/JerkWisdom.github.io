@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>C++未定义行为 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="C++标准未定义行为解析与罗列。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++未定义行为">
+<meta property="og:url" content="https://www.freehacker.cn/foundation/undefined-behavior/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="C++标准未定义行为解析与罗列。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-02-12T03:19:04.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.361Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="CPlusPlus">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">C++未定义行为</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/CPlusPlus/'>CPlusPlus</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-02-12T03:19:04.000Z" >
+          2017-02-12
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>衡量一个人是否真正活着的根本方法，就是看他是否有意愿、有能力做出主动的选择。</p>
+</blockquote>
+<p>在计算机程序设计中，未定义行为（undefined behavior）是指行为不可预测的计算机代码。这是一些编程语言的一个特点，最有名的是在C语言中。在这些语言中，为了简化标准，并给予实现一定的灵活性，标准特别地规定某些操作的结果是未定义的，这意味着程序员不能预测会发生什么事。<a id="more"></a></p>
+<h2 id="一个问题"><a href="#一个问题" class="headerlink" title="一个问题"></a>一个问题</h2><p>此问题摘自知乎：</p>
+<blockquote>
+<p>对顺序容器 ( vector ) 的访问:</p>
+<ul>
+<li>如果使用 operator[] 访问容器，下标越界是未定义行为。</li>
+<li>使用 at 访问，下标越界，则抛出一个 out_of_range 异常。</li>
+</ul>
+<p>下标越界应该是明显错误的，但是为什么 C++ 标准选择把 operator[] 列为未定义行为，而加入at成员在对成员访问时进行下标检查？</p>
+</blockquote>
+<p>同样摘取一些回答</p>
+<p>回答一：</p>
+<blockquote>
+<p>C++ 的设计理念之一，就是你不需要为你不使用的特性付出代价。如果你能确保你的下标不越界，C++就不会进行检查。</p>
+</blockquote>
+<p>回答二：</p>
+<blockquote>
+<p>检查就表示有运算判断的开销，C++将效率放在第一位，假设用户之前已经对[]访问的下标做过检查了，在一个大量访问的for循环中，但是vector还是自作聪明的每次都判断一次下标越界，这个效率影响你可想而知！你会不会在这个情况下骂它管的太多呢。所以说将所有的权利都交给你，vector不做太多自作聪明的处理。</p>
+</blockquote>
+<h2 id="什么是未定义"><a href="#什么是未定义" class="headerlink" title="什么是未定义"></a>什么是未定义</h2><p>未定义行为（Undefined Behavior）是指语言标准未做规定的行为。同时，标准也从没要求编译器判断未定义行为，所以这些行为有编译器自行处理，在不同的编译器可能会产生不同的结果，又或者如果程序调用未定义的行为，可能会成功编译，甚至一开始运行时没有错误，只会在另一个系统上，甚至是在另一个日期运行失败。当一个未定义行为的实例发生时，正如语言标准所说，“什么事情都可能发生”，也许什么都没有发生。</p>
+<p>下文会罗列C++中的一系列未定义结果和未定义行为，持续整理更新。</p>
+<h2 id="未定义的结果"><a href="#未定义的结果" class="headerlink" title="未定义的结果"></a>未定义的结果</h2><p>1、当我们赋给带符号类型一个超出它表示范围的值时，结果是未定义的。<br>signed char c2 = 256; // c2的值是未定义的</p>
+<p>2、函数体之内定义的变量：未初始化（uninitialized），其值undefined。</p>
+<p>3、算术表达式有可能产生未定义的结果</p>
+<ul>
+<li>数学性质本身：除数为0</li>
+<li>计算机的特点：溢出；很多系统在编译和运行时都不报出溢出错误，像其他未定义的行为一样，溢出的结果是不可预知的。</li>
+</ul>
+<h2 id="未定义的行为"><a href="#未定义的行为" class="headerlink" title="未定义的行为"></a>未定义的行为</h2><p>未定义行为，无法预估Runtime会发生什么（unpredictable：normal、crashing、incorrect results）。</p>
+<p>1、解引用空指针、非法迭代器或者尾后迭代器都是未定义行为</p>
+<p>2、访问一个无效数组索引，下标越界</p>
+<p>3、当derived class对象经由一个base class指针被删除，而该base class带着一个non-virtual析构函数，其结果是未定义的。</p>
+<ul>
+<li>实际执行时通常发生的是对象的derived成员没有被销毁。</li>
+</ul>
+<p>4、在两个异常同时存在的情况下，程序若不是结束执行就是导致未定义行为。</p>
+<p>5、释放一个非new分配的内存，或者将相同的指针值释放多次，其行为是未定义的。</p>
+<p>6、string s(s2,pos2); // s是string s2从下标pos2开始的字符拷贝，如果pos2&gt;s2.size()，构造函数的行为未定义</p>
+<p>7、试图比较两个无关地址是未定义行为</p>
+<p>8、对于那些没有指定执行顺序的运算符来说，如果表达式指向并修改了同一个对象，将会引发错误并产生未定义的行为。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i=<span class="number">0</span>;</span><br><span class="line"><span class="built_in">cout</span>&lt;&lt;i&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;++i&lt;&lt;<span class="built_in">endl</span>; <span class="comment">/* 未定义 */</span></span><br><span class="line"><span class="comment">/* 编译器可能先求++i的值，再求i的值；也可能先求i的值，再求++i的值。注意与print函数的区别。 */</span></span><br><span class="line">*beg=<span class="built_in">toupper</span>(*beg++); <span class="comment">/* 未定义 */</span></span><br></pre></td></tr></table></figure>
+<p>9、对有符号数进行左移操作可能会改变符号位的值，因此是一种未定义的行为。移位运算符右侧的运算对象一定不能为负，而且值必须严格小于结果的位数，否则就会产生未定义的行为。</p>
+<p>10、使用static_cast将void*转换成其他类型指针，必须确保转换后所得的类型就是指针所指的类型。类型一旦不符，将产生未定义行为。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> d;</span><br><span class="line"><span class="keyword">void</span>* p=&amp;d;</span><br><span class="line"><span class="keyword">double</span> *dp=<span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>*&gt;(p);</span><br></pre></td></tr></table></figure>
+<p>11、const_cast只能改变运算对象的底层const，如果对象本身是一个常量，使用const_cast执行写操作就会产生未定义行为。</p>
+<p>12、不要使用get初始化另一个智能指针或为智能指针赋值，否则将会产生两个独立的shared_ptr指向相同的内存，这将产生未定义行为。</p>
+<p>13、delete []p;如果忘记[]，其行为是未定义的。 删除单一对象的指针加[]，其行为也是未定义的。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/30366746">C++ 为什么把一些明显的错误列为未定义行为?</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/foundation/undefined-behavior/"> https://www.freehacker.cn/foundation/undefined-behavior/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f8g45b9gwdj21hc0i276g.jpg)" href="/comm/grpc-basic/">
+			<section class="post">
+				<h3>gRPC初识——同步单向gRPC</h1>
+				<p>本文主要简述gRPC的使用方式，并介绍了简单的同步单向gRPC。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)" href="/foundation/initialization/">
+			<section class="post">
+				<h3>浅谈C++初始化</h1>
+				<p>C++内置类型和自定义类型初始化探讨。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/foundation/undefined-behavior/';
+        this.page.identifier = 'foundation/undefined-behavior/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

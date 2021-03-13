@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>Win32 MultiThread Summary | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="Win32多线程程序设计读书笔记。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Win32 MultiThread Summary">
+<meta property="og:url" content="https://www.freehacker.cn/advanced/win32-multi-thread/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="Win32多线程程序设计读书笔记。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-04-10T06:37:46.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.347Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Thread">
+<meta property="article:tag" content="Win32">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f2ro2bxcqjj21gs0i2wlw.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">Win32 MultiThread Summary</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Thread/'>Thread</a> /
+    
+    <a href='/tags/Win32/'>Win32</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-04-10T06:37:46.000Z" >
+          2016-04-10
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote><p>我们可以为我们的能力自豪，但对于我们的缺点——还有我们的无知和错误——我们必须诚实。</p>
+<footer><strong>Andrew Hunt/David Thomas</strong><cite>程序员修炼之道</cite></footer></blockquote>
+<p>多线程并不一定是最好的，合适才是最好的。<a id="more"></a></p>
+<h2 id="为什么多线程？"><a href="#为什么多线程？" class="headerlink" title="为什么多线程？"></a>为什么多线程？</h2><p>多线程主要的优点是价廉物美，启动快、退出快、与其他线程共享核心对象，很容易实现共产主义的伟大梦想。但是其又有不可预期、测试困难的缺点。</p>
+<p>多线程往往会和多进程在一起进行比较，进程含有内存和资源：</p>
+<ul>
+<li>内存：可达到2GB，分为Code（程序的可执行部分，只读性质）、Data（全局变量和静态变量）和Stack（局部变量）</li>
+<li>资源：核心对象（file handles和线程）、User资源（如对话框和字符串）、GDI资源（如Device Context和brushes）</li>
+</ul>
+<p>线程是进程的一个实体，是独立调度和分派的基本单位，不拥有系统资源（只拥有少许运行中必不可少的私有资源），线程可与同属一个进程的其它线程共享进程的全部资源。</p>
+<p>总结来说，进程拥有资源，属于这个进程的若干个线程共享进程的资源。进程是资源分配和调度的单位，线程是CPU调度和分配的单位，资源是分配给进程的，线程只拥有很少资源，因而切换代价比进程切换低。但是进程的健壮性远比线程好，如果一个进程死亡，系统中的其他进程还是可以继续执行。</p>
+<p>使用好多线程，就是要知道何时应该用多线程，何时不该用。如果应该用多线程，如何解决Race Condition问题？如何共享数据？如何提高效率？如何同步线程和数据？总结起来就是：</p>
+<ul>
+<li>有始有终，线程的创建和释放都要靠自己</li>
+<li>不抛弃不放弃，等一等线程，让它做完自己的工作</li>
+<li>文明有序，资源占用无冲突</li>
+</ul>
+<p>但是有时候却不建议使用多线程：</p>
+<ul>
+<li>针对于慢速I/O设备，Overlapped I/O更能胜任</li>
+<li>程序的健壮性要求很高，值得付出比较多的额外负担，多进程可能更能胜任</li>
+</ul>
+<h2 id="操作线程"><a href="#操作线程" class="headerlink" title="操作线程"></a>操作线程</h2><h3 id="如何创建线程？"><a href="#如何创建线程？" class="headerlink" title="如何创建线程？"></a>如何创建线程？</h3><p>如果要写一个多线程程序，第一步就是创建一个线程，我们可以使用<code>CreateThread API</code>函数，也可以使用_beginthreadex C 函数，其实我大多数时候使用的是Boost库上面的boost::thread对象来创建线程对象。如果有兴趣可以看看Boost库，这里暂且不讨论Boost库thread。</p>
+<p>如果使用上面两个函数，可以去msdn查看。使用上面两种函数创建线程，其线程函数都必须符合以下格式，当然函数名可以更换：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadFunc</span><span class="params">(LPVOID n)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>使用CreateThread API函数或者_beginthreadex函数，可以传回两个值用以识别一个新的线程——返回值Handle（句柄）和输出参数lpThread（线程ID）。为了安全防护的缘故，不能根据一个线程的ID获得其handle。</p>
+<h3 id="如何释放线程？"><a href="#如何释放线程？" class="headerlink" title="如何释放线程？"></a>如何释放线程？</h3><p>线程和进程一样，都是核心对象。如何释放线程属于如何释放核心对象的问题。CloseHandle函数在这里起了十分重要的作用。CloseHandle函数的功能是将核心对象的引用计数减1。<em>其不能直接用来释放核心对象，核心对象只有在其引用计数为0的时候会被操作系统自动销毁。</em></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">CloseHandle</span><span class="params">(HANDLE hObject)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>如果你不调用该函数，即使线程在创建之后执行完毕，引用计数还是不为0，线程无法被销毁。如果一个进程没有在结束之前对它所打开的核心对象调用CloseHandle，操作系统会自动把那些对象的引用计数减一。虽然操作系统会做这个工作，但是他不知道核心对象实际的意义，也就不可能知道解构顺序是否重要。如果你在循环结构创建了核心对象而没有CloseHandle，好吧！你可能会有几十万个句柄没有关闭，你的系统会因此没有可用句柄，然后各种异常现象就出现了。<strong>记住当你完成你的工作，应该调用CloseHandle函数释放核心对象</strong>。</p>
+<p>在清理线程产生的核心对象时也要注意这个问题。<strong>不要依赖因线程结束而清理所有被这一线程产生的核心对象</strong>。面对一个打开的对象，区分其拥有者是进程或是线程是很重要的。这决定了系统何时做清理工作。程序员不能选择有进程或者线程拥有对象，一切都得视对象类型而定。如果被线程打开的核心对象被进程拥有，线程结束是无法清理这些核心对象的。</p>
+<h3 id="线程核心对象与线程"><a href="#线程核心对象与线程" class="headerlink" title="线程核心对象与线程"></a>线程核心对象与线程</h3><p>其实这两个是不同的概念。CreateThread函数返回的句柄其实是指向线程核心对象，而不是直接指向线程本身。在创建一个新的线程时，线程本身会开启线程核心对象，引用计数加1，CreateThread函数返回一个线程核心对象句柄，引用计数再加1，所以线程核心对象一开始引用计数就是2。</p>
+<p>调用CloseHandle函数，该线程核心对象引用计数减一，线程执行完成之后，引用计数再减一为零，该核心对象被自动销毁。</p>
+<blockquote>
+<p>不能依赖因线程的结束而清理所有被这一线程产生的核心对象。许多对象，例如文件，是被进程拥有的。</p>
+</blockquote>
+<h3 id="结束主线程"><a href="#结束主线程" class="headerlink" title="结束主线程"></a>结束主线程</h3><p>首先得了解哪个线程是主线程：程序启动后就执行的线程。主线程有两个特点：</p>
+<ul>
+<li>负责GUI主消息循环</li>
+<li>主线程结束时，强迫其他所有线程被迫结束，其他线程没有机会执行清理工作</li>
+</ul>
+<p>第二个特点也就意味着，如果你不等待其他线程结束，它们没有机会执行完自己的操作，也没有机会做最后的cleanup操作。我遇到过由于没有等待，而出现程序奔溃的情况。反正很危险。</p>
+<h3 id="结束线程并获取其结束代码"><a href="#结束线程并获取其结束代码" class="headerlink" title="结束线程并获取其结束代码"></a>结束线程并获取其结束代码</h3><p>这个没什么好说的，可以使用ExitThread函数退出线程，返回一个结束代码。GetExitCodeThread函数获取ExitThread函数或者return语句返回的结束代码。不过想通过GetExitCodeThread来等待线程结束是个很糟糕的注意——CPU被浪费了。下一节提及的WaitForSingleObject才是正道。</p>
+<p>获取程序结束代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 如果线程尚未结束，返回TRUE，lpExitCode值为STILL_ACTIVE */</span></span><br><span class="line">BOOL bResult = GetExitCodeThread(hThread, lpExitCode);</span><br></pre></td></tr></table></figure>
+<h3 id="终止其他线程"><a href="#终止其他线程" class="headerlink" title="终止其他线程"></a>终止其他线程</h3><p>终止其他线程可以使用TerminateThread()函数，也可以使用全局标记。</p>
+<p>TerminateThread()函数的缺点是：</p>
+<ul>
+<li>1、线程没有机会在结束前清理自己，其堆栈也没有被释放掉，出现内存泄露；</li>
+<li>2、任何与此线程有附着关系的DLLs也没有机会获得线程解除附着通知；</li>
+<li>3、线程进入的Critical Section将永远处于锁定状态（Mutex会返回wait_abandoned状态）。</li>
+<li>4、线程正在处理的数据会处于不稳定状态。</li>
+</ul>
+<p>TerminateThread()唯一可以预期的是：线程handle变成激发状态，并且传回dwExitCode所指定的结束代码。</p>
+<p>设立全局标记的优点：保证目标线程在结束之前安全而一致的状态<br>设立全局标记的缺点：线程需要一个polling机制，时时检查标记值。（可以使用一个<strong>手动重置的event对象</strong>）</p>
+<h2 id="等一等线程"><a href="#等一等线程" class="headerlink" title="等一等线程"></a>等一等线程</h2><h3 id="等待一个线程的结束"><a href="#等待一个线程的结束" class="headerlink" title="等待一个线程的结束"></a>等待一个线程的结束</h3><p>使用WaitForSingleObject最显而易见的好处是你终于可以把以下代码精简成一句了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(;;)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">int</span> rc;</span><br><span class="line">  rc = GetExitCodeThread(hThread, &amp;exitCode);</span><br><span class="line">  <span class="keyword">if</span>(!rc &amp;&amp; exitCode != STILL_ACTIVE)</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line">→ → → → → →</span><br><span class="line">WaitForSingleObject(hThread, INFINITE);</span><br></pre></td></tr></table></figure>
+<p>其他好处就是：</p>
+<ul>
+<li>busy loop浪费太多CPU时间</li>
+<li>可以设定等待时间</li>
+</ul>
+<h3 id="等待多个线程的结束"><a href="#等待多个线程的结束" class="headerlink" title="等待多个线程的结束"></a>等待多个线程的结束</h3><p>WaitForSingleObject函数不好同时判断多个线程的状态，WaitForMultipleObjects可以同时等待多个线程，可以设定是否等待所有线程执行结束还是只要一个线程执行完立马返回。</p>
+<h3 id="在GUI线程中等待"><a href="#在GUI线程中等待" class="headerlink" title="在GUI线程中等待"></a>在GUI线程中等待</h3><p>在GUI线程中总是要常常回到主消息循环，上述两个wait api函数会阻塞主消息循环。MsgWaitForMultipleObjects函数可以在对象呗激发或者消息到达时被唤醒而返回。</p>
+<h3 id="相关基本函数"><a href="#相关基本函数" class="headerlink" title="相关基本函数"></a>相关基本函数</h3><p>1、等待一个核心对象被激发（线程结束）</p>
+<p>WaitForSingleObject不仅仅能够等待一个线程结束，也能等待一个核心对象变成激发状态。</p>
+<p>MSDN中提及：</p>
+<blockquote>
+<p>If this handle（核心对象） is closed while the wait is still pending, the function’s behavior is undefined.</p>
+</blockquote>
+<p>会不会奔溃呢？这是个问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 失败返回WAIT_FAILED</span><br><span class="line">&#x2F;* 成功：</span><br><span class="line">&#x2F;*    WAIT_OBJECT_0: 等待目标变成激发状态</span><br><span class="line">&#x2F;*    WAIT_TIMEOUT: 核心对象变成激发状态之前，等待时间终了。</span><br><span class="line">&#x2F;*    WAIT_ABANDONED: 如果一个拥有mutex互斥器的线程结束之前没有释放mutex</span><br><span class="line">&#x2F;* dwMilliseconds可以为INFINITE，表示一直等待。也可以为0，表示立即检查handle的状态。</span><br><span class="line">DWORD result &#x3D; WaitForSingleObject(hThead, dwMilliseconds);</span><br></pre></td></tr></table></figure>
+<p>2、等待多个核心对象被激发（线程结束）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* bWaitAll是TRUE，那么返回值将是WAIT_OBJECT_0 *&#x2F;</span><br><span class="line">&#x2F;* bWaitAll是FALSE，那么将返回值减去WAIT_OBJECT_0，就表示数组中那个handle被激发 *&#x2F;</span><br><span class="line">DWORD result &#x3D; WaitForMultipleObjects(</span><br><span class="line">                nCount,  &#x2F;* 最大容量是MAXIMUM_WAIT_OBJECTS（64）*&#x2F;</span><br><span class="line">                lpHandles,</span><br><span class="line">                bWaitAll,</span><br><span class="line">                dwMilliseconds);</span><br></pre></td></tr></table></figure>
+<p>3、等待核心对象被激发或消息到达队列</p>
+<p>在一个GUI程序中等待线程结束会导致进程卡死，常常回到主消息循环式很重要的。光使用GetMessage函数和WaitForMultipleObjects无法做到这一点。MsgWaitForMultipleObjects函数能够同时等待核心对象被激发或者消息到达队列。</p>
+<p>这块代码详见Win32多线程程序设计P88</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DWORD result &#x3D; MsgWaitForMultipleObjects(nCount, pHandles, bWaitAll, dwMilliseconds, dwWakeMask);</span><br></pre></td></tr></table></figure>
+<h2 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h2><p>线程同步主要有Critical Sections、Mutex、Semaphores、Event，除了Critical Section是存在于进程<code>内存空间</code>内，其他都是<code>核心对象</code>。</p>
+<h3 id="Critical-Sections"><a href="#Critical-Sections" class="headerlink" title="Critical Sections"></a>Critical Sections</h3><p>Critical Section用来实现排他性占有，适用范围时单一进程的各个线程之间。临界区并非核心对象，一旦线程进入一个临界区，他就能够一再的<code>重复</code>进入该临界区。但是必须保证，<strong>每一个进入操作都有一个对应的离开操作</strong>。</p>
+<p>Critical Section的一个缺点就是，没有办法获知进入critical section中的那个线程是生是死。这样的话，如果线程挂了还没有离开临界区，系统没有办法将该临界区清楚。</p>
+<p>同时，临界区由于context switching也会发生死锁（DeadLock）现象——每个线程都抓住了部分资源，而都在等待对方线程的资源。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CRITICAL_SECTION g_criticalSection;</span><br><span class="line">InitializeCriticalSection(&amp;g_criticalSection);</span><br><span class="line">EnterCriticalSection(g_criticalSection);</span><br><span class="line">LeaveCriticalSection(g_criticalSection);</span><br><span class="line">DeleteCriticalSection(&amp;g_criticalSection);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>千万不要再一个critical section之中调用Sleep()或任何Wait() API函数。</p>
+</blockquote>
+<p>Critical Sections注意事项：</p>
+<ul>
+<li>一旦线程进入一个Critical Section，再调用LeaveCriticalSection函数之前，就能一直重复的进入该Critical Section。</li>
+<li>千万不要在一个Critical section之中调用Sleep()或者任何Wait… API函数。</li>
+<li>如果进入Critical section的那个线程结束了或者当掉了，而没有调用LeaveCriticalSection函数，系统就没有办法将该Critical Section清除。</li>
+</ul>
+<p>Critical Section的优点：</p>
+<ul>
+<li>相对于Mutex来说，其速度很快。锁住一个未被拥有的mutex要比锁住一个未被拥有的critical section，需要花费几乎100倍时间。（critical section不需要进入操作系统核心）</li>
+</ul>
+<p>Critical Section的缺陷：</p>
+<ul>
+<li>Critical Section不是核心对象，无法WaitForSingleObject，没有办法解决<code>死锁</code>问题（一个著名的死锁问题：哲学家进餐问题）</li>
+<li>Critical Section不可<code>跨进程</code></li>
+<li>无法指定等待结束的时间长度</li>
+<li>不能够同时有一个Critical section被等待</li>
+<li>无法侦测是否已被某个线程放弃</li>
+</ul>
+<h3 id="Mutex"><a href="#Mutex" class="headerlink" title="Mutex"></a>Mutex</h3><p>Mutex可以在不同的线程之间实现排他性占有，甚至即使那些线程属于不同进程。Mutex和临界区类似，但是它牺牲速度以增加弹性。两者区别：</p>
+<ul>
+<li>锁住一个未被拥有的Mutex，比锁住一个未被拥有的critical section，需要花费几乎100倍的时间（临界区非核心对象，不需要进去操作系统核心，只要在用户态进行操作即可）。</li>
+<li>Mutex可以跨进程，而临界区只能在同一进程使用</li>
+<li>等待一个Mutex，可以指定结束等待的时间长度。</li>
+</ul>
+<p>Mutex的激发状态：当没有任何线程拥有该Mutex而且有一个线程正以Wait…()等待该Mutex，该mutex就会短暂的出现激发状态。</p>
+<p>如果线程拥有一个mutex而在结束前没有调用ReleaseMutex函数，mutex不会被摧毁，取而代之的是，该mutex会被视为未拥有以及未被激发。而下一个等待的线程会被以WAIT_ABANDONED_0通知。</p>
+<p>使用示例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">HANDLE hMutex ; <span class="comment">/* global attributes */</span></span><br><span class="line">hMutex = CreateMutex (</span><br><span class="line">        <span class="literal">NULL</span>, <span class="comment">/* default event attributes */</span></span><br><span class="line">        <span class="literal">false</span>, <span class="comment">/* default not initially owned */</span></span><br><span class="line">        <span class="literal">NULL</span> <span class="comment">/* unnamed */</span>);</span><br><span class="line">DWORD dwWaitResult = WaitForSingleObject (hMutex , INFINITE );</span><br><span class="line"><span class="keyword">if</span> (dwWaitResult == WAIT_OBJECT_0 ) &#123;</span><br><span class="line">    <span class="comment">/* wait succeed, do what you want */</span></span><br><span class="line">&#125;</span><br><span class="line">ReleaseMutex(hMutex );</span><br></pre></td></tr></table></figure>
+<p> 示例解释：</p>
+<p> 1、HMutex在创建时为<code>未被拥有</code>和<code>未激发</code>状态；<br> 2、调用Wait…()函数，线程获得hMutex的拥有权，HMutex短暂变成激发状态，然后Wait…()函数返回，此时HMutex的状态是<code>被拥有</code>和<code>未激发</code>；<br> 3、ReleaseMutex之后，HMutex的状态变为<code>未被拥有</code>和<code>未激发</code>状态</p>
+<p> Mutex注意事项：</p>
+<ul>
+<li>Mutex的拥有权并非属于哪个产生它的哪个线程，而是那个最后对此mutex进行Wait…()操作并且尚未进行ReleaseMutex()操作的线程。</li>
+<li>如果线程拥有一个mutex而在结束前没有调用ReleaseMutex()，mutex不会被摧毁，取而代之，该mutex会被视为“未被拥有”以及“未被激发”，而下一个等待中的线程会被以WAIT_ABANDONED_0通知。</li>
+<li>Wait…()函数在Mutex处于<code>未被拥有</code>和<code>未被激发</code>状态时返回。</li>
+<li>将CreateMutex的第二个参数设为true，可以阻止race condition，否则调用CreateMutex的线程还未拥有Mutex，发生了context switch，就被别的线程拥有了。</li>
+</ul>
+<p>Mutex优点</p>
+<ul>
+<li>核心对象，可以调用Wait…() API函数</li>
+<li>跨线程、跨进程、跨用户（将CreateMutex的第三个参数前加上”Global//“）</li>
+<li>可以具名，可以被其他进程开启</li>
+<li>只能被拥有它的哪个线程释放</li>
+</ul>
+<p>Mutex缺点</p>
+<ul>
+<li>等待代价比较大</li>
+</ul>
+<h3 id="Semaphores"><a href="#Semaphores" class="headerlink" title="Semaphores"></a>Semaphores</h3><p>Semaphore被用来追踪有限的资源。</p>
+<p>和Mutex的对比</p>
+<ul>
+<li>mutex是semaphore的退化，令semahpore的最大值为1，那就是一个mutex</li>
+<li>semaphore没有拥有权的概念，也没有<code>wait_abandoned</code>状态，一个线程可以反复调用Wait…()函数以产生锁定，而拥有mutex的线程不论在调用多少次Wait…()函数也不会被阻塞。</li>
+<li>在许多系统中都有semaphore的概念，而mutex则不一定。</li>
+<li>调用ReleaseSemaphore()的那个线程并不一定是调用Wait…()的那个线程，<strong>任何线程都可以在任何时间调用ReleaseSemaphore，解除被任何线程锁定的Semaphore。</strong></li>
+</ul>
+<p>Semaphore优点：</p>
+<ul>
+<li>核心对象</li>
+<li>可以具名，可以被其他进程开启</li>
+<li>可以被任何一个线程释放</li>
+</ul>
+<p>Semaphore缺点</p>
+<h3 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h3><p>Event通常用于overlapped I/O，或者用来设计某些自定义的同步对象。</p>
+<p>使用示例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">HANDLE hEvent ; <span class="comment">/* global attributes */</span></span><br><span class="line">hEvent = CreateEvent (</span><br><span class="line">        <span class="literal">NULL</span>, <span class="comment">/* default event attributes */</span></span><br><span class="line">        <span class="literal">true</span>, <span class="comment">/* mannual reset */</span></span><br><span class="line">        <span class="literal">false</span>, <span class="comment">/* nonsignaled */</span></span><br><span class="line">        <span class="literal">NULL</span> <span class="comment">/* unnamed */</span></span><br><span class="line">       );</span><br><span class="line"></span><br><span class="line">SetEvent(hEvent);</span><br><span class="line">PulseEvent(hEvent);</span><br><span class="line">DWORD dwWaitResult = WaitForSingleObject (hEvent , INFINITE );</span><br><span class="line">ResetEvent(hEvent);</span><br><span class="line"><span class="keyword">if</span> (dwWaitResult == WAIT_OBJECT_0 )</span><br><span class="line">&#123;</span><br><span class="line">        <span class="comment">/* wait succeed, do what you want */</span></span><br><span class="line">       ...</span><br><span class="line">        ResetEvent(hEvent );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>示例解释：</p>
+<p>1、CreateEvent默认为非激发状态、手动重置<br>2、SetEvent把hEvent设为激发状态<br>3、在手动重置情况下（bManualReset=true），PulseEvent把event对象设为激发状态，然而唤醒<code>所有</code>等待中的线程，然后恢复为非激发状态；<br>4、在自动重置情况下（bManualReset=false），PulseEvent把event对象设为激发状态，然而唤醒<code>一个</code>等待中的线程，然后恢复为非激发状态；<br>5、ResetEvent将hEvent设为未激发状态</p>
+<p>Event注意事项：</p>
+<ul>
+<li>CreateEvent函数的第二个参数bManualReset若为false，event会在变成激发状态（因而唤醒一个线程）之后，自动重置为非激发状态；</li>
+<li>CreateEvent函数的第二个参数bManualReset若为true，event会在变成激发状态（因而唤醒一个线程）之后，不会自动重置为非激发状态，必须要手动ResetEvent；</li>
+</ul>
+<p>Event优点：</p>
+<ul>
+<li>核心对象</li>
+<li>其状态完全由程序来控制，其状态不会因为Wait…()函数的调用而改变。</li>
+<li>适用于设计新的同步对象</li>
+<li>可以具名，可以被其他进程开启</li>
+</ul>
+<p>Event缺点：</p>
+<ul>
+<li>要求苏醒的请求并不会被存储起来，可能会遗失掉。如果一个AutoReset event对象调用SetEvent或PulseEvent，而此时并没有线程在等待，这个event会被遗失。如Wait…()函数还没来得及调用就发生了Context Switch，这个时候SetEvent，这个要求苏醒的请求会被遗失，然后调用Wait…()函数线程卡死。</li>
+</ul>
+<h2 id="替代多线程"><a href="#替代多线程" class="headerlink" title="替代多线程"></a>替代多线程</h2><h3 id="Overlapped-I-O"><a href="#Overlapped-I-O" class="headerlink" title="Overlapped I/O"></a>Overlapped I/O</h3><p>Win32之中三个基本的I/O函数：CreateFile()、ReadFile()和WriteFile()。</p>
+<ul>
+<li>设置CreateFile()函数的dwFlagsAndAttributes参数为FILE_FLAG_OVERLAPPED，那么对文件的每一个操作都将是Overlapped。此时可以同时读写文件的许多部分，没有目前的文件位置的概念，每一次读写都要包含其文件位置。</li>
+<li>如果发出许多Overlapped请求，那么执行顺序无法保证。</li>
+<li>Overlapped I/O不能使用C Runtime Library中的stdio.h函数，只能使用ReadFile()和WriteFile()来执行I/O。</li>
+</ul>
+<p>Overlapped I/O函数使用OVERLAPPED结构来识别每一个目前正在进行的Overlapped操作，同时在程序和操作系统之间提供了一个共享区域，参数可以在该区域双向传递。</p>
+<h3 id="多进程"><a href="#多进程" class="headerlink" title="多进程"></a>多进程</h3><p>如果一个进程死亡，系统中的其他进程还是可以继续执行。多进程程序的健壮性远胜于多线程。因为如果多个线程在同一个进程中运行，那么一个误入歧途的线程就可能把整个进程给毁了。</p>
+<p>另一个使用多重进程的理由是，当一个程序从一个作业平台被移植到另一个作业平台，譬如Unix（不支持线程，但进程的产生与结束的代价并不昂贵），Unix应用程序往往使用多个进程，如果移植成为多线程模式，可能需要大改。</p>
+<h2 id="多线程程序设计成功秘诀"><a href="#多线程程序设计成功秘诀" class="headerlink" title="多线程程序设计成功秘诀"></a>多线程程序设计成功秘诀</h2><ul>
+<li>各线程的数据要分离开来，避免使用全局变量</li>
+<li>不要再线程之间共享GDI对象</li>
+<li>确定你知道你的线程状态，不要径自结束程序而不等待它们结束</li>
+<li>让主线程处理用户界面（UI）</li>
+</ul>
+<h2 id="附录一：Context-Switching、Race-Condition、Atomic-Operations"><a href="#附录一：Context-Switching、Race-Condition、Atomic-Operations" class="headerlink" title="附录一：Context Switching、Race Condition、Atomic Operations"></a>附录一：Context Switching、Race Condition、Atomic Operations</h2><p>注意几个核心概念：</p>
+<ul>
+<li>Context Switching</li>
+</ul>
+<blockquote>
+<p>线程中断时，CPU把当前线程的寄存器内容拷贝到堆栈中，再把它从堆栈中拷贝到一个CONTEXT结构中，来存储当前线程的状态。要切换不同的线程，操作系统应先切换隶属之进程的内存，然后恢复该线程放在Context结构中的寄存器值。</p>
+</blockquote>
+<ul>
+<li>Race Condition</li>
+</ul>
+<blockquote>
+<p>抢占性多任务系统，两个线程的执行次序不可预期，可能造成竟态条件。至于原子操作，是指一个操作能够不受中断地完成。由于一句代码能够扩展成很多句机器指令，在多线程的情况下，原子操作可以防止简单的一句代码被中断，产生竟态条件。</p>
+</blockquote>
+<ul>
+<li>Atomic Operations</li>
+</ul>
+<blockquote>
+<p>Atomic Operation可以更加广义一点，指一些列操作不受Context Switching导致的Race Conditions的影响，能够正确的执行的操作。</p>
+</blockquote>
+<h2 id="附录二：单线程和多线程版本C-Runtime-Library"><a href="#附录二：单线程和多线程版本C-Runtime-Library" class="headerlink" title="附录二：单线程和多线程版本C Runtime Library"></a>附录二：单线程和多线程版本C Runtime Library</h2><p>在编译的时候使用/MD或/MDd选项，表示使用多线程版本的C runtime library。多线程版函数确保你的输出不会中断。</p>
+<p>区别</p>
+<ul>
+<li>如errno之类的变量，在多线程版本里每个线程各拥有一个</li>
+<li>多线程版本中的数据结构以同步机制加以保护</li>
+</ul>
+<p>VS2013中有如下Runtime Library</p>
+<ul>
+<li>Multi-threaded (/MT): multithread, static version</li>
+<li>Multi-threaded Debug (/MTd): multithread, static debug version</li>
+<li>Multi-threaded DLL (/MD): multithread- and DLL-specific version</li>
+<li>Multi-threaded Debug DLL (/MDd):multithread- and DLL-specific debug version</li>
+</ul>
+<p>/MD和/MDd将是潮流所趋，/ML和/MLd方式请及时放弃，其问题主要如下：</p>
+<ul>
+<li>最终生成的二进制代码因链入庞大的运行时库实现而变得非常臃肿。</li>
+<li>当某项目以静态链接库的形式嵌入到多个项目，则可能造成运行时库的内存管理有多份，最终将导致致命的“Invalid Address specified to RtlValidateHeap”问题。</li>
+</ul>
+<p>注意：MFC程序必须使用多线程版本的C Runtime Library，否则会在链接时获得”undefined function“的错误消息。</p>
+<h2 id="附录三：线程对象和线程的不同"><a href="#附录三：线程对象和线程的不同" class="headerlink" title="附录三：线程对象和线程的不同"></a>附录三：线程对象和线程的不同</h2><p>线程的handle是指向线程核心对象，而不是指向线程本身。线程对象的默认计数为2，当你调用CloseHandle时，引用计数下降1，当线程结束时，引用计数再降1。只有当两件事情都发生时，这个对象才会被真正清除。</p>
+<h2 id="附录四：GDI对象和核心对象"><a href="#附录四：GDI对象和核心对象" class="headerlink" title="附录四：GDI对象和核心对象"></a>附录四：GDI对象和核心对象</h2><p>包括：进程、线程、文件、事件、信号量、互斥器、管道</p>
+<p>不同：</p>
+<ul>
+<li>GDI对象有单一拥有者，核心对象有一个以上的拥有者。核心对象保持一个引用计数，以记录有多少handles对应到此对象。</li>
+</ul>
+<p>程序员不能选择由进程或线程拥有对象，一切都得视对象类型而定，区分一个对象拥有者是进程或线程是很重要的，因为会决定系统什么时候做清除善后工作。由于引用计数的设计，对象有可能在产生该对象之进程结束之后，还继续幸存。</p>
+<h2 id="附录五：被激发的对象（Signaled-Objects）"><a href="#附录五：被激发的对象（Signaled-Objects）" class="headerlink" title="附录五：被激发的对象（Signaled Objects）"></a>附录五：被激发的对象（Signaled Objects）</h2><p>可被WaitForSingleObject使用的核心对象有两种状态：激发与未激发，WaitForSingleObject会在目标物变成激活的时候返回。</p>
+<p>1、线程、进程</p>
+<p>当线程正在执行时，线程对象出于未激发状态，当线程结束时，线程对象就被激发了。</p>
+<p>进程类似。</p>
+<p>2、Event</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SetEvent()</span><br><span class="line">PulseEvent()</span><br><span class="line">ResetEvent()</span><br></pre></td></tr></table></figure>
+<p>3、Mutex</p>
+<p>如果Mutex没有被任何线程拥有，他就是出于激发状态。一旦一个等待mutex的函数返回了，mutex就自动重置为未激发状态。</p>
+<p>4、Semaphore</p>
+<p>Semaphore有一个计数器，当计数器内容大于0时，Semaphore出于激发状态，当计数器内容等于0时，Semaphore处于未激发状态。</p>
+<h2 id="附录六：如何选择-beginthreadex-and-CreateThread"><a href="#附录六：如何选择-beginthreadex-and-CreateThread" class="headerlink" title="附录六：如何选择_beginthreadex() and CreateThread()"></a>附录六：如何选择_beginthreadex() and CreateThread()</h2><p>其实你只要记住这句：</p>
+<blockquote>
+<p>如果你写一个多线程程序，而且没有使用MFC，那么你应该总是和多线程版本的C run-time Library链接，并且总是以beginthreadex()和endthreadex()取代CreateThread()和ExitThread()。</p>
+</blockquote>
+<p>_beginthreadex()函数的设计是为了保证多线程情况下的安全，其相对于CreateThread()函数多了层外包，其必须为每一个由它开启和结束的线程做一些簿记工作。</p>
+<p>但是为什么要增加一些簿记工作？Win32多线程编程貌似没有讲清楚。后面会深入学习。</p>
+<p>至于什么时候使用单线程版本的Runtime Library和CreateProcess()，不建议考虑这个问题，弄混乱了就不好了。只要记住上面的那句话就行了。</p>
+<p>使用_beginthreadex()函数需要注意以下：</p>
+<ul>
+<li>_beginthreadex()函数传回的线程handle，必须被强制转换类型为HANDLE后才能使用。</li>
+<li>同时必须对着_beginthreadex()的传回值调用CloseHandle()函数。</li>
+<li>绝对不要在一个“以beginthreadex()启动的线程”中调用ExitThread()，必须使用endthreadex()，否则C Runtime Library就没有机会释放”为该线程而配置的资源“。</li>
+</ul>
+<p>避免_beginthread()是出于：beginthread()传回的HANLDE也许可用，也许不可用。被beginthread()产生出来的线程所做的第一件事就是关闭自己的handle。这样做是为了隐藏Win32的实现细节，但其传回来的handle可能在当时是不可用的。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/advanced/win32-multi-thread/"> https://www.freehacker.cn/advanced/win32-multi-thread/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f23ch90yesj21020dpjs9.jpg)" href="/republic/goodbye-2015-hey-2016/">
+			<section class="post">
+				<h3>总结与展望：成长的2015与努力的2016</h1>
+				<p>博客重新搭建之后第一篇博文：迟到的2015总结与2016规划。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f2uru65pboj20zk0bztd6.jpg)" href="/foundation/the-semantics-of-constructors/">
+			<section class="post">
+				<h3>C++构造函数语意学</h1>
+				<p>本文深入C++对象模型语言层面和底层实现机制，力求更高效地写出效率更高的代码。主要围绕构造函数展开，同时也涉及到拷贝、移动、委托构造函数的相关内容。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/advanced/win32-multi-thread/';
+        this.page.identifier = 'advanced/win32-multi-thread/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

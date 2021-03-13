@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>WebRTC-GCC两种实现方案对比 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="从实验仿真的角度，研究GCC算法的优缺点，同时给出TCC和GCC两种实现机制的对比。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebRTC-GCC两种实现方案对比">
+<meta property="og:url" content="https://www.freehacker.cn/comm/tcc-vs-gcc/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="从实验仿真的角度，研究GCC算法的优缺点，同时给出TCC和GCC两种实现机制的对比。">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-tcc.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-tcc-frequency.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-remb.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-flow.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-flow-multi-bandwidth-and-delay.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-flow-step-bandwidth.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-multiple-gcc.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-multiple-gcc-channel.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-and-single-tcp.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-and-single-tcp-detail.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-and-single-tcp-starvation.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-flow-threshold.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-flow-queue-delay.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/gcc-single-gcc-and-single-tcp-influence.png">
+<meta property="article:published_time" content="2018-05-26T00:23:19.000Z">
+<meta property="article:modified_time" content="2021-02-24T12:00:22.229Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Media">
+<meta property="article:tag" content="WebRTC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/comm/gcc-tcc.png">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://wx3.sinaimg.cn/large/61b57e82gy1frofy4yu8dj21gs0i279l.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">WebRTC-GCC两种实现方案对比</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Media/'>Media</a> /
+    
+    <a href='/tags/WebRTC/'>WebRTC</a>
+    
+    
+    At
+    <time class="post-date" datetime="2018-05-26T00:23:19.000Z" >
+          2018-05-26
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>越过山丘，才发现无人等候。</p>
+</blockquote>
+<p>WebRTC为了防止网络拥塞结合了Loss-based BWE和Delay-based BWE两种算法，其中Loss-based BWE算法较为复杂。<a id="more"></a>WebRTC中提出了两种方案来处理Loss-based BWE：</p>
+<ul>
+<li>Recv-side Delay-based BWE：REMB-based GCC</li>
+<li>Send-side Delay-based BWE：TransportFB-based GCC</li>
+</ul>
+<p>本文着重于两种方案的不同点，并分析二者的区别，进而确定在实际应用中应该选择哪一种方案。同时本文也会通过仿真结果，来给出GCC算法的性能分析。</p>
+<blockquote>
+<p>本文按照其实现机制称：REMB-based GCC为REMB、TransportFB-based GCC为TCC。</p>
+</blockquote>
+<h2 id="BWE-Evolution"><a href="#BWE-Evolution" class="headerlink" title="BWE Evolution"></a>BWE Evolution</h2><p>带宽预估算法的演进经过两个阶段：</p>
+<ul>
+<li>Loss-based BWE</li>
+</ul>
+<ul>
+<li>Delay-based BWE</li>
+</ul>
+<p>Loss-based BWE通过RTCP-RR报文来检测丢包率，然后根据丢包率来调整对应的带宽。Delay-based BWE通过分析包之间的延时来预测拥塞，在路由器丢弃数据包之前尝试降低带宽。</p>
+<p>Loss-based BWE和Delay-based BWE的可行性都是基于网络路由器的特性：</p>
+<ul>
+<li>Loss-based BWE：当网络发生拥塞时，路由器缓冲区被填满，后续的数据包会被丢弃。</li>
+<li>Delay-based BWE：当网络开始出现拥塞时，路由器缓冲区数据逐渐增加，数据包之间的延迟变化加剧。</li>
+</ul>
+<p>相对于Loss-based BWE，Delay-based BWE能够更早的发现网络的拥塞状况，进而提前调整码率，防止拥塞加重。</p>
+<p>因此，在WebRTC中使用Loss-based BWE来适应丢包情况和探测带宽，而使用Delay-based BWE来提前发现网络拥塞，降低队列延迟，提高实时音视频通信的质量。</p>
+<h2 id="Send-side-Delay-based-BWE"><a href="#Send-side-Delay-based-BWE" class="headerlink" title="Send-side Delay-based BWE"></a>Send-side Delay-based BWE</h2><p><img src="../../assets/comm/gcc-tcc.png" alt=""></p>
+<p>Transport-CC将接收端的延迟信息通过RTCP-TCC反馈给发送端，然后在发送端进行Delay-based BWE。WebRTC通过以下两步来实现该方案：</p>
+<ul>
+<li><strong>Transport wide sequence numbers header extension</strong></li>
+</ul>
+<p>x所有的RTP包额外的增加一个头部扩展项，该扩展项用来表示发送序列号。通过SDP来协商是否打开该扩展项：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=extmap:5 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Transport Feedback</strong></li>
+</ul>
+<p>接收方向媒体发送方定期发送反馈，提供有关接收到的数据包的信息以及它们之间的延迟。反馈信息通过RTCP-Transport-FB反馈给发送端。通过SDP来协商是否启用：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=rtcp-fb:100 transport-cc </span><br></pre></td></tr></table></figure>
+<p>RTCP-Transport-FB默认发送频率1time/100ms，同时其动态适应使用5％的可用带宽，最大频率值为1time/50ms、最小频率值为1time/250ms。以1time/100ms的频率发送，其最大需要耗费16kbps带宽。</p>
+<p><img src="../../assets/comm/gcc-tcc-frequency.png" alt=""></p>
+<h2 id="Recv-side-Delay-based-BWE"><a href="#Recv-side-Delay-based-BWE" class="headerlink" title="Recv-side Delay-based BWE"></a>Recv-side Delay-based BWE</h2><p><img src="../../assets/comm/gcc-remb.png" alt=""></p>
+<p>Recv-side Delay-based BWE在接收端计算预估码率结果，并通过RTCP-REMB反馈给发送端。实现Recv-side Delay-based BWE需要两步：</p>
+<ul>
+<li><strong>Transport with Absolute Send Time</strong></li>
+</ul>
+<p>绝对发送时间用于表示发送端发送该包的时间，在RTP报头的扩展中发送。需要在SDP中协商是否启用该扩展：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=extmap:3 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>REMB Feedback</strong></li>
+</ul>
+<p>接收端通过RTCP-REMB反馈预估的码率值，需要在SDP中协商是否启动该反馈：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=rtcp-fb:&lt;payload type&gt; goog-remb</span><br></pre></td></tr></table></figure>
+<p>在REMB方案中，其他厂商也给出了一些优化思路：</p>
+<ul>
+<li>WebRTC Gateway反馈的REMB码率结果需要综合考虑同一个会议中其他用户的下行带宽和丢包。</li>
+<li>在REMB方案中引入TCC方案中的一些优点，譬如线性滤波器。</li>
+</ul>
+<h2 id="Comparison"><a href="#Comparison" class="headerlink" title="Comparison"></a>Comparison</h2><h3 id="方案对比"><a href="#方案对比" class="headerlink" title="方案对比"></a>方案对比</h3><p>WebRTC实现了两种滤波器来进行延迟增长趋势的评估。Send-side Delay-based BWE采用Trendline Filter，而Recv-side Delay-based BWE采用了Kalman Filter。</p>
+<h3 id="效果对比"><a href="#效果对比" class="headerlink" title="效果对比"></a>效果对比</h3><p>暂未发现效果对比的论文或博客，后续会自行研究对比。</p>
+<h3 id="Pros-and-Cons"><a href="#Pros-and-Cons" class="headerlink" title="Pros and Cons"></a>Pros and Cons</h3><p>TCC的优点在于无需依赖于两个端点——方便BWE算法测试，更易改进算法。发送端知道其使用了何种算法，进而按照场景的不同，切换BEW算法。来自Google Group的讨论：</p>
+<blockquote>
+<ul>
+<li>Easier to roll out improvements if the logic is located on one side and the other side is kept dumb.</li>
+<li>Having the logic on the send-side means you know more about what has been sent. For instance, you know if the source is very bursty (screencasts) which can help us make better decisions.</li>
+</ul>
+</blockquote>
+<p>TCC的缺点在于浪费了一定的带宽，同时Firefox目前还不支持TCC。</p>
+<p>REMB的优点在于码率的控制权在服务端（接收端），没有额外的带宽浪费。</p>
+<p>REMB的缺点在于调试起来不方便，需要同时关注两个端，同时WebRTC已经不对REMB提供支持——这意味着当下的REMB实现版本可能存在不少BUG，同时BWE的新特性也不会加入到当前的REMB实现。</p>
+<blockquote>
+<p>Google从Chrome55开始支持Send-side Delay-based BWE。查了下WebRTC的代码提交，REMB方案几乎没有实质性修改，而TCC针对性做了优化。</p>
+</blockquote>
+<p>在采用TCC方案后，接收也可以利用REMB来通知发送端码率发送上限。</p>
+<h3 id="Which-One"><a href="#Which-One" class="headerlink" title="Which One?"></a>Which One?</h3><p>从优缺点可以明显的看出，我们应该选择TCC。但这里还是要结合场景，如果服务端对码率的控制权十分重要，还是有必要使用REMB的，只是后续的BUG只能自己解了。</p>
+<h2 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h2><p>TCC和GCC本质上都是使用了GCC算法。GCC算法的设计目的是为了达到：</p>
+<ul>
+<li>最大化利用可利用的带宽</li>
+<li>带宽瓶颈时能够公平共享带宽（TCP流、GCC流）</li>
+<li>最小化队列延迟</li>
+</ul>
+<p>本节引用了多篇研究论文的结果，试图挖掘GCC方案的性能优点和漏洞。其中一些变量的含义如下：</p>
+<blockquote>
+<p>Channel Utilization：$U = R/b$，R为预估码率</p>
+<p>Good Channel Utilization：$G = v/b$，v为rtp发送码率</p>
+<p>Loss Ratio：$l=(lost_bytes)/(received_bytes)$</p>
+<p>Number of Delay-based Decrease Events：$n_{dd}$，降低码率的REMB包数量</p>
+</blockquote>
+<h3 id="Single-GCC-Flow-with-Constant-Avaliable-Bandwidth"><a href="#Single-GCC-Flow-with-Constant-Avaliable-Bandwidth" class="headerlink" title="Single GCC Flow with Constant Avaliable Bandwidth"></a>Single GCC Flow with Constant Avaliable Bandwidth</h3><p>设置$RTT_{m}=50ms$，可利用带宽为$b(t)=2000kbps$，仿真结果如下：</p>
+<p><img src="../../assets/comm/gcc-single-gcc-flow.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>GCC预估码率从300kbps上升到2000kbps需要30s左右</li>
+<li>GCC预估码率在带宽阈值时波动严重，波动幅值最大可达1000Mpbs</li>
+<li>GCC预估码率会经常超过带宽阈值进而导致严重丢包</li>
+<li>GCC出现严重带宽时会大大提高FEC的比例，最大可达50%</li>
+<li>当码率接近带宽上限时，RTT增大导致REMB发送频率增加，进而降低码率</li>
+</ul>
+<p>设置$RTT<em>{m, j} \in \left { 30, 50, 80, 120 \right }ms$，可利用带宽$b</em>{i} \in \left { 500, 1000, 1500, 2000 \right }kbps$，仿真结果如下：</p>
+<p><img src="../../assets/comm/gcc-single-gcc-flow-multi-bandwidth-and-delay.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>信道利用率几乎不受带宽和延迟影响，维持在80%左右</li>
+<li>丢包率并不受RTR变化的影响，丢包率随着带宽的增加而增加，最高达到2.8%</li>
+<li>随着带宽的增加，丢包率随着增加，进而导致FEC的比例逐步增加，最高达到20%</li>
+<li>采用GCC算法后，队列延迟中位数近似于0，90%样本值小于0.25m</li>
+</ul>
+<h3 id="Single-GCC-Flow-with-Variable-Available-Bandwidth"><a href="#Single-GCC-Flow-with-Variable-Available-Bandwidth" class="headerlink" title="Single GCC Flow with Variable Available Bandwidth"></a>Single GCC Flow with Variable Available Bandwidth</h3><p>设置$RTT<em>{m}=50ms$，可利用带宽先阶梯递增后阶梯递减，增减可选值为$b</em>{i} \in \left { 500, 1000, 1500, 2000 \right }kbps$，仿真结果如下：</p>
+<p><img src="../../assets/comm/gcc-single-gcc-flow-step-bandwidth.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>随着码率阶梯递增或递减，GCC预估码率能够随之快速递增递减</li>
+<li>码率增长到较高码率时，码率波动明显增加，FEC比例随着增加</li>
+<li>码率从高位下降时，瞬间丢包率增加，会导致发送端码率严重下降，远低于接收端预估码率</li>
+</ul>
+<h3 id="Multiple-GCC-Flow"><a href="#Multiple-GCC-Flow" class="headerlink" title="Multiple GCC Flow"></a>Multiple GCC Flow</h3><p>设置$RTT<em>{m}=50ms$，可利用带宽$b</em>{i}  = 1000kbps$，仿真结果如下：</p>
+<p><img src="../../assets/comm/gcc-multiple-gcc.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>两个GCC流之间的码率竞争呈现无规律性</li>
+</ul>
+<p><img src="../../assets/comm/gcc-multiple-gcc-channel.png" alt=""></p>
+<p>从上图可以看出：</p>
+<ul>
+<li>在1000kbps和2000kbps时，码率分配十分不公平</li>
+<li>在3000kbps时，码率分配相对公平，但先启动的GCC流仍然分配较多的码率</li>
+</ul>
+<h3 id="Single-GCC-Flow-and-Single-TCP-Flow"><a href="#Single-GCC-Flow-and-Single-TCP-Flow" class="headerlink" title="Single GCC Flow and Single TCP Flow"></a>Single GCC Flow and Single TCP Flow</h3><p>设置$RTT<em>{m}=50ms$，可利用带宽$b</em>{i}  = \left { 1000, 2000, 3000 \right }kbps$，考虑两种场景：先启动GCC流，100s后启动TCP流、先启动TCP流，100s后启动GCC流，仿真结果如下：</p>
+<p><img src="../../assets/comm/gcc-single-gcc-and-single-tcp.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>GCC流的信道利用率随着带宽的增加而增加，且普遍低于TCP流的带宽占用率</li>
+<li>GCC流后启动能够帮助GCC流获取到更高的带宽占用率</li>
+</ul>
+<p>将先启动TCP流后启动GCC流这种场景抽出来分析，考虑可利用带宽为$b(t)=1000kbps$和$b(t)=3000kbps$两种情况，仿真结果如下：</p>
+<p><img src="../../assets/comm/gcc-single-gcc-and-single-tcp-detail.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>在较低带宽时，GCC流会出现饥饿现象，无法上升到较高的码率</li>
+<li>GCC流启动后一开始能够和TCP公平分配带宽，后续一直收到REMB包进而限制了带宽上升</li>
+<li>若没有REMB包的影响，GCC流的带宽增长会比TCP流更加激进（图b）</li>
+</ul>
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>GCC算法能够较好的处理单个GCC流，但是一旦和其他GCC流或TCP流共存时，GCC算法无法提供公平的带宽分配。</p>
+<h2 id="Improvement"><a href="#Improvement" class="headerlink" title="Improvement"></a>Improvement</h2><p>如何解决与TCP流共存时的饥饿问题是后续的优化关键。有研究表明：GCC流与TCP流共存时的饥饿问题，是由于GCC算法的自适应门限机制导致的。</p>
+<p>当GCC算法采用较小的阈值时，Delay-based BWE优于Loss-based BWE。然而当GCC流和TCP流码率达到瓶颈时，较小的阈值会导致GCC流出现饥饿问题。</p>
+<p><img src="../../assets/comm/gcc-single-gcc-and-single-tcp-starvation.png" alt=""></p>
+<p>下图给出了自适应门限值对单个GCC流的影响：</p>
+<p><img src="../../assets/comm/gcc-single-gcc-flow-threshold.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>随着门限值的增加，$n<em>{dd}$数量减少，这是因为较大的门限值，导致在不触发<strong>OVERUSE</strong>信号的情况下，允许更大的$m(t</em>{i})$变化。</li>
+<li>随着门限值的增加，GCC算法偏向于Loss-based BWE，进而带宽占用率逐渐增加，其后果是更大的丢包率和队列延迟。</li>
+<li>随着带宽的增加，带宽占用率逐渐增加，Delay-based-Decrease REMB逐渐减少，队列延时逐渐减小。</li>
+</ul>
+<p>从上图中展示Loss信息的图标，可以看出带宽的增加会导致更大的丢包率，这是为何？假设队列大小为$q(t)$，带宽为$b(t)$，那么我们可以将队列延迟抽象为如下模型：</p>
+<script type="math/tex; mode=display">
+T_{q}(t) = \frac{q(t)}{b(t)}</script><p>当$b(t)$较小时，譬如500kbps，那么队列延迟变化变大；当$b(t)$较大时，譬如2000kbps，那么队列延迟变化变小。因此对于较高带宽，Delay-based-Decrease REMB较少，而对于较低带宽，Delay-based-Decrease REMB较多。当带宽较高时，以Loss-based BWE为主，带宽的调整主要是依据丢包信息，因此此时势必会触发更高的丢包率。</p>
+<p><img src="../../assets/comm/gcc-single-gcc-flow-queue-delay.png" alt=""></p>
+<p>下图给出了自适应门限值对GCC流和TCP流并发时的影响：</p>
+<p><img src="../../assets/comm/gcc-single-gcc-and-single-tcp-influence.png" alt=""></p>
+<p>从仿真结果可以看出：</p>
+<ul>
+<li>随着门限值的增加，GCC流的带宽占用率逐步增加</li>
+<li>随着门限值的增加，$n<em>{dd}$数量减少，相对于单个GCC流，此时的$n</em>{dd}$数量不在一个数量级</li>
+</ul>
+<p>对比单GCC流和并发GCC/TCP流可以看出：</p>
+<ul>
+<li>当单GCC流时，较小的门限值能够提供更好的带宽占用率，同时维持较低的丢包率和延迟</li>
+<li>当并发GCC/TCP流时，较小的门限值会导致Delay-based BWE占主导地位，进而导致GCC流饥饿。</li>
+</ul>
+<p>因此针对于不同的场景，我们必须要针对性的调整门限值。</p>
+<p>本节主要分析了TCP流和GCC共存时的饥饿问题，两个GCC流共存时的无规律性也需要进一步研究。现阶段未找到相关资料，后续深入后继续撰写。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/draft-holmer-rmcat-transport-wide-cc-extensions-01">RTP Extensions for Transport-wide Congestion Control draft-holmer-rmcat-transport-wide-cc-extensions-01</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.rtcbits.com/2017/01/bandwidth-estimation-in-webrtc-and-new.html">Bandwidth Estimation in WebRTC (and the new Sender Side BWE)</a></li>
+<li><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/draft-alvestrand-rmcat-congestion-03">A Google Congestion Control Algorithm for Real-Time Communication draft-ietf-rmcat-gcc-03</a></li>
+<li><a target="_blank" rel="noopener" href="https://c3lab.poliba.it/MultimediaCC">Congestion Control for Real-time Communication</a></li>
+<li><a target="_blank" rel="noopener" href="http://c3lab.poliba.it/images/6/65/Gcc-analysis.pdf">Analysis and Design of the Google Congestion Control for Web Real-time Communication (WebRTC)</a></li>
+<li><a target="_blank" rel="noopener" href="https://c3lab.poliba.it/images/d/d2/Skype_wwic07.pdf">An Experimental Investigation of the Congestion Control Used by Skype VoIP</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/260200748_Understanding_the_Dynamic_Behaviour_of_the_Google_Congestion_Control_for_RTCWeb">Understanding the Dynamic Behaviour of the Google Congestion Control for RTCWeb</a></li>
+<li><a target="_blank" rel="noopener" href="http://conferences.sigcomm.org/sigcomm/2013/papers/fhmn/p21.pdf">Experimental Investigation of the Google Congestion Control for Real-Time Flows</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.sciencedirect.com/science/article/pii/S1389128610002914">Skype Video congestion control: An experimental investigation</a></li>
+<li><a target="_blank" rel="noopener" href="https://c3lab.poliba.it/images/7/73/Cdc08_slides.pdf">A Mathematical Model of the Skype VoIP Congestion Control Algorithm</a></li>
+<li><a target="_blank" rel="noopener" href="http://eeweb.poly.edu/faculty/yongliu/docs/imc12tech.pdf">Video Telephony for End-consumers: Measurement Study of Google+, iChat, and Skype</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/comm/tcc-vs-gcc/"> https://www.freehacker.cn/comm/tcc-vs-gcc/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://wx2.sinaimg.cn/large/61b57e82gy1fqyfihxtm9j21gs0i2421.jpg)" href="/reading/read-and-more/">
+			<section class="post">
+				<h3>五月、阅读、思考、实践、反思</h1>
+				<p>阅读、思考、实践、反思</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)" href="/advanced/smartpointer-analysis/">
+			<section class="post">
+				<h3>智能指针二三事</h1>
+				<p>智能指针是资源管理的必备神器，掌握智能指针，开发稳定可靠的应用程序。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/comm/tcc-vs-gcc/';
+        this.page.identifier = 'comm/tcc-vs-gcc/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

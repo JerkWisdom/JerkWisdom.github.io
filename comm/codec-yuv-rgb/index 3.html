@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>视频像素格式YUV和RGB | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="简述YUV和RGB视频像素格式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="视频像素格式YUV和RGB">
+<meta property="og:url" content="https://www.freehacker.cn/comm/codec-yuv-rgb/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="简述YUV和RGB视频像素格式。">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/yuv-y-u-v.gif">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/yuv-sample.jpg">
+<meta property="article:published_time" content="2017-04-23T06:33:54.000Z">
+<meta property="article:modified_time" content="2021-02-24T12:01:39.272Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Media">
+<meta property="article:tag" content="Codec">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/comm/yuv-y-u-v.gif">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1fb2cstahfqj20zi0bzaak.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">视频像素格式YUV和RGB</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Media/'>Media</a> /
+    
+    <a href='/tags/Codec/'>Codec</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-04-23T06:33:54.000Z" >
+          2017-04-23
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>失控</p>
+</blockquote>
+<p>黑白图像的每个像素只需要一个幅值表示其亮度即可，而彩色图像的每个像素至少需要三个值来表示其亮度和色度。所谓色彩空间就是表示彩色图像的亮度与色度的方法。常见的色彩空间包含RGB和YUV色彩空间，每个色彩空间通过不同的像素格式来存储图像。<a id="more"></a></p>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>像素格式描述了像素数据存储所用的格式，定义了像素在内存中的编码方式。YUV和RGB为两种经常使用的像素格式。</p>
+<p>RGB和YUV都是像素颜色编码方法，用于表示颜色，两者可以相互转化。<a target="_blank" rel="noopener" href="http://www.fourcc.org/">FOURCC</a>网站给出了RGB和YUV两种格式的详细技术指南。</p>
+<blockquote>
+<p>FourCC：Four-Character Codes，代表四字符代码。它是一个32位uint_32的标示符，通过串联四个ASCII字符创建而成的，是一种独立标示视频数据流格式的四字符代码。每种YUV格式都指定了一个FOURCC码，它是视频播放软件通过查询FOURCC代码，并且寻找与FourCC代码相关联的视频解码器来播放特定的视频流。</p>
+</blockquote>
+<h2 id="YUV"><a href="#YUV" class="headerlink" title="YUV"></a>YUV</h2><h3 id="YUV概念"><a href="#YUV概念" class="headerlink" title="YUV概念"></a>YUV概念</h3><p><code>YUV</code>(亦称YCrCb)是指将亮度参量Y和色度参量U/V分开表示的像素格式，主要用于优化彩色视频信号的传输，使其向后兼容老式黑白电视。UV像素格式来源于RGB像素格式，通过公式运算，YUV三分量可以还原出RGB，YUV的三个分量具体含义如下：</p>
+<ul>
+<li><code>Y</code>表示亮度(灰度值)，通过将RGB信号的特定部分叠加到一起来创建。</li>
+<li><code>U/Cr</code>表示色调，反映了RGB输入信号红色部分与RGB信号亮度值之间的差异。</li>
+<li><code>V/Cb</code>表示饱和度，反映的是RGB输入信号蓝色部分与RGB信号亮度值之同的差异。</li>
+</ul>
+<p>YUV将亮度信息<code>Y</code>与色彩信息<code>U/V</code>分离，没有<code>U/V</code>信息一样可以显示完整的图像，只不过是黑白的，这样的设计很好地解决了彩色电视机与黑白电视的兼容问题。并且，YUV不像RGB那样要求三个独立的视频信号同时传输，所以用YUV方式传送占用极少的频宽。</p>
+<p><img src="../../assets/comm/yuv-y-u-v.gif" alt=""></p>
+<h3 id="YUV采样"><a href="#YUV采样" class="headerlink" title="YUV采样"></a>YUV采样</h3><p>YUV码流的存储格式与其采样方式密切相关，主流的采样方式有三种：YUV4:4:4，YUV4:2:2，YUV4:2:0。</p>
+<p>以黑点表示采样该像素点的Y分量，以空心圆圈表示采用该像素点的UV分量，我们来看看这三种采样方式：</p>
+<p><img src="../../assets/comm/yuv-sample.jpg" alt=""></p>
+<p>其中：</p>
+<ul>
+<li>YUV 4:4:4采样，每一个Y对应一组UV分量。</li>
+<li>YUV 4:2:2采样，每两个Y共用一组UV分量。</li>
+<li>YUV 4:2:0采样，每四个Y共用一组UV分量。</li>
+</ul>
+<p>我们以八个临近像素为单位来分析下这三种主流的采样格式，假设四个像素的YUV分量分别如下：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{0}][{Y}_{1}{U}_{1}{V}_{1}][{Y}_{2}{U}_{2}{V}_{2}][{Y}_{3}{U}_{3}{V}_{3}] \\
+[{Y}_{4}{U}_{4}{V}_{4}][{Y}_{5}{U}_{5}{V}_{5}][{Y}_{6}{U}_{6}{V}_{6}][{Y}_{7}{U}_{7}{V}_{7}]
+\end{align*}</script><p>1、YUV 4:4:4</p>
+<p><code>YUV 4:4:4</code>三个信道的抽样率相同，因此在生成的图像里，每个像素的三个分量信息完整(每个分量通常8比特)，经过8比特量化之后，未经压缩的每个像素占用3个字节。采样后八个像素的YUV分量如下：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{0}][{Y}_{1}{U}_{1}{V}_{1}][{Y}_{2}{U}_{2}{V}_{2}][{Y}_{3}{U}_{3}{V}_{3}] \\
+[{Y}_{4}{U}_{4}{V}_{4}][{Y}_{5}{U}_{5}{V}_{5}][{Y}_{6}{U}_{6}{V}_{6}][{Y}_{7}{U}_{7}{V}_{7}]
+\end{align*}</script><p>采样后，八个像素总共占用8Y+8U+8V=8×3=24个字节。</p>
+<p>2、YUV 4:2:2</p>
+<p><code>YUV 4:2:2</code>每个色差信道的抽样率是亮度信道的一半。对非压缩的8bit量化的图像来说，每个由两个水平方向相邻的像素组成的宏像素需要占用4字节内存。采样后八个像素的YUV分量如下：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{1}][{Y}_{1}{U}_{0}{V}_{1}][{Y}_{2}{U}_{2}{V}_{3}][{Y}_{3}{U}_{2}{V}_{3}] \\
+[{Y}_{4}{U}_{4}{V}_{5}][{Y}_{5}{U}_{4}{V}_{5}][{Y}_{6}{U}_{6}{V}_{7}][{Y}_{7}{U}_{6}{V}_{7}]
+\end{align*}</script><p>采样后，八个像素总共占用8Y+8×0.5U+8×0.5V=8×3*2/3=16个字节。</p>
+<p>3、YUV 4:2:0</p>
+<p><code>YUV 4:2:0</code>并不是说没有V分量，而是指对于每一个行，只有一个U或者V分量。相邻的扫描行存储不同的色度分量，如果一行是4:2:0的话，下一行就是4:0:2，再下一行是4:2:0…以此类推。采样后八个像素的YUV分量如下：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+[{Y}_{0}{U}_{0}{V}_{5}][{Y}_{1}{U}_{0}{V}_{5}][{Y}_{2}{U}_{2}{V}_{7}][{Y}_{3}{U}_{2}{V}_{7}] \\
+[{Y}_{4}{U}_{0}{V}_{5}][{Y}_{5}{U}_{0}{V}_{5}][{Y}_{6}{U}_{2}{V}_{7}][{Y}_{7}{U}_{2}{V}_{7}]
+\end{align*}</script><p>采样后，八个像素总共占用8Y+2U+2Y=8×3*2/4=12个字节。</p>
+<h3 id="YUV格式"><a href="#YUV格式" class="headerlink" title="YUV格式"></a>YUV格式</h3><p>YUV存储格式有两大类：<code>打包(packed)格式</code>和<code>平面(planar)格式</code>。</p>
+<ul>
+<li>Planar YUV Formats：使用三个数组分开存放YUV三个分量，每个数组分别存储所有像素点的Y、U、V分量。</li>
+<li>Packed YUV Formats：YUV分量存放在同一个数组中，通常是几个相邻的像素组成一个宏像素(macro-pixel)，每个像素点的Y、U、V是连续交错存储的。</li>
+</ul>
+<p>根据上面的两种存储格式，可以形成很多种YUV存储方式。有关Packed YUV Formats和Planar YUV Formats列表可以参考<a target="_blank" rel="noopener" href="http://www.fourcc.org/yuv.php">FOURCC YUV pixel formats</a>。</p>
+<p>下面我们简要介绍下YUV422的几种存储格式：</p>
+<p>1、UYVY Packed YUV Format</p>
+<p><code>UYVY</code>是YUV 4:2:2采样方式的一种存储格式，其FOURCC码为<code>0x59565955</code>。水平方向上每两个像素作为一个宏像素，第一个像素采集YUV三个分量，第二个像素只采集Y分量。其存储格式如下：</p>
+<script type="math/tex; mode=display">
+[{U}_{0}][{Y}_{0}][{V}_{0}][{Y}_{1}][{U}_{2}][{Y}_{2}][{V}_{2}][{Y}_{3}]{U}_{4}][{Y}_{5}][{V}_{4}][{Y}_{5}]</script><p>按照UYVY格式，每个宏像素32位，每个像素16位。</p>
+<p>2、YV16 Planar YUV Formats</p>
+<p><code>YV16</code>是YUV 4:2:2采样方式的一种存储格式，其FOURCC码为<code>0x36315659</code>。其存储为三个二维数组：</p>
+<ul>
+<li>Y数组</li>
+</ul>
+<script type="math/tex; mode=display">
+\begin{gather*}
+[{Y}_{0,0}][{Y}_{0,1}]...[{Y}_{0,m-1}]\\
+... \\
+[{Y}_{n-1,0}][{Y}_{n-1,1}]...[{Y}_{n-1,m-1}]
+\end{gather*}</script><ul>
+<li>U数组</li>
+</ul>
+<script type="math/tex; mode=display">
+\begin{gather*}
+[{U}_{0,0}][{U}_{0,2}]...[{U}_{0,(m-1)/2}]\\
+... \\
+[{U}_{n-1,0}][{U}_{n-1,2}]...[{U}_{n-1,(m-1)/2}]
+\end{gather*}</script><p>3、YUV422 Sem-Planar YUV Format</p>
+<p>这种格式混合了Packed和Planar两种格式，其存储为两个二维数组：</p>
+<ul>
+<li>Y数组</li>
+</ul>
+<script type="math/tex; mode=display">
+\begin{gather}
+[{Y}_{0,0}][{Y}_{0,1}]...[{Y}_{0,m-1}]\\
+... \\
+[{Y}_{n-1,0}][{Y}_{n-1,1}]...[{Y}_{n-1,m-1}]
+\end{gather}</script><ul>
+<li>UV数组</li>
+</ul>
+<script type="math/tex; mode=display">
+\begin{gather*}
+[{U}_{0,0}][{V}_{0,0}][{U}_{0,2}][{V}_{0,2}]...[{U}_{0,(m-1)/2}][{V}_{0,(m-1)/2}]\\
+... \\
+[{U}_{n-1,0}][{V}_{n-1,0}][{U}_{n-1,2}][{V}_{n-1,2}]...[{U}_{n-1,(m-1)/2}][{V}_{n-1,(m-1)/2}]
+\end{gather*}</script><h2 id="RGB"><a href="#RGB" class="headerlink" title="RGB"></a>RGB</h2><p>RGB色彩空间通过三原色（R、G、B）来表示图像。常见的RGB格式包含RGB24、ARGB32等。</p>
+<h3 id="RGB24"><a href="#RGB24" class="headerlink" title="RGB24"></a>RGB24</h3><p>RGB24是24位的颜色值，高八位为R、中间八位为G、低八位是B。</p>
+<h3 id="ARGB32"><a href="#ARGB32" class="headerlink" title="ARGB32"></a>ARGB32</h3><p>ARGB32是32位的颜色值。高八位为A，次八位为R，再次八位为G，最后八位为B。</p>
+<h2 id="YUV-RGB-in-Action"><a href="#YUV-RGB-in-Action" class="headerlink" title="YUV/RGB in Action"></a>YUV/RGB in Action</h2><p><a target="_blank" rel="noopener" href="http://www.fourcc.org/fccyvrgb.php">FOURCC YUV to RGB Conversion</a>给出了YUV和RGB相互转换公式。同时，Windows开发人员也需要详细阅读[Video Rendering with 8-Bit YUV Formats](<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/aa904813：">https://msdn.microsoft.com/zh-cn/library/aa904813：</a></p>
+<blockquote>
+<p>本文讲述了在 Microsoft Windows 操作系统中呈现视频时推荐使用的 8 位 YUV 格式。本文讲述了可用于在 YUV 格式和 RGB 格式之间进行转换的技术，还提供了用于对 YUV 格式进行上采样的技术。本文适用于在 Windows 中使用 YUV 视频解码或呈现的所有人员。</p>
+</blockquote>
+<p>有关RGB/YUV视频像素数据的处理方法可以参考<a target="_blank" rel="noopener" href="http://blog.csdn.net/leixiaohua1020/article/details/50534150">雷霄骅-视音频数据处理入门：RGB、YUV像素数据处理</a></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>1、<a target="_blank" rel="noopener" href="http://www.fourcc.org/">FOURCC: Video Codecs and Pixel Format</a></li>
+<li>2、<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/aa904813">Video Rendering with 8-Bit YUV Formats[原文]</a></li>
+<li>3、<a target="_blank" rel="noopener" href="https://msdn.microsoft.com/zh-cn/library/ms867704.aspx">使用8位YUV格式的视频呈现[译文]</a></li>
+<li>4、<a target="_blank" rel="noopener" href="http://blog.csdn.net/leixiaohua1020/article/details/50534150">视音频数据处理入门：RGB、YUV像素数据处理[雷霄骅]</a></li>
+<li>5、<a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">FreeHacker’s Wikipedia</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/comm/codec-yuv-rgb/"> https://www.freehacker.cn/comm/codec-yuv-rgb/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)" href="/foundation/effective-cplusplus-reading/">
+			<section class="post">
+				<h3>如何设计C++类——《Effective C++》读后感</h1>
+				<p>探讨如何设计高效的C++类，如何利用C++封装、继承、动态特性，实现高效、优雅、易于维护的代码。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f74zpzj8bmj21gs0i2gol.jpg)" href="/platform/win-wifi/">
+			<section class="post">
+				<h3>浅谈Windows共享网络热点开发</h1>
+				<p>无线承载网络是Windows7和之后的操作系统所支持的新特性，其主要是实现物理网卡虚拟化和软件AP。本文主要基于Native Wifi Api来简述无线网络热点的实现。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/comm/codec-yuv-rgb/';
+        this.page.identifier = 'comm/codec-yuv-rgb/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

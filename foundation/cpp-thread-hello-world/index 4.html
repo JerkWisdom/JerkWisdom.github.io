@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>C++并发编程0——欢迎来到多线程的世界 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="C++11中引入了多线程编程，一般教科书中都没有涉及到这个概念，但是在工作中多线程却又是必不可少的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++并发编程0——欢迎来到多线程的世界">
+<meta property="og:url" content="https://www.freehacker.cn/foundation/cpp-thread-hello-world/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="C++11中引入了多线程编程，一般教科书中都没有涉及到这个概念，但是在工作中多线程却又是必不可少的。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-09-18T08:12:00.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.355Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="CPlusPlus">
+<meta property="article:tag" content="Thread">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f2ro2bxcqjj21gs0i2wlw.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">C++并发编程0——欢迎来到多线程的世界</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/CPlusPlus/'>CPlusPlus</a> /
+    
+    <a href='/tags/Thread/'>Thread</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-09-18T08:12:00.000Z" >
+          2016-09-18
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote><p>在所有弱点中，最大的弱点是害怕暴露弱点。</p>
+<footer><strong>J.B. Bossuet</strong><cite>Politics from Holy Writ</cite></footer></blockquote>
+<p>C++11中引入了多线程编程，一般教科书中都没有涉及到这个概念，但是在工作中多线程却又是必不可少的。<a id="more"></a>本文会展示最基本的Hello World, Concurrency程序。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>C++11之后，多线程终于被支持了，C++开发者再也不需要借助boost等第三方库的力量，来实现跨平台的并行编程。语言层面上的支持，能够让开发者更加专注于业务逻辑，从而减少对系统平台的关注。C++11多线程的引入，让C++编程更加高效和简便。</p>
+<p>最近一直研究多线程编程，忽然有感，如果我每掌握一个知识点，便分享出来，这比我蒙头死学更加高效。如果我的使用不正确，也有机会被指出来。所以便想整理网络或者书籍上所能学到的东西，写一个教程出来，力求能让刚入门不久的C++开发者，也能轻松的掌握并发编程的奥妙。</p>
+<p>本教程不涉及太多原理性东西，需要那些知识的可以百度，或者买本《C++并发编程实战》，网路上或书籍里原理性的东西已经够多了，我想写的是让读者看完之后，能够很轻松的知道，该怎么用C++的多线程机制。其中，很多内容都是来自网路或者书籍上，感谢各位大神慷慨的分享。</p>
+<p>如果没有特殊提及，本教程的所以代码都是基于Visual Studio 2013，如果更换其他编译器有可能无法运行。</p>
+<h2 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h2><p>经典的Hello World式开端。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;thread&gt;</span><br><span class="line">void hello()</span><br><span class="line">&#123;</span><br><span class="line">	std::cout &lt;&lt; &quot;Hello world, concurrency&quot; &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	std::thread t(hello);</span><br><span class="line">	t.join(); &#x2F;* 没有这句话，会Debug Error的 *&#x2F;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码很简单，如果用过boost多线程编程，那么应该对这个了如指掌了。首先包含线程库头文件<thread>，然后定义一个线程对象t，线程对象负责管理以hello()函数作为初始函数的线程，join()等待线程函数执行完成——这儿是阻塞的。</p>
+<p>这个最简单的Hello World已经包含了多线程编程的基本结构，至于线程管理、数据共享、线程同步、原子操作，以及一系列进阶操作都会在后面详细阐述。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/foundation/cpp-thread-hello-world/"> https://www.freehacker.cn/foundation/cpp-thread-hello-world/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f7pnzyuagmj21hc0i276s.jpg)" href="/platform/linux-common-command-details/">
+			<section class="post">
+				<h3>Linux常用的10组命令、6个快捷操作、九个常用符号详解</h1>
+				<p>Linux新手入门，掌握最常用的10组Linux命令。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww2.sinaimg.cn/large/61b57e82gw1f5ydd0qj48j21hc0i240x.jpg)" href="/hacks/visualstudio-usage/">
+			<section class="post">
+				<h3>Visual Studio+Assistx+Vim快捷操作</h1>
+				<p>Windows平台下强大的Visual Studio+Assistx+Vim组合快捷操作简介</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/foundation/cpp-thread-hello-world/';
+        this.page.identifier = 'foundation/cpp-thread-hello-world/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>MySQL初识 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="说来惭愧，我没有一点点的数据库知识，以前面试、答题，数据库都是&#96;Zero&#96;。乘着元旦假期，搬完新家，恶补数据库相关知识。2017年，努力学习数据库基础、进阶知识，向恶习进攻。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL初识">
+<meta property="og:url" content="https://www.freehacker.cn/comm/mysql-basic/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="说来惭愧，我没有一点点的数据库知识，以前面试、答题，数据库都是&#96;Zero&#96;。乘着元旦假期，搬完新家，恶补数据库相关知识。2017年，努力学习数据库基础、进阶知识，向恶习进攻。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-01-03T15:18:15.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.351Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Database">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1fbdv2ardejj20sc0bu0uj.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">MySQL初识</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Database/'>Database</a> /
+    
+    <a href='/tags/MySQL/'>MySQL</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-01-03T15:18:15.000Z" >
+          2017-01-03
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>记不住过去，看不透未来——失败。</p>
+</blockquote>
+<p>MySQL基础知识点罗列，帮助理清思路，主要包含安装、基本操作、MySQL约束、C/C++库使用等知识点。<a id="more"></a></p>
+<h2 id="Ubuntu下安装MySQL"><a href="#Ubuntu下安装MySQL" class="headerlink" title="Ubuntu下安装MySQL"></a>Ubuntu下安装MySQL</h2><p>按照顺序执行下面三条指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install mysql-server</span><br><span class="line">$ sudo apt-get install mysql-client</span><br><span class="line">$ sudo apt-get install libmysqlclient-dev</span><br></pre></td></tr></table></figure>
+<p>安装完成，检查MySQL是否成功安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo netstat -tap | grep mysql</span><br></pre></td></tr></table></figure>
+<p>记住安装过程中需要输入的密码，通过下列命令可以登录mysql数据库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -u root -p <span class="comment"># -u for user, -p for password</span></span><br></pre></td></tr></table></figure>
+<p>安装后，MySQL是默认启动的，如果需要自己控制，则可以执行下列命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ sudo /etc/init.d/mysql start</span><br><span class="line">$ sudo /etc/init.d/mysql stop</span><br><span class="line">$ sudo /etc/init.d/mysql restart</span><br><span class="line">$ sudo service mysql start</span><br><span class="line">$ sudo service mysql stop</span><br><span class="line">$ sudo service mysql restart</span><br></pre></td></tr></table></figure>
+<h2 id="MySQL基本操作"><a href="#MySQL基本操作" class="headerlink" title="MySQL基本操作"></a>MySQL基本操作</h2><h3 id="登录操作"><a href="#登录操作" class="headerlink" title="登录操作"></a>登录操作</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -u root -p -P 3306 -h 127.0.0.1</span><br><span class="line"><span class="comment"># -u --user</span></span><br><span class="line"><span class="comment"># -p --passwd</span></span><br><span class="line"><span class="comment"># -P --port, 3306 is the default port for mysql</span></span><br><span class="line"><span class="comment"># -h --host</span></span><br></pre></td></tr></table></figure>
+<h3 id="设置提示符"><a href="#设置提示符" class="headerlink" title="设置提示符"></a>设置提示符</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; prompt \u@\h \d&gt;</span><br><span class="line">PROMPT <span class="built_in">set</span> to <span class="string">&#x27;\u@\h \d&gt; &#x27;</span></span><br><span class="line">root@localhost (none) &gt; use <span class="built_in">test</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt;</span><br><span class="line"><span class="comment"># \u 设置显示用户名</span></span><br><span class="line"><span class="comment"># \h 设置显示主机</span></span><br><span class="line"><span class="comment"># \d 设置显示当前数据库</span></span><br><span class="line"><span class="comment"># \D 设置显示完整日期</span></span><br></pre></td></tr></table></figure>
+<h3 id="查询警告"><a href="#查询警告" class="headerlink" title="查询警告"></a>查询警告</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql &gt; show warnings;</span><br></pre></td></tr></table></figure>
+<h3 id="查询命令帮助"><a href="#查询命令帮助" class="headerlink" title="查询命令帮助"></a>查询命令帮助</h3><p>使用<code>help</code>命令能够找到MySQL语句的具体使用帮助指南，我们以<em>create database</em>举例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; <span class="built_in">help</span> create;</span><br><span class="line">mysql&gt; <span class="built_in">help</span> create database;</span><br><span class="line">mysql&gt; <span class="built_in">help</span> alter;</span><br><span class="line">mysql&gt; <span class="built_in">help</span> alter database;</span><br></pre></td></tr></table></figure>
+<h2 id="MySQL数据库操作"><a href="#MySQL数据库操作" class="headerlink" title="MySQL数据库操作"></a>MySQL数据库操作</h2><h3 id="数据库创建"><a href="#数据库创建" class="headerlink" title="数据库创建"></a>数据库创建</h3><p>使用<code>create database</code>创建数据库t1，并显示详细信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; create database t1;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show databases;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show create database t1;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; create database <span class="keyword">if</span> not exists t2 character <span class="built_in">set</span> gbk;</span><br></pre></td></tr></table></figure>
+<h3 id="数据库修改"><a href="#数据库修改" class="headerlink" title="数据库修改"></a>数据库修改</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; alter database t2 character <span class="built_in">set</span> = utf8;</span><br></pre></td></tr></table></figure>
+<h3 id="数据库删除"><a href="#数据库删除" class="headerlink" title="数据库删除"></a>数据库删除</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; drop database t1;</span><br></pre></td></tr></table></figure>
+<h3 id="使用数据库"><a href="#使用数据库" class="headerlink" title="使用数据库"></a>使用数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; use t1;</span><br><span class="line">root@localhost t1 &gt; select database(); <span class="comment"># 显示当前数据库</span></span><br></pre></td></tr></table></figure>
+<h3 id="创建数据库表"><a href="#创建数据库表" class="headerlink" title="创建数据库表"></a>创建数据库表</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; create table tb1(</span><br><span class="line">    -&gt; username varchar(20),</span><br><span class="line">    -&gt; age tinyint unsigned,</span><br><span class="line">    -&gt; salary <span class="built_in">float</span>(8,2) unsigned</span><br><span class="line">    -&gt; );</span><br></pre></td></tr></table></figure>
+<h3 id="查看数据库表"><a href="#查看数据库表" class="headerlink" title="查看数据库表"></a>查看数据库表</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; show tables;           <span class="comment"># 查看数据库表列表</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show tables from <span class="built_in">test</span>; <span class="comment"># 查看数据库test表列表</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show columns from tb1; <span class="comment"># 查看数据库表结构</span></span><br></pre></td></tr></table></figure>
+<h3 id="插入记录到数据库表"><a href="#插入记录到数据库表" class="headerlink" title="插入记录到数据库表"></a>插入记录到数据库表</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb1 values(<span class="string">&#x27;Tom&#x27;</span>, 25, 7863.25);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb1 values(<span class="string">&#x27;Tom&#x27;</span>, 25); <span class="comment"># error</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb1(username,salary) values(<span class="string">&#x27;John&#x27;</span>, 4500.69); <span class="comment"># ok</span></span><br></pre></td></tr></table></figure>
+<h3 id="记录查找"><a href="#记录查找" class="headerlink" title="记录查找"></a>记录查找</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from tb1;</span><br></pre></td></tr></table></figure>
+<h2 id="MySQL数据类型"><a href="#MySQL数据类型" class="headerlink" title="MySQL数据类型"></a>MySQL数据类型</h2><h3 id="整形"><a href="#整形" class="headerlink" title="整形"></a>整形</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">数据类型</th>
+<th style="text-align:center">存储需求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">TINYINT</td>
+<td style="text-align:center">8位</td>
+</tr>
+<tr>
+<td style="text-align:center">SMALLINT</td>
+<td style="text-align:center">16位</td>
+</tr>
+<tr>
+<td style="text-align:center">MEDIUMINT</td>
+<td style="text-align:center">24位</td>
+</tr>
+<tr>
+<td style="text-align:center">INT</td>
+<td style="text-align:center">32位</td>
+</tr>
+<tr>
+<td style="text-align:center">BIGINT</td>
+<td style="text-align:center">64位</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="浮点型"><a href="#浮点型" class="headerlink" title="浮点型"></a>浮点型</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">数据类型</th>
+<th style="text-align:center">存储需求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">FLOAT(M,D)</td>
+<td style="text-align:center">M是数字总位数，D是小数点后面的位数</td>
+</tr>
+<tr>
+<td style="text-align:center">DOUBLE(M,D)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="日期时间型"><a href="#日期时间型" class="headerlink" title="日期时间型"></a>日期时间型</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">列类型</th>
+<th style="text-align:center">存储需求</th>
+<th style="text-align:center">范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">YEAR</td>
+<td style="text-align:center">8位</td>
+<td style="text-align:center">1901~2155</td>
+</tr>
+<tr>
+<td style="text-align:center">TIME</td>
+<td style="text-align:center">24位</td>
+<td style="text-align:center">-838:59:59~838:59:59</td>
+</tr>
+<tr>
+<td style="text-align:center">DATE</td>
+<td style="text-align:center">24位</td>
+<td style="text-align:center">1000.01.01~9999.12.31</td>
+</tr>
+<tr>
+<td style="text-align:center">DATETIME</td>
+<td style="text-align:center">64位</td>
+<td style="text-align:center">1000.01.01 00:00:00~9999.12.31 23:59:59</td>
+</tr>
+<tr>
+<td style="text-align:center">TIMESTAMP</td>
+<td style="text-align:center">32位</td>
+<td style="text-align:center">1970.01.01 00:00:01~2037 年某时</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="字符类型"><a href="#字符类型" class="headerlink" title="字符类型"></a>字符类型</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">列类型</th>
+<th style="text-align:center">存储需求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">CHAR(M)</td>
+<td style="text-align:center">固定长度，M个字节，0&lt;=&lt;M&lt;=255</td>
+</tr>
+<tr>
+<td style="text-align:center">VARCHAR(M)</td>
+<td style="text-align:center">可变长度，L+1个字节，L&lt;=M且0&lt;=M&lt;=2^16 -1</td>
+</tr>
+<tr>
+<td style="text-align:center">TINYTEXT</td>
+<td style="text-align:center">L+1个字节，L&lt;2^8</td>
+</tr>
+<tr>
+<td style="text-align:center">TEXT</td>
+<td style="text-align:center">L+1个字节，L&lt;2^16</td>
+</tr>
+<tr>
+<td style="text-align:center">MEDIUMTEXT</td>
+<td style="text-align:center">L+1个字节，L&lt;2^24</td>
+</tr>
+<tr>
+<td style="text-align:center">LONGTEXT</td>
+<td style="text-align:center">L+1个字节，L&lt;2^32</td>
+</tr>
+<tr>
+<td style="text-align:center">ENUM(‘value1’,’value2’,…)</td>
+<td style="text-align:center">1或2个字节，最多2^16 -1个值</td>
+</tr>
+<tr>
+<td style="text-align:center">SET(‘value1’,’value2’,…)</td>
+<td style="text-align:center">1、2、3、4或8个字节，最多64个成员</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="MySQL约束"><a href="#MySQL约束" class="headerlink" title="MySQL约束"></a>MySQL约束</h2><h3 id="主键约束"><a href="#主键约束" class="headerlink" title="主键约束"></a>主键约束</h3><p><code>NOT NULL</code>和<code>UNIQUE</code>的结合。确保某列（或两个列多个列的结合）有唯一标识，有助于更容易更快速地找到表中的一个特定的记录。</p>
+<p><code>AUTO_INCREMENT</code>必须与<code>主键</code>组合使用，其会在新记录插入表中时生成一个唯一的数字。默认情况下，起始值为1，每次的增量为1。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; create table tb3(                    </span><br><span class="line">    -&gt; id smallint unsigned AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">    -&gt; username varchar(30) NOT NULL</span><br><span class="line">    -&gt; );</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show columns from tb3;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb3(username) values(<span class="string">&#x27;Tom&#x27;</span>);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb3(username) values(<span class="string">&#x27;John&#x27;</span>);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from tb3;</span><br></pre></td></tr></table></figure>
+<h3 id="非空约束"><a href="#非空约束" class="headerlink" title="非空约束"></a>非空约束</h3><p><code>NOT NULL</code>指示某列不能存储<code>NULL</code>值。在默认的情况下，表的列接受<code>NULL</code>值。</p>
+<ul>
+<li>NULL，字段值可以为空</li>
+<li>NOT NULL，字段值禁止为空</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; create table tb2(</span><br><span class="line">    -&gt; username varchar(20) NOT NULL,</span><br><span class="line">    -&gt; age tinyint unsigned NULL</span><br><span class="line">    -&gt; );</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb2 values(<span class="string">&#x27;tom&#x27;</span>,NULL); <span class="comment"># ok</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb2 values(NULL,25);    <span class="comment"># error</span></span><br></pre></td></tr></table></figure>
+<h3 id="唯一约束"><a href="#唯一约束" class="headerlink" title="唯一约束"></a>唯一约束</h3><p><code>UNIQUE</code>保证某列的每行必须有唯一的值。唯一约束的字段可以为NULL值，但是必须只有一个NULL值。</p>
+<blockquote>
+<p>请注意，每个表可以有多个<code>UNIQUE</code>约束，但是每个表只能有一个<code>PRIMARY KEY</code>约束。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; create table tb5(</span><br><span class="line">    -&gt; id smallint unsigned AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">    -&gt; username varchar(20) NOT NULL UNIQUE KEY,</span><br><span class="line">    -&gt; age tinyint unsigned</span><br><span class="line">    -&gt; );</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show columns from tb5;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb5(username, age) values(<span class="string">&#x27;Tom&#x27;</span>,22);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb5(username, age) values(<span class="string">&#x27;Tom&#x27;</span>,22); <span class="comment"># error</span></span><br></pre></td></tr></table></figure>
+<h3 id="默认约束"><a href="#默认约束" class="headerlink" title="默认约束"></a>默认约束</h3><p>为没用明确指出值的字段赋予默认值。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; create table tb6(</span><br><span class="line">    -&gt; id smallint unsigned AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">    -&gt; username varchar(20) NOT NULL UNIQUE KEY,</span><br><span class="line">    -&gt; sex ENUM(<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;2&#x27;</span>,<span class="string">&#x27;3&#x27;</span>) DEFAULT <span class="string">&#x27;3&#x27;</span></span><br><span class="line">    -&gt; );</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert tb6(username) values(<span class="string">&#x27;Tom&#x27;</span>);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from tb6;</span><br></pre></td></tr></table></figure>
+<h3 id="外键约束"><a href="#外键约束" class="headerlink" title="外键约束"></a>外键约束</h3><p>保证数据一致性、完整性。父表和子表必须使用相同的存储引擎，数据表的存储引擎只能为InnoDB。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 父表</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; create table provinces(</span><br><span class="line">    -&gt; id smallint unsigned PRIMARY KEY AUTO_INCREMENT,</span><br><span class="line">    -&gt; pname varchar(20) NOT NULL</span><br><span class="line">    -&gt; );</span><br><span class="line"><span class="comment"># 子表</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; create table users(</span><br><span class="line">    -&gt; id smallint unsigned PRIMARY KEY AUTO_INCREMENT,</span><br><span class="line">    -&gt; username varchar(20) NOT NULL,</span><br><span class="line">    -&gt; pid smallint unsigned,</span><br><span class="line">    -&gt; FOREIGN KEY (pid) REFERENCES provinces (id)</span><br><span class="line">    -&gt; );</span><br><span class="line"></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert provinces(pname) values(<span class="string">&#x27;A&#x27;</span>);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert provinces(pname) values(<span class="string">&#x27;B&#x27;</span>);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert provinces(pname) values(<span class="string">&#x27;C&#x27;</span>);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from provinces;</span><br><span class="line">+----+-------+</span><br><span class="line">| id | pname |</span><br><span class="line">+----+-------+</span><br><span class="line">|  1 | A     |</span><br><span class="line">|  2 | B     |</span><br><span class="line">|  3 | C     |</span><br><span class="line">+----+-------+</span><br><span class="line">3 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert users(username, pid) values(<span class="string">&#x27;Tom&#x27;</span>,3);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert users(username, pid) values(<span class="string">&#x27;John&#x27;</span>,7); <span class="comment"># error</span></span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert users(username, pid) values(<span class="string">&#x27;John&#x27;</span>,3);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert users(username, pid) values(<span class="string">&#x27;Rose&#x27;</span>,1);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from users;</span><br><span class="line">+----+----------+------+</span><br><span class="line">| id | username | pid  |</span><br><span class="line">+----+----------+------+</span><br><span class="line">|  1 | Tom      |    3 |</span><br><span class="line">|  3 | John     |    3 |</span><br><span class="line">|  4 | Rose     |    1 |</span><br><span class="line">+----+----------+------+</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>上面插入<em>(‘John’,7)</em>时出错，是因为provinces中并没有id为7的索引。同时，即使插入失败，索引值还是会增加，users表中不存在id为2的项。</p>
+</blockquote>
+<p>外键列和数据列必须具有相似的数据类型，其中数据的长度或是否是有符号位必须相同，而字符的长度则可以不同。上例中，provinces中的id和users中的pid数据类型和长度必须相同。</p>
+<p>外键列（users.pid）和参照列（provinces.id）必须创建索引，如果外键列不存在索引的话，MySQL将自动创建。</p>
+<p>我们可以决定进行外键约束的创建以后，在更新表的时候，子表是否也进行相应的更新——<strong>外键约束的参照操作</strong>。具体的参照操作如下：</p>
+<ul>
+<li>CASCADE：从父表删除或更新记录时，自动删除或更新子表中匹配的行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; create table users1(</span><br><span class="line">    -&gt; id smallint unsigned PRIMARY KEY AUTO_INCREMENT,</span><br><span class="line">    -&gt; username varchar(20) NOT NULL,</span><br><span class="line">    -&gt; pid smallint unsigned,</span><br><span class="line">    -&gt; FOREIGN KEY (pid) REFERENCES provinces (id) ON DELETE CASCADE</span><br><span class="line">    -&gt; );</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show create table users1;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert users1(username, pid) values(<span class="string">&#x27;Tom&#x27;</span>,3);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert users1(username, pid) values(<span class="string">&#x27;John&#x27;</span>,3);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; insert users1(username, pid) values(<span class="string">&#x27;Rose&#x27;</span>,1);</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from users1;</span><br><span class="line">+----+----------+------+</span><br><span class="line">| id | username | pid  |</span><br><span class="line">+----+----------+------+</span><br><span class="line">|  1 | Tom      |    3 |</span><br><span class="line">|  2 | John     |    3 |</span><br><span class="line">|  3 | Rose     |    1 |</span><br><span class="line">+----+----------+------+</span><br><span class="line">3 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; delete from provinces <span class="built_in">where</span> id=3;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from provinces;</span><br><span class="line">+----+-------+</span><br><span class="line">| id | pname |</span><br><span class="line">+----+-------+</span><br><span class="line">|  1 | A     |</span><br><span class="line">|  2 | B     |</span><br><span class="line">+----+-------+</span><br><span class="line">2 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; select * from users1;</span><br><span class="line">+----+----------+------+</span><br><span class="line">| id | username | pid  |</span><br><span class="line">+----+----------+------+</span><br><span class="line">|  4 | Rose     |    1 |</span><br><span class="line">+----+----------+------+</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>可以看出，删除provinces中<code>id=3</code>的项，对应的users1中<code>pid=3</code>的项也会被删除。</p>
+</blockquote>
+<ul>
+<li><p>SET NULL：从父表中删除或更新记录时，把子表中的外键列设置为NULL，如果使用该选项，必须保证子表列没有指定<code>NOT NULL</code>。</p>
+</li>
+<li><p>RESTRICT：拒绝对父表的删除或更新操作。</p>
+</li>
+<li><p>NO ACTIION：标准SQL关键字，在MySQL中与RESTRICT相同。</p>
+</li>
+</ul>
+<h2 id="使用C-C-语言来操作MySQL"><a href="#使用C-C-语言来操作MySQL" class="headerlink" title="使用C/C++语言来操作MySQL"></a>使用C/C++语言来操作MySQL</h2><p>我们可以使用命令行来操作MySQL数据库，譬如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@localhost <span class="built_in">test</span> &gt; show databases;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; use mysql;</span><br><span class="line">root@localhost <span class="built_in">test</span> &gt; show tables;</span><br></pre></td></tr></table></figure>
+<p>也可以通过MySQL对外公布的C接口来操作数据库，譬如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* show_tables.cxx */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mysql/mysql.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    MYSQL * conn;</span><br><span class="line">    MYSQL_RES * res;</span><br><span class="line">    MYSQL_ROW row;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> server[] = <span class="string">&quot;localhost&quot;</span>;</span><br><span class="line">    <span class="keyword">char</span> user[] = <span class="string">&quot;root&quot;</span>;</span><br><span class="line">    <span class="keyword">char</span> passwd[] = <span class="string">&quot;lovemime&quot;</span>;</span><br><span class="line">    <span class="keyword">char</span> database[] = <span class="string">&quot;mysql&quot;</span>;</span><br><span class="line"></span><br><span class="line">    conn = mysql_init(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span>(!mysql_real_connect(conn, server, user, passwd, database, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="number">0</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%s/n&quot;</span>, mysql_error(conn));</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mysql_query(conn, <span class="string">&quot;show tables&quot;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%s/n&quot;</span>, mysql_error(conn));</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    res = mysql_use_result(conn);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;MySQL Tables in mysql database:\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>((row =mysql_fetch_row(res)) != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s \n&quot;</span>, row[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    mysql_free_result(res);</span><br><span class="line">    mysql_close(conn);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;finish! \n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>连接MySQL库，来编译该段代码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ g++ -Wall show_tables.cxx -o showtables -lmysqlclient</span><br></pre></td></tr></table></figure>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://www.runoob.com/sql/sql-tutorial.html">菜鸟教程：SQL 教程</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.runoob.com/mysql/mysql-tutorial.html">菜鸟教程：MySQL 教程</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.imooc.com/learn/122">慕课视频：与MySQL的零距离接触</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/comm/mysql-basic/"> https://www.freehacker.cn/comm/mysql-basic/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1fb2cstahfqj20zi0bzaak.jpg)" href="/comm/audio-video-process/">
+			<section class="post">
+				<h3>视频会议中的音视频处理技术（Media Foundation）</h1>
+				<p>视频会议中主要的视频处理技术，在Windows平台上的Media Foundation，跨平台的OpenH264、x264。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f8g45b9gwdj21hc0i276g.jpg)" href="/comm/grpc-basic/">
+			<section class="post">
+				<h3>gRPC初识——同步单向gRPC</h1>
+				<p>本文主要简述gRPC的使用方式，并介绍了简单的同步单向gRPC。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/comm/mysql-basic/';
+        this.page.identifier = 'comm/mysql-basic/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

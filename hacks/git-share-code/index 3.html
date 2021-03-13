@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>如何有效的管理项目中的共享代码 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="本文着重分析git submodule和git subtree的使用细节和注意事项。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何有效的管理项目中的共享代码">
+<meta property="og:url" content="https://www.freehacker.cn/hacks/git-share-code/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="本文着重分析git submodule和git subtree的使用细节和注意事项。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-08-28T14:10:40.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.363Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Tools">
+<meta property="article:tag" content="Git">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f5ydh2b6dgj20sg09smyh.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">如何有效的管理项目中的共享代码</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Tools/'>Tools</a> /
+    
+    <a href='/tags/Git/'>Git</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-08-28T14:10:40.000Z" >
+          2017-08-28
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>人与人之间的交互是复杂的，并且其效果从来都难以预期，但却是工作中最为重要的方面。</p>
+</blockquote>
+<p>在很多大型项目中，需要在多个仓库中共享代码。这些代码可能是通信协议、公用代码库、第三方代码库等。如何管理共享代码是个头疼的问题，我们总不能在每个仓库中拷贝这些共享代码。git提供了submodule和subtree两种方案来方便我们管理。我们来进行对比，选择合适的方案加入到项目中。<a id="more"></a></p>
+<h2 id="git-submodule"><a href="#git-submodule" class="headerlink" title="git submodule"></a>git submodule</h2><p>submodule是一个完全独立的仓库，引用submodule的父仓库和submodule的唯一联系，是保存在父仓库中子仓库某个<code>commit-SHA</code>值。我们通过在父仓库中执行<code>add</code>和<code>update</code>来增加和更新submodule。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># test repository</span></span><br><span class="line">$ git submodule add git://github.com/sub/sub.git thirdparty/sub</span><br><span class="line">$ git submodule update --init --recursive</span><br></pre></td></tr></table></figure>
+<p>执行<code>add</code>操作后，在test目录下会产生一个<code>.gitsubmodule</code>文件，其内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cat .gitsubmodule</span><br><span class="line">[submodule <span class="string">&quot;sub&quot;</span>]</span><br><span class="line">    path = sub</span><br><span class="line">    url = git://github.com/sub/sub.git</span><br></pre></td></tr></table></figure>
+<p>针对于频繁更新的共享代码仓库，submodule的缺陷在于其管理的复杂性。其复杂性体现在三个方面：</p>
+<p>1、更新代码的复杂性</p>
+<p>如果我们需要在submodule中提交代码，我们需要执行四步：1、切换到开发分支；2、pull最新代码；3、提交代码到submodule仓库；4、从父仓库中提交submodule当前<code>commit-SHA</code>值。切换到开发分支是很重要的，否则我们很可能会丢掉代码。同时，如果我们存在多个父仓库，每个父仓库都要提交submodule的当前<code>commit-SHA</code>值。</p>
+<p>如果我们需要获取最新的submodule，我们需要执行两步：1、拉取父仓库代码；2、运行<code>git submodule update</code>命令。</p>
+<p>2、团队协作的复杂性</p>
+<p>在更新代码时，如果团队成员忘记其中的任何一步，对其他成员将会存在一定的影响。举两个例子：</p>
+<blockquote>
+<p>拉取最新代码时，如果我们忘记运行<code>git submodule update</code>命令，之后更新代码，很有可能在父仓库中提交了老的submodule<code>commit-SHA</code>值。</p>
+<p>如果团队成员对子模块做了一个本地的变更，但没有推送到公共公共服务器，然后他们提交了一个指向那个非公共状态的<code>commit-SHA</code>值，并推送到了父项目所在仓库。这时，其他开发者试图运行<code>git submodule update</code>就会提示找不到所引用的子模块提交。</p>
+</blockquote>
+<p>3、代码合并的复杂性</p>
+<p>在合并代码时，即使我们解决了submodule的冲突，还是需要执行<code>git submodule update</code>命令。</p>
+<p>如果我们的共享代码仓库是稳定的第三方库，submodule是个极好的选择。然而，针对于频繁更新的共享代码仓库，使用submodule时无法避免其复杂性，但是可以通过一些手段，让我们不容易出错。</p>
+<h2 id="git-submodule-trick"><a href="#git-submodule-trick" class="headerlink" title="git submodule trick"></a>git submodule trick</h2><h3 id="约定"><a href="#约定" class="headerlink" title="约定"></a>约定</h3><ul>
+<li>master分支上作为submodule发布分支（开发分支遵循checkout/merge原则）</li>
+<li>master分支上最新的提交必须可以被父仓库引用</li>
+</ul>
+<h3 id="初次clone"><a href="#初次clone" class="headerlink" title="初次clone"></a>初次clone</h3><p>使用<code>recursive</code>参数来自动clone submodule仓库。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># unpleasure method</span></span><br><span class="line">$ git <span class="built_in">clone</span> git://github.com/sub/sub.git</span><br><span class="line">$ git submodule init</span><br><span class="line">$ git submodule update</span><br><span class="line"></span><br><span class="line"><span class="comment"># elegant method</span></span><br><span class="line">$ git <span class="built_in">clone</span> --recursive git://github.com/sub/sub.git</span><br></pre></td></tr></table></figure>
+<h3 id="更新代码"><a href="#更新代码" class="headerlink" title="更新代码"></a>更新代码</h3><p>使用<code>foreach</code>将所有submodule切换到master分支、拉取最新代码，然后在父仓库提交submodule的<code>commit-SHA</code>值。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git submodule foreach --recursive git checkout master &amp;&amp; git pull</span><br><span class="line"><span class="comment"># you can changes submodule repository here.</span></span><br><span class="line">$ git commit -a -m <span class="string">&quot;update all submodule to latest commit id&quot;</span></span><br><span class="line">$ git push</span><br></pre></td></tr></table></figure>
+<p>当我们需要更新仓库中的submodule，<code>foreach</code>可以简化我们的工作量。</p>
+<p>如果某些submodule并没有使用master分支作为发布分支，我们采用下列命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git submodule foreach -q --recursive \</span><br><span class="line">    <span class="string">&#x27;git checkout \</span></span><br><span class="line"><span class="string">        $(git config -f $toplevel/.gitmodules submodule.$name.branch || echo master)&#x27;</span> &amp;&amp; \</span><br><span class="line">    `git pull`</span><br></pre></td></tr></table></figure>
+<p>采用这个命令的前提是在添加submodule时指明分支：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># add submodule to track master branch</span></span><br><span class="line">git submodule add -b master [URL to Git repo];</span><br><span class="line"></span><br><span class="line"><span class="comment"># update your submodule, and update code to the latest of branch master</span></span><br><span class="line">git submodule update --remote</span><br></pre></td></tr></table></figure>
+<h3 id="提交代码"><a href="#提交代码" class="headerlink" title="提交代码"></a>提交代码</h3><p>submodule代码会被多个父仓库引用，所以需要在每个父仓库中验证修改是否有效。在验证有效后，从开发分支merge到master分支。</p>
+<h3 id="错误提交补救"><a href="#错误提交补救" class="headerlink" title="错误提交补救"></a>错误提交补救</h3><p>如果我们没有checkout master分支，却又提交了代码，可以使用<code>cherry-pick</code>命令提取错失的提交：</p>
+<ul>
+<li>执行<code>git checkout master</code>将HEAD从detached状态切换到master分支，记录git报出的warning中的<code>commit-SHA</code>；</li>
+<li>执行<code>git cherry-pick commit-SHA</code>提取错失的提交到master分支；</li>
+<li>执行<code>git push</code>重新提交代码。</li>
+</ul>
+<blockquote>
+<p>如果需要提交代码，必须按照使用<code>foreach</code>指令，确保每个submodule都在正确的分支、最新的提交。如果出现本节这种情况，说明开发者没有执行正确的使用步骤。</p>
+</blockquote>
+<h2 id="git-subtree"><a href="#git-subtree" class="headerlink" title="git subtree"></a>git subtree</h2><p>subtree对于父仓库来说是完全透明的，所有开发人员看到的是一个项目中的普通目录，开发人员无须针对subtree做特殊的处理。只需要维护subtree的开发人员在合适的时候去执行代码同步操作。我们在父仓库中通过<code>add</code>、<code>push</code>和<code>pull</code>来操作subtree：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git remote add -f sub git://github.com/sub/sub.git</span><br><span class="line">$ git subtree add --prefix=sub sub master --squash</span><br><span class="line">$ git subtree pull --prefix=sub sub master --squash</span><br><span class="line">$ git subtree push --prefix=sub sub master --squash</span><br></pre></td></tr></table></figure>
+<p>subtree是git官方网站推荐使用的方案。subtree的优点在于简单，复杂度低。过于简单也是subtree的缺点：</p>
+<ul>
+<li>我们无法在subtree目录中查看对应的commit信息；</li>
+<li>subtree的提交会污染父仓库的提交记录。</li>
+</ul>
+<blockquote>
+<p>未完待续。</p>
+</blockquote>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://codingkilledthecat.wordpress.com/2012/04/28/why-your-company-shouldnt-use-git-submodules/">Why your company shouldn’t use Git submodules</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/hacks/git-share-code/"> https://www.freehacker.cn/hacks/git-share-code/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://wx1.sinaimg.cn/large/61b57e82gy1fd9wp28v5ij20zk0c2q5f.jpg)" href="/pragmatic/dry/">
+			<section class="post">
+				<h3>如何在团队中避免重复</h1>
+				<p>总结软件团队中如何避免重复。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://wx2.sinaimg.cn/large/61b57e82gy1fj91q7dx70j22r70xl76p.jpg)" href="/comm/webrtc-gcc/">
+			<section class="post">
+				<h3>WebRTC拥塞控制策略</h1>
+				<p>Google Congestion Controller和WebRTC Bitrate Controller模块剖析。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/hacks/git-share-code/';
+        this.page.identifier = 'hacks/git-share-code/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

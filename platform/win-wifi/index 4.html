@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>浅谈Windows共享网络热点开发 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="无线承载网络是Windows7和之后的操作系统所支持的新特性，其主要是实现物理网卡虚拟化和软件AP。本文主要基于Native Wifi Api来简述无线网络热点的实现。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈Windows共享网络热点开发">
+<meta property="og:url" content="https://www.freehacker.cn/platform/win-wifi/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="无线承载网络是Windows7和之后的操作系统所支持的新特性，其主要是实现物理网卡虚拟化和软件AP。本文主要基于Native Wifi Api来简述无线网络热点的实现。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-05-03T11:53:26.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.371Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Platform">
+<meta property="article:tag" content="Win32">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f74zpzj8bmj21gs0i2gol.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">浅谈Windows共享网络热点开发</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Platform/'>Platform</a> /
+    
+    <a href='/tags/Win32/'>Win32</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-05-03T11:53:26.000Z" >
+          2017-05-03
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>思考比工具更重要，发挥才智远优于理性，行动比分析更为迫切。</p>
+</blockquote>
+<p>市面上WiFi热点软件竞争激烈，猎豹WiFi、360WiFi、WiFi共享精灵等等产品在WiFi热点方面已经做得很成熟。但这总是其他人家的产品，对于一个新手来说，如何很快的开发出一款稳定的WiFi热点产品呢？基于分享互助的观点，这里将自己从事WiFi热点开发的经验写成博文。<a id="more"></a></p>
+<h2 id="几个基本知识点"><a href="#几个基本知识点" class="headerlink" title="几个基本知识点"></a>几个基本知识点</h2><p>开发一款WiFi热点软件需要知道哪些知识？我们先来看看这几个基本知识点，帮助我们更快的上手。</p>
+<h3 id="Windows无线承载网络"><a href="#Windows无线承载网络" class="headerlink" title="Windows无线承载网络"></a>Windows无线承载网络</h3><p>如果不需要连接外部网络的功能，实现Windows无线承载网络，就已经实现了一款WiFi热点软件了。多简单，从百度上搜搜别人博客上实现的代码，从谷歌上搜搜开源的代码——有一个C#开源项目已经实现该功能。的确很简单，不过即使是不需要连接外部网络，这点实现也是不够的。</p>
+<h3 id="ICS"><a href="#ICS" class="headerlink" title="ICS"></a>ICS</h3><p>Internet Connection Sharing，网络连接共享，为WiFi热点提供连接外部热点的功能。大多数人使用WiFi热点软件，主要就是为了方便移动设备连接网络。</p>
+<blockquote>
+<p>MSDN的Native WiFi一节给出了Windows无线承载网络和ICS的详尽讲解，读懂了这里的讲解，也就能实现最简单的WiFi热点功能。</p>
+</blockquote>
+<p>为什么说是最简单的呢？那是因为你还会遇到下面问题：</p>
+<ul>
+<li>你可能开启不了热点</li>
+<li>移动端可能连接不上该热点</li>
+<li>移动端连接上了却没法上网</li>
+<li>连接上了一直掉线</li>
+<li>…</li>
+</ul>
+<p>这些问题，都会在本文后面给出解决方案或者原因分析——解决不了呀。</p>
+<h3 id="DHCP"><a href="#DHCP" class="headerlink" title="DHCP"></a>DHCP</h3><p>ICS提供了基本的DHCP功能，不过千万不要太指望它，我们还是老老实实的自己实现一个DHCP服务。DHCP协议内容，网络上很多，开源的DHCP服务器代码不稳定，自己实现DHCP服务更能保证正确性。</p>
+<h3 id="NAT"><a href="#NAT" class="headerlink" title="NAT"></a>NAT</h3><p>NAT，Network Address Translator，网络地址转换，主要作用是把内网IP地址转换成为全球唯一的可定位的外部IP地址，从而使得局域网内的所有用户可以通过一个或者少数几个IP地址与全球的Internet通信——不仅节约了IP地址，而且在一定程度上保护了内部网络。</p>
+<p>我们这儿使用NAT也是为了提供一个类似ICS的功能，实际上微软的ICS也是简版的NAT。</p>
+<h2 id="基本的网络共享功能开发"><a href="#基本的网络共享功能开发" class="headerlink" title="基本的网络共享功能开发"></a>基本的网络共享功能开发</h2><p>Windows无线承载网络提供最基本的网络共享功能，然而由于未加入ICS/NAT，这里仅仅是一个局域网络，实现这个基本功能，我们仍然是不能使用其来连接外网的。可是实现这一步也是必须的一步。</p>
+<h3 id="启动前准备"><a href="#启动前准备" class="headerlink" title="启动前准备"></a>启动前准备</h3><p>在启动无线承载网络之前，需要有一些准备步骤，用来确定当前系统环境适合无线承载网络的启动。</p>
+<blockquote>
+<p>这些准备步骤是重中之重，如果没有这些准备步骤，启动失败的概率会大大提高。</p>
+</blockquote>
+<p>启动前准备一：开启无线承载网络所需服务，这些服务有可能会被关闭，必须要主动检测服务是否正常运行。具体服务包括：</p>
+<ul>
+<li>Winmgmt</li>
+<li>ALG</li>
+<li>BFE</li>
+<li>Wlansvc</li>
+<li>MpsSvc</li>
+<li>iphlpsvc</li>
+<li>dot3svc</li>
+<li>WwanSvc</li>
+<li>SharedAccess</li>
+<li>WZCSVC</li>
+</ul>
+<p>启动前准备二：启动DHCP服务，并检测服务是否正常运行。DHCP服务后文会提及。</p>
+<p>启动前准备三：判断是否存在无线网卡，如果没有无线网卡，网络共享功能只是空谈。</p>
+<p>启动前准备四：检测无线网卡是否支持无限承载网络。</p>
+<p>启动前准备五：检测无线网卡是否被禁用，如果被禁用就重启。</p>
+<h3 id="调用流程"><a href="#调用流程" class="headerlink" title="调用流程"></a>调用流程</h3><p>基本功能的实现主要依赖于对MSDN相关文档的深入阅读，本节不会翻译这篇文章，本节的重点是基本功能实现的调用流程。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd815252">MSDN: Using Wireless Hosted Network and Internet Connection Sharing</a></p>
+</blockquote>
+<p>调用流程一：初始化无线承载网络信息。</p>
+<ul>
+<li>设置无线承载网络可开启：调用WlanHostedNetworkSetProperty函数设置wlan_hosted_network_opcode_enable属性为TRUE；</li>
+<li>设置无线承载网络基本信息：调用WlanHostedNetworkSetProperty函数设置wlan_hosted_network_opcode_connection_settings属性，需要设置SSID、连接用户数；</li>
+<li>设置密码键值：调用WlanHostedNetworkSetSecondaryKey设置密码信息</li>
+</ul>
+<p>调用流程二：启动无线承载网络。</p>
+<ul>
+<li>关闭已经启动的无线承载网络：调用WlanHostedNetworkForceStop函数；</li>
+<li>启动无线承载网络：调用WlanHostedNetworkStartUsing函数；</li>
+<li>保存无线承载网络GUID信息：调用WlanHostedNetworkQueryStatus函数获取PWLAN_HOSTED_NETWORK_STATUS信息中的IPDeviceID值</li>
+</ul>
+<p>调用流程三：启动失败自修复。</p>
+<ul>
+<li>使用SetupAPI禁用设备并重新打开设备：这段可能需要百度/谷歌/MSDN寻找SetupAPI的使用方法，有可能需要多次禁用和启动，直到网络状态非wlan_hosted_network_unavailable；</li>
+<li>重新启动无线承载网络</li>
+</ul>
+<p>上述流程没有涉及到具体代码的撰写，主要阐述需要调用的函数和操作。</p>
+<h2 id="DHCP-1"><a href="#DHCP-1" class="headerlink" title="DHCP"></a>DHCP</h2><p>在启动无限承载网络后，如果这时用手机连接热点，会发现手机无线网络一直都卡在获取IP地址的地方。这是因为这个时候无线承载网络并没有提供DHCP功能——ICS能够提供该功能，如果已经开启ICS，是能够获取到IP的，缺陷是不稳定，很有可能无法分配IP。</p>
+<p>所以就需要我们自己实现一个DHCP服务，Google一下你就会发现不少开源的服务，选择一个仔细调试。否则你很有可能被这个水土不服的家伙坑了。你必须要了解DHCP的原理、能够分析抓包获取的数据。（推荐博文<a target="_blank" rel="noopener" href="http://blog.163.com/hlz_2599/blog/static/14237847420134139541993/">DHCP协议原理及报文分析  </a>以及<a target="_blank" rel="noopener" href="https://wenku.baidu.com/view/7aee72277375a417866f8fe6.html">DHCP报文精细分析_加上wireshark抓包</a>）</p>
+<p>DHCP服务需要绑定一个静态IP，这个静态IP的设定必须要正确。可以设置一个IP库，防止IP和主机IP冲突。具体静态IP的设置方法，可以通过命令行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ netsh interface ip <span class="built_in">set</span> address ..。</span><br></pre></td></tr></table></figure>
+<p>不过这个设置是需要找到对于那个的无限承载网络命名信息，这个信息定义在”SYSTEM\CurrentControlSet\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\{GUID Get Before}\Connection”下。</p>
+<p>DHCP实现的最终效果要能满足下面需求：</p>
+<ul>
+<li>无线承载网络开启时，能够给移动端快速的分配IP地址；</li>
+<li>不能影响电脑本身所在局域网中的DHCP服务；</li>
+<li>不能导致IP分配冲突</li>
+</ul>
+<h2 id="ICS-1"><a href="#ICS-1" class="headerlink" title="ICS"></a>ICS</h2><p>Windows通过ICS提供基本的网络共享功能。ICS共享网络的流程如下：</p>
+<ul>
+<li>通过获取HostedNetwork接口GUID</li>
+<li>获取外网接口GUID，需要判断该网络是否能够连接外部网络</li>
+<li>通过调用EnableSharing开启ICS网络共享</li>
+</ul>
+<h2 id="NAT-1"><a href="#NAT-1" class="headerlink" title="NAT"></a>NAT</h2><p>首先，我们需要知道NAT的原理，具体参考<a target="_blank" rel="noopener" href="http://www.cnblogs.com/bo083/articles/2170189.html">NAT原理与NAT穿越</a>。</p>
+<p>然后，需要对中间层驱动有一定的了解。参考下列文献：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.xfocus.net/articles/200307/568.html">基于IMD的包过滤防火墙原理与实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://wenku.baidu.com/view/3ae23920915f804d2b16c12c.html">基于PassThru的NDIS中间层驱动程序扩展1</a></li>
+<li><a target="_blank" rel="noopener" href="http://bbs.pediy.com/thread-191434.htm">如何把NDIS Filter框架利用到日常的Windows驱动开发工作中</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/yxyhack/article/details/6060999">NDIS中间层的驱动包截获技术教程</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.xfocus.net/articles/200605/865.html">基于PassThru的NDIS中间层驱动程序扩展</a></li>
+<li><a target="_blank" rel="noopener" href="http://bbs.pediy.com/thread-137545.htm">NDIS中间层驱动开发在Win7系统下和Windows XP系统下的区别</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.xfocus.net/articles/200606/870.html">NAT在NDIS中间层驱动中的实现</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.cnblogs.com/wubiyu/archive/2008/08/01/1257801.html">NDIS开发[网络驱动开发]</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.cnblogs.com/LittleHann/p/4844874.html">Windows网络驱动、NDIS驱动(微端口驱动、中间层驱动、协议驱动)、TDI驱动(网络传输层过滤)、WFP(Windows Filtering Platform)</a></li>
+<li><a target="_blank" rel="noopener" href="http://bbs.csdn.net/topics/348555">用NDIS中的passthru实现NAT的若干问题</a></li>
+</ul>
+<p>这一块的代码我也只实现了一半，仅列出参考的一些文献。</p>
+<h2 id="一些难以解决的问题"><a href="#一些难以解决的问题" class="headerlink" title="一些难以解决的问题"></a>一些难以解决的问题</h2><p>最重要的问题就是稳定性问题，经过多方求证，目前主要和系统以及无线网卡驱动有关。此问题暂时不可解。</p>
+<h2 id="Some-Tips"><a href="#Some-Tips" class="headerlink" title="Some Tips"></a>Some Tips</h2><p>下面是一些有用的链接，帮助我们完成可能存在的额外工作：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/31249684/how-to-change-the-network-name-shown-in-windowss-ncpa-cpl-using-c">How to change the Network name shown in Windows’s ncpa.cpl using C++?</a></li>
+<li><a target="_blank" rel="noopener" href="http://bbs.csdn.net/topics/390864539/">如何判断网卡是有线网卡还是无线网卡</a></li>
+<li><a target="_blank" rel="noopener" href="https://superuser.com/questions/618908/how-does-windows-know-which-network-adapter-is-a-wireless-device">How does Windows know which network adapter is a wireless device?</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows-hardware/drivers/network/configuring-an-inf-file-for-a-modifying-filter-driver">Configuring an INF File for a Modifying Filter Driver</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/woshinia/article/details/10631483">寻找正在连接中的网络连接，并开启网络连接的网络连接共享功能</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/platform/win-wifi/"> https://www.freehacker.cn/platform/win-wifi/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1fb2cstahfqj20zi0bzaak.jpg)" href="/comm/codec-yuv-rgb/">
+			<section class="post">
+				<h3>视频像素格式YUV和RGB</h1>
+				<p>简述YUV和RGB视频像素格式。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://wx3.sinaimg.cn/large/61b57e82gy1ffwn7rwuzyj21hc0imads.jpg)" href="/republic/concept/">
+			<section class="post">
+				<h3>概念</h1>
+				<p>追求最清晰明了的思维模式。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/platform/win-wifi/';
+        this.page.identifier = 'platform/win-wifi/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>换行符与Git CRLF | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="本文着重分析操作系统换行符与git在跨平台是对换行符的处理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="换行符与Git CRLF">
+<meta property="og:url" content="https://www.freehacker.cn/hacks/git-autocrlf/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="本文着重分析操作系统换行符与git在跨平台是对换行符的处理。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-06-15T04:01:01.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.362Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Tools">
+<meta property="article:tag" content="Git">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f5ydh2b6dgj20sg09smyh.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">换行符与Git CRLF</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Tools/'>Tools</a> /
+    
+    <a href='/tags/Git/'>Git</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-06-15T04:01:01.000Z" >
+          2016-06-15
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>不同的操作系统有不同的换行符格式，跨平台协作时需要考虑版本工具（git）对换行符的处理<a id="more"></a></p>
+</blockquote>
+<h2 id="回车和换行"><a href="#回车和换行" class="headerlink" title="回车和换行"></a>回车和换行</h2><p>回车（Carriage Return）和换行（Line Feed）概念：</p>
+<ul>
+<li>回车CR：将光标移动到当前行开头；</li>
+<li>换行LF：将光标“垂直”移动到下一行，并不改变光标水平位置。</li>
+</ul>
+<p>以上的概念只适用于打字机，现代计算机沿用的时候主要使用的是<code>回到行首</code>和<code>换行+回到行首</code>的功能。看下面的例子：</p>
+<p>1、在Windows下应用程序输出\n到文件，会被自动转换成\r\n</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* output:     */</span></span><br><span class="line"><span class="comment">/* first line  */</span></span><br><span class="line"><span class="comment">/* second line */</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;first line\nsecond line&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* test.txt output;          */</span></span><br><span class="line"><span class="comment">/* first line\r\nsecond line */</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::fstream <span class="title">fout</span><span class="params">(<span class="string">&quot;test.txt&quot;</span>, <span class="built_in">std</span>::ios::out)</span></span>;</span><br><span class="line"><span class="keyword">if</span> (fout.is_open())</span><br><span class="line">&#123;</span><br><span class="line">	fout.write(<span class="string">&quot;first line\nsecond line&quot;</span>, <span class="keyword">sizeof</span>(<span class="string">&quot;first line\nsecond line&quot;</span>));</span><br><span class="line">	fout.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2、在windows下应用程序输出\r到文件，不会被转换，并且并不会起到“将光标移动到当前行开头”的作用</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* output:     */</span></span><br><span class="line"><span class="comment">/* second line */</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;first line\rsecond line&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* test.txt output;        */</span></span><br><span class="line"><span class="comment">/* first line\rsecond line */</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::fstream <span class="title">fout</span><span class="params">(<span class="string">&quot;test.txt&quot;</span>, <span class="built_in">std</span>::ios::out)</span></span>;</span><br><span class="line"><span class="keyword">if</span> (fout.is_open())</span><br><span class="line">&#123;</span><br><span class="line">	fout.write(<span class="string">&quot;first line\rsecond line&quot;</span>, <span class="keyword">sizeof</span>(<span class="string">&quot;first line\rsecond line&quot;</span>));</span><br><span class="line">	fout.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3、在Windows下应用程序输出\r\n到文件，\r\n会被自动转换成\r\r\n</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* output:     */</span></span><br><span class="line"><span class="comment">/* first line  */</span></span><br><span class="line"><span class="comment">/* second line */</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;first line\r\nsecond line&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* test.txt output;            */</span></span><br><span class="line"><span class="comment">/* first line\r\r\nsecond line */</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::fstream <span class="title">fout</span><span class="params">(<span class="string">&quot;test.txt&quot;</span>, <span class="built_in">std</span>::ios::out)</span></span>;</span><br><span class="line"><span class="keyword">if</span> (fout.is_open())</span><br><span class="line">&#123;</span><br><span class="line">	fout.write(<span class="string">&quot;first line\r\nsecond line&quot;</span>, <span class="keyword">sizeof</span>(<span class="string">&quot;first line\r\nsecond line&quot;</span>));</span><br><span class="line">	fout.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="不同系统下的换行符"><a href="#不同系统下的换行符" class="headerlink" title="不同系统下的换行符"></a>不同系统下的换行符</h2><p>CR、LF、CR/LF为不同操作系统上使用的换行符：</p>
+<ul>
+<li>Windows/DOS系统：采用CR/LF表示下一行；</li>
+<li>Unix/Linux系统：采用LF表示下一行；</li>
+<li>Mac OS系统：采用CR表示下一行；</li>
+<li>Mac OS X系统：采用LF表示下一行（<strong>Mac OS X已经改成和Unix/Linx一样使用LF</strong>）。</li>
+</ul>
+<p>CR使用符号’\r’，十进制ASCII代码是13，十六进制代码为0x0D；LF使用’\n’符号表示，ASCII代码是10，十六制为0x0A。所以Windows平台上换行在文本文件中是使用 0d 0a 两个字节表示，而UNIX和苹果平台上换行则是使用 0a 或 0d 一个字节表示。</p>
+<p>Unix/Linux/Mac系统下的文件在Windows里打开的话（使用Windows自带记事本），会出现换行丢失，所有文字会变成一行，整个文本会乱成一团。Windows系统下的文件在Unix/Linux/Mac里打开的话，在每行的结尾可能会多出一个^M符号。</p>
+<p>目前大部分的编辑器和IDE都支持这几种换行符（除了notepad），但是跨平台协作项目源码到底保存为哪种风格的换行符呢？输出的文本需要保存为哪种风格的换行符呢？Git提供了一个解决方案——在跨平台协作场景时，会提供一个“换行符自动转换”的功能。</p>
+<h2 id="Git-CRLF"><a href="#Git-CRLF" class="headerlink" title="Git CRLF"></a>Git CRLF</h2><p>Git默认在提交时将Windows换行符（CRLF）转换为LF，在拉取时将UNIX换行符（LF）替换成CRLF。我们可以通过设置autocrlf和safecrlf来设置具体的操作。</p>
+<h3 id="autocrlf-and-saftcrlf"><a href="#autocrlf-and-saftcrlf" class="headerlink" title="autocrlf and saftcrlf"></a>autocrlf and saftcrlf</h3><p>1、autocrlf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 提交时转换为LF，检出时转换为CRLF</span><br><span class="line">git config --global core.autocrlf <span class="literal">true</span>   </span><br><span class="line"></span><br><span class="line">// 提交时转换为LF，检出时不转换</span><br><span class="line">git config --global core.autocrlf input   </span><br><span class="line"></span><br><span class="line">// 提交检出均不转换</span><br><span class="line">git config --global core.autocrlf <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<p>2、safecrlf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 拒绝提交包含混合换行符的文件</span><br><span class="line">git config --global core.safecrlf <span class="literal">true</span>   </span><br><span class="line"></span><br><span class="line">// 允许提交包含混合换行符的文件</span><br><span class="line">git config --global core.safecrlf <span class="literal">false</span>   </span><br><span class="line"></span><br><span class="line">// 提交包含混合换行符的文件时给出警告</span><br><span class="line">git config --global core.safecrlf warn</span><br></pre></td></tr></table></figure>
+<h3 id="gitattributes"><a href="#gitattributes" class="headerlink" title=".gitattributes"></a>.gitattributes</h3><p>.gitattributes文件能够设置每个仓库的换行符配置，摘取github中的设置为例：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">###############################################################################</span><br><span class="line"># Set default behavior to automatically normalize line endings.</span><br><span class="line">###############################################################################</span><br><span class="line">* text=auto</span><br><span class="line"></span><br><span class="line">###############################################################################</span><br><span class="line"># Set the merge driver for project and solution files</span><br><span class="line">#</span><br><span class="line"># Merging from the command prompt will add diff markers to the files if there</span><br><span class="line"># are conflicts (Merging from VS is not affected by the settings below, in VS</span><br><span class="line"># the diff markers are never inserted). Diff markers may cause the following</span><br><span class="line"># file extensions to fail to load in VS. An alternative would be to treat</span><br><span class="line"># these files as binary and thus will always conflict and require user</span><br><span class="line"># intervention with every merge. To do so, just uncomment the entries below</span><br><span class="line">###############################################################################</span><br><span class="line">#*.sln       merge=binary</span><br><span class="line">#*.vcxproj   merge=binary</span><br><span class="line"></span><br><span class="line">###############################################################################</span><br><span class="line"># behavior for image files</span><br><span class="line">#</span><br><span class="line"># image files are treated as binary by default.</span><br><span class="line">###############################################################################</span><br><span class="line">#*.jpg   binary</span><br><span class="line">#*.png   binary</span><br><span class="line">#*.gif   binary</span><br><span class="line"></span><br><span class="line">###############################################################################</span><br><span class="line"># diff behavior for common document formats</span><br><span class="line">#</span><br><span class="line"># Convert binary document formats to text before diffing them. This feature</span><br><span class="line"># is only available from the command line. Turn it on by uncommenting the</span><br><span class="line"># entries below.</span><br><span class="line">###############################################################################</span><br><span class="line">#*.doc   diff=astextplain</span><br><span class="line">#*.DOC   diff=astextplain</span><br><span class="line">#*.docx  diff=astextplain</span><br><span class="line">#*.DOCX  diff=astextplain</span><br><span class="line">#*.dot   diff=astextplain</span><br><span class="line">#*.DOT   diff=astextplain</span><br><span class="line">#*.pdf   diff=astextplain</span><br><span class="line">#*.PDF   diff=astextplain</span><br><span class="line">#*.rtf   diff=astextplain</span><br><span class="line">#*.RTF   diff=astextplain</span><br></pre></td></tr></table></figure>
+<p>1、text=auto：采用git认为最好的方式来处理文件，未在.gitattributes中设置的项默认按照这种方式处理；</p>
+<p>2、text eol=crlf/lf：在checkout时，转换Line Ending为crlf/lf；</p>
+<p>3、binary: 告诉git该文件为二进制，防止git修改该文件。</p>
+<p>注意：.gitattributes文件必须要提交之后才能生效。</p>
+<blockquote>
+<p>由于目前Jenkins推送到打包服务器上的代码默认采用LF结尾，所以建议仓库内创建.gitattributes文件并设置。</p>
+</blockquote>
+<h2 id="项目实施一"><a href="#项目实施一" class="headerlink" title="项目实施一"></a>项目实施一</h2><h3 id="设置原则"><a href="#设置原则" class="headerlink" title="设置原则"></a>设置原则</h3><p>本地仓库完全一致，<strong>适合单一平台编程</strong>。</p>
+<h3 id="团队设置"><a href="#团队设置" class="headerlink" title="团队设置"></a>团队设置</h3><p>一个团队需要使用同一的换行符标准（UNIX标准或者Windows标准），然后配置自己的代码编辑器和IDE，达到两项要求：</p>
+<ul>
+<li>在新建文件时默认使用团队统一的换行符标准；</li>
+<li>在打开文件时保持现有换行符格式不变（不要做自动转换）。</li>
+</ul>
+<h3 id="Git设置"><a href="#Git设置" class="headerlink" title="Git设置"></a>Git设置</h3><p>1、关闭换行符自动转换功能</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 提交检出均不转换</span><br><span class="line">git config --global core.autocrlf <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<p>2、开启换行符检查功能（按照需求设置）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 拒绝提交包含混合换行符的文件</span><br><span class="line">git config --global core.safecrlf <span class="literal">true</span>   </span><br><span class="line"></span><br><span class="line">// 允许提交包含混合换行符的文件</span><br><span class="line">git config --global core.safecrlf <span class="literal">false</span>   </span><br><span class="line"></span><br><span class="line">// 提交包含混合换行符的文件时给出警告</span><br><span class="line">git config --global core.safecrlf warn</span><br></pre></td></tr></table></figure>
+<h3 id="留意每次提交"><a href="#留意每次提交" class="headerlink" title="留意每次提交"></a>留意每次提交</h3><p>如果提交的时候变更行数过多（超过自己修改），或者增减行数相同，很有可能是整个文件的换行符被修改了，这个时候就要注意检查了。</p>
+<h2 id="项目实施二"><a href="#项目实施二" class="headerlink" title="项目实施二"></a>项目实施二</h2><h3 id="设置原则-1"><a href="#设置原则-1" class="headerlink" title="设置原则"></a>设置原则</h3><p>保证仓库永远换行符永远采用UNIX标准（LF），在Windows工作空间设置为Windows标准（CRLF），在Mac/Linux工作空间设置为Unxi标准（LF），<strong>适合跨平台编程</strong>。</p>
+<h3 id="团队设置-1"><a href="#团队设置-1" class="headerlink" title="团队设置"></a>团队设置</h3><p>统一不同平台下的换行符标准，按照上面设置原则的标准，配置自己的代码编辑器和IDE，，达到两项要求：</p>
+<ul>
+<li>在新建文件时默认使用团队统一的换行符标准；</li>
+<li>在打开文件时保持现有换行符格式不变（不要做自动转换）。</li>
+</ul>
+<h3 id="Git设置-1"><a href="#Git设置-1" class="headerlink" title="Git设置"></a>Git设置</h3><p>1、设置换行符自动转换功能</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Configure Git on OS X or Linux to properly handle line endings</span></span><br><span class="line">git config --global core.autocrlf input</span><br><span class="line"></span><br><span class="line"><span class="comment"># Configure Git on Windows to properly handle line endings</span></span><br><span class="line">git config --global core.autocrlf <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>2、设置换行符检查功能</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 提交包含混合换行符的文件时给出警告</span><br><span class="line">git config --global core.safecrlf warn</span><br></pre></td></tr></table></figure>
+<h3 id="留意每次提交-1"><a href="#留意每次提交-1" class="headerlink" title="留意每次提交"></a>留意每次提交</h3><p>1、留意每次提交的更改行数。</p>
+<p>2、留意提交时的换行符警告。</p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/hacks/git-autocrlf/"> https://www.freehacker.cn/hacks/git-autocrlf/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f5yx95mdzmj20rs09f0tt.jpg)" href="/platform/dos-current-path/">
+			<section class="post">
+				<h3>批处理中%cd%与%~dp0的区别</h1>
+				<p>Windows下批处理遇到的一个坑点，记录下来。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww3.sinaimg.cn/large/61b57e82gw1f68rt8s32sj211y0cx0vt.jpg)" href="/foundation/c-cplusplus-library/">
+			<section class="post">
+				<h3>C/C++程序库详解</h1>
+				<p>本文主要讲解C/C++程序库的基本概念和如何创建程序库。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/hacks/git-autocrlf/';
+        this.page.identifier = 'hacks/git-autocrlf/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

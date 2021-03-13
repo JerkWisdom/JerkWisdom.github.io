@@ -79,9 +79,9 @@
     <category term="Reading" scheme="https://www.freehacker.cn/categories/Reading/"/>
     
     
-    <category term="Experience" scheme="https://www.freehacker.cn/tags/Experience/"/>
-    
     <category term="CPlusPlus" scheme="https://www.freehacker.cn/tags/CPlusPlus/"/>
+    
+    <category term="Experience" scheme="https://www.freehacker.cn/tags/Experience/"/>
     
   </entry>
   
@@ -127,9 +127,9 @@
     <category term="Developing" scheme="https://www.freehacker.cn/categories/Developing/"/>
     
     
-    <category term="Experience" scheme="https://www.freehacker.cn/tags/Experience/"/>
-    
     <category term="CPlusPlus" scheme="https://www.freehacker.cn/tags/CPlusPlus/"/>
+    
+    <category term="Experience" scheme="https://www.freehacker.cn/tags/Experience/"/>
     
   </entry>
   
@@ -405,9 +405,9 @@
     <link href="https://www.freehacker.cn/republic/concept/"/>
     <id>https://www.freehacker.cn/republic/concept/</id>
     <published>2017-05-23T11:24:55.000Z</published>
-    <updated>2020-10-27T04:47:05.376Z</updated>
+    <updated>2021-03-06T09:19:49.601Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>对于必须决定控制的工作，仍然采用可靠地老式钟控系统。<br>在需要终极适应性的地方，你所需要的是失控的群件。</p></blockquote><p><a href="https://zh.wikipedia.org/wiki/%E6%A6%82%E5%BF%B5">概念</a>在维基百科中的定义是：<em>概念是人类对一个复杂的过程或事物的理解。从哲学的观念来说概念是思维的基本单位。</em><a id="more"></a>概念不清晰导致思维不清晰。</p><h2 id="横向-VS-纵向"><a href="#横向-VS-纵向" class="headerlink" title="横向 VS 纵向"></a>横向 VS 纵向</h2><p>横向比较是对空间上同时并存的事物的既定形态进行比较。是对多种相关事物的同层次的比较，可以了解同类事物的大小、多少、优劣，以对决策起到参考作用</p><p>纵向比较是指单个事物与过去某个时间的状态进行比较，即时间上的比较。比较同一事物在不同时期的形态，从而认识事物的发展变化过程，揭示事物的发展规律。</p><p>知乎回答：</p><blockquote><p>横向对比是相对平行概念的相关内容对比，而纵向对比是在事物本身的不同深度（或者维度）的分析。比如我们讨论中国经济是否应该转型，在数据比较时横向对比就是其他国家经济构架和经济状况，而纵向对比就是找中国经济一段时间内的变化，比如78年/88年/98年/08年，分析趋势。</p></blockquote><h2 id="横向扩展与纵向扩展"><a href="#横向扩展与纵向扩展" class="headerlink" title="横向扩展与纵向扩展"></a>横向扩展与纵向扩展</h2><ul><li><code>横向扩展</code> 也叫 <code>水平扩展</code>，用更多的节点支撑更大量的请求。 如成千上万的蚂蚁完成一项搬运工作</li><li><code>纵向扩展</code> 又叫 <code>垂直扩展</code>，扩展一个点的能力支撑更大的请求。如利用1个人的能力，如蜘蛛侠逼停火车</li></ul><h2 id="Proxy-VS-Agent"><a href="#Proxy-VS-Agent" class="headerlink" title="Proxy VS Agent"></a>Proxy VS Agent</h2><p>Proxy和Agent都可翻译为代理，二者的区别主要在于：</p><ul><li>Proxy面向所有客户，Proxy负责代理服务提供商的某些服务（可以是某一服务提供商的所有服务，也可以是多个服务提供商的某些服务），其对应的是服务供应商具体服务。一个Proxy所代理的服务可提供给所有的客户，提供同样服务的Proxy不需要存在多个；</li><li>Agent面向唯一客户，Agent负责代理服务提供商的所有服务（对于客户来说，Agent就是服务提供商，Agent必须满足客户的所有需求），其对应的是服务供应商这个整体。一个Agent所代理的服务仅提供给唯一的客户，如果需要提供给多个客户类似的服务则需要多个Agent。</li></ul><p>针对Proxy和Agent可以举两个例子：</p><p>1、商业组织</p><p>Agent被称为商业代理，譬如银河集团大中华区总代理（<em>General agent of Greater China</em>）就是Agent，其面向的是大中华区这唯一客户，其代理的是银河集团；大中华区总代理并不为新马泰区提供服务，如果需要为新马泰区提供服务，则必须要建立新马泰区总代理。</p><p>Proxy被称为中转代理，电信客服部门类似于Proxy，电信客服部门往往只存在一个，可以代理电信公司多个其他部门的服务，并面向于所有的客户。电信部门中的客服人员类似于Agent，客服和客户是一对一服务，其代理电信公司的所有服务。</p><p>2、程序开发</p><p>Proxy被称为代理服务器、网络代理，是一种特殊的网络服务，允许一个网络终端（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。形象的说：它是网络信息的中转站。譬如客户端代理服务器（ClientProxy），其可以为所有的客户端提供服务，并且其同时可以提供登录服务、鉴权服务、资源操作服务等。</p><p>Agent被称为用户代理，譬如SQL Server Agent。SQL Server Agent使用 SQL Server 来存储作业信息。 作业包含一个或多个作业步骤。 每个步骤都有自己的任务。例如，备份数据库。SQL Server Agent所代理的SQL Server只提供给当前客户（计算机），每个客户（计算机）都有自己的SQL Server Agent。</p>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>对于必须决定控制的工作，仍然采用可靠地老式钟控系统。<br>在需要终极适应性的地方，你所需要的是失控的群件。</p></blockquote><p><a href="https://zh.wikipedia.org/wiki/%E6%A6%82%E5%BF%B5">概念</a>在维基百科中的定义是：<em>概念是人类对一个复杂的过程或事物的理解。从哲学的观念来说概念是思维的基本单位。</em><a id="more"></a>概念不清晰导致思维不清晰。</p><h2 id="横向-VS-纵向"><a href="#横向-VS-纵向" class="headerlink" title="横向 VS 纵向"></a>横向 VS 纵向</h2><p>横向比较是对空间上同时并存的事物的既定形态进行比较。是对多种相关事物的同层次的比较，可以了解同类事物的大小、多少、优劣，以对决策起到参考作用。</p><p>纵向比较是指单个事物与过去某个时间的状态进行比较，即时间上的比较。比较同一事物在不同时期的形态，从而认识事物的发展变化过程，揭示事物的发展规律。</p><p>知乎回答：</p><blockquote><p>横向对比是相对平行概念的相关内容对比，而纵向对比是在事物本身的不同深度（或者维度）的分析。比如我们讨论中国经济是否应该转型，在数据比较时横向对比就是其他国家经济构架和经济状况，而纵向对比就是找中国经济一段时间内的变化，比如78年/88年/98年/08年，分析趋势。</p></blockquote><h2 id="横向扩展与纵向扩展"><a href="#横向扩展与纵向扩展" class="headerlink" title="横向扩展与纵向扩展"></a>横向扩展与纵向扩展</h2><ul><li><code>横向扩展</code> 也叫 <code>水平扩展</code>，用更多的节点支撑更大量的请求。 如成千上万的蚂蚁完成一项搬运工作</li><li><code>纵向扩展</code> 又叫 <code>垂直扩展</code>，扩展一个点的能力支撑更大的请求。如利用1个人的能力，如蜘蛛侠逼停火车</li></ul><h2 id="Proxy-VS-Agent"><a href="#Proxy-VS-Agent" class="headerlink" title="Proxy VS Agent"></a>Proxy VS Agent</h2><p>Proxy和Agent都可翻译为代理，二者的区别主要在于：</p><ul><li>Proxy面向所有客户，Proxy负责代理服务提供商的某些服务（可以是某一服务提供商的所有服务，也可以是多个服务提供商的某些服务），其对应的是服务供应商具体服务。一个Proxy所代理的服务可提供给所有的客户，提供同样服务的Proxy不需要存在多个；</li><li>Agent面向唯一客户，Agent负责代理服务提供商的所有服务（对于客户来说，Agent就是服务提供商，Agent必须满足客户的所有需求），其对应的是服务供应商这个整体。一个Agent所代理的服务仅提供给唯一的客户，如果需要提供给多个客户类似的服务则需要多个Agent。</li></ul><p>针对Proxy和Agent可以举两个例子：</p><p>1、商业组织</p><p>Agent被称为商业代理，譬如银河集团大中华区总代理（<em>General agent of Greater China</em>）就是Agent，其面向的是大中华区这唯一客户，其代理的是银河集团；大中华区总代理并不为新马泰区提供服务，如果需要为新马泰区提供服务，则必须要建立新马泰区总代理。</p><p>Proxy被称为中转代理，电信客服部门类似于Proxy，电信客服部门往往只存在一个，可以代理电信公司多个其他部门的服务，并面向于所有的客户。电信部门中的客服人员类似于Agent，客服和客户是一对一服务，其代理电信公司的所有服务。</p><p>2、程序开发</p><p>Proxy被称为代理服务器、网络代理，是一种特殊的网络服务，允许一个网络终端（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。形象的说：它是网络信息的中转站。譬如客户端代理服务器（ClientProxy），其可以为所有的客户端提供服务，并且其同时可以提供登录服务、鉴权服务、资源操作服务等。</p><p>Agent被称为用户代理，譬如SQL Server Agent。SQL Server Agent使用 SQL Server 来存储作业信息。 作业包含一个或多个作业步骤。 每个步骤都有自己的任务。例如，备份数据库。SQL Server Agent所代理的SQL Server只提供给当前客户（计算机），每个客户（计算机）都有自己的SQL Server Agent。</p>]]></content>
     
     
     <summary type="html">追求最清晰明了的思维模式。</summary>
@@ -490,9 +490,9 @@
     <category term="Reading" scheme="https://www.freehacker.cn/categories/Reading/"/>
     
     
-    <category term="CPlusPlus" scheme="https://www.freehacker.cn/tags/CPlusPlus/"/>
-    
     <category term="OOP" scheme="https://www.freehacker.cn/tags/OOP/"/>
+    
+    <category term="CPlusPlus" scheme="https://www.freehacker.cn/tags/CPlusPlus/"/>
     
   </entry>
   

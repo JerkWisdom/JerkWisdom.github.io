@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>WebRTC拥塞控制策略 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="Google Congestion Controller和WebRTC Bitrate Controller模块剖析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebRTC拥塞控制策略">
+<meta property="og:url" content="https://www.freehacker.cn/comm/webrtc-gcc/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="Google Congestion Controller和WebRTC Bitrate Controller模块剖析。">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-gcc.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-loss-based-controller.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-delay-based-controller.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-one-way-delay-gradient-measurement.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-overuse-detector-signalling.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-remote-rate-controller-fsm.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-gcc-implementation.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-gcc-remote-bitrate-caculate.png">
+<meta property="og:image" content="https://www.freehacker.cn/assets/comm/webrtc-gcc-local-bitrate-caculate.png">
+<meta property="article:published_time" content="2017-09-05T13:58:17.000Z">
+<meta property="article:modified_time" content="2021-02-24T11:56:35.763Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Media">
+<meta property="article:tag" content="WebRTC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/comm/webrtc-gcc.png">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://wx2.sinaimg.cn/large/61b57e82gy1fj91q7dx70j22r70xl76p.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">WebRTC拥塞控制策略</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Media/'>Media</a> /
+    
+    <a href='/tags/WebRTC/'>WebRTC</a>
+    
+    
+    At
+    <time class="post-date" datetime="2017-09-05T13:58:17.000Z" >
+          2017-09-05
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>你只是看起来很努力。</p>
+</blockquote>
+<p>影响视频会议质量的因素主要在于<code>视频图像质量</code>和<code>传输时延</code>。视频图像质量对于视频会议的影响不在此赘述。视频会议等实时流媒体应用对于实时性的要求很高，实时性要求我们必须要有较低的时延（<code>时延敏感</code>）。<a id="more"></a>影响时延的因素包含：</p>
+<ul>
+<li>媒体数据在收发端的处理速度</li>
+<li>网络拥塞</li>
+</ul>
+<p>网络拥塞是本文的研究重点，TCP协议拥有完善的拥塞控制机制，UDP则没有在拥塞控制方面有所规定。由于目前大多实时流媒体应用都是基于UDP传输，所以高效的拥塞控制算法是保证实时流媒体应用QoS的重要手段。</p>
+<blockquote>
+<p>基于丢包的TCP协议无法满足实时流媒体应用的低时延需求。</p>
+</blockquote>
+<p>WebRTC里针对拥塞控制，采用了谷歌拥塞控制算法（Google Congestion Control，GCC），该算法包含两部分：发送端基于丢包的码率控制和接收端基于延迟的码率控制。这两种部分都是通过调节数据发送端码率来达到拥塞控制的目的。GCC算法架构如下：</p>
+<p><img src="../../assets/comm/webrtc-gcc.png" alt="GCC Architecture" width=700></p>
+<h2 id="发送端基于丢包的码率控制"><a href="#发送端基于丢包的码率控制" class="headerlink" title="发送端基于丢包的码率控制"></a>发送端基于丢包的码率控制</h2><p>发送端的码率控制是根据丢包率来计算预期的发送码率，丢包率的信息包含在接收到的RTCP报告报文中。计算公式如下，其中 ${f}<em>{l}({t}</em>{k})$ 表示 ${t}<em>{k}$ 时刻的丢包率，${A}</em>{s}({t}<em>{k})$ 表示 ${t}</em>{k}$ 时刻发送端的码率：</p>
+<p><img src="../../assets/comm/webrtc-loss-based-controller.png" alt="GCC Loss-based Controller" width=500></p>
+<h2 id="接收端基于延迟的码率控制"><a href="#接收端基于延迟的码率控制" class="headerlink" title="接收端基于延迟的码率控制"></a>接收端基于延迟的码率控制</h2><p>发送端的码率控制是根据延迟来计算预期的发送码率，计算出来的码率信息会通过RTCP REMB报文反馈给发送端。计算公式如下，其中${t}<em>{i}$表示第$i$个视频帧被接收的时间，<code>η=1.05</code>，<code>α=0.85</code>，${R}</em>{r}({t}_{i})$ 表示接收端在最近500ms中测量的接收码率：</p>
+<p><img src="../../assets/comm/webrtc-delay-based-controller.png" alt="GCC Delay-based Controller" width=380 ></p>
+<p>如GCC算法结构图所示，基于延迟的码率控制包含五个模块：Arrival-time Filter、Overuse Detector、Remote Rate Controller、Adaptive Threshold、Remb Processing。GCC论文中给出了这五个模块的关系：</p>
+<blockquote>
+<p>The remote rate controller is a finite state machine in which the state of $σ$ is changed by the signal $s$ produced by the over-use detector based on the output $m({t}<em>{i})$ of the arrival-time filter. The adaptive threshold block dynamically sets the threshold $γ({t}</em>{i})$ used by the over-use detector. The REMB Processing decides when to send a REMB message based on the value of the rate ${A}<em>{r}$. Finally, it is important to notice that ${A}</em>{r}({t}<em>{i})$ is upper bounded by 1.5${R}</em>{r}({t}_{i})$.</p>
+</blockquote>
+<h3 id="Arrival-time-Filter"><a href="#Arrival-time-Filter" class="headerlink" title="Arrival-time Filter"></a>Arrival-time Filter</h3><p>Arrival-time Filter模块用来计算网络延迟$m({t}<em>{i})$，GCC算法采用Kalman Filter来估算该值。Kalman Filter采用单程帧间延迟差值${d}</em>{m}({t}_{i})$，单程帧间延迟差值表示两个数据帧到达接收端的延迟差值。如下图所示：</p>
+<p><img src="../../assets/comm/webrtc-one-way-delay-gradient-measurement.png" alt="GCC One Way Delay Gradient Measurement" width=500></p>
+<p>根据该图，我们可以得出 ${d}<em>{m}({t}</em>{i})$ 的计算公式如下：</p>
+<script type="math/tex; mode=display">
+{d}_{m}({t}_{i})={t}_{i}-{t}_{i-1})-({T}_{i}-{T}_{i-1})</script><h3 id="Overuse-Detector"><a href="#Overuse-Detector" class="headerlink" title="Overuse Detector"></a>Overuse Detector</h3><p>Overuse Detector根据Arrival-time Filter计算出的网络延时$m({t}<em>{i})$以及Adaptive Threshold提供的$γ({t}</em>{i})$值来判断当前网络是否过载，并告知Remote Rate Controller对应的信号$s$——<code>overuse</code>、<code>normal</code>、<code>underuse</code>。下图表明Overuse Detector是如何工作的：</p>
+<p><img src="../../assets/comm/webrtc-overuse-detector-signalling.png" alt="GCC Overuse Detector Signalling" width=500></p>
+<p>产生<code>overuse</code>、<code>normal</code>、<code>underuse</code>三种信号的条件如下：</p>
+<ul>
+<li>overuse: $m({t}<em>{i})$ &gt; $γ({t}</em>{i})$and keep 100ms</li>
+<li>underuse: $m({t}<em>{i})$ &lt; -$γ({t}</em>{i})$ and keep 100ms</li>
+<li>normal: -$γ({t}<em>{i})$ &lt; $m({t}</em>{i})$ &lt; $γ({t}_{i})$</li>
+</ul>
+<h3 id="Remote-Rate-Controller"><a href="#Remote-Rate-Controller" class="headerlink" title="Remote Rate Controller"></a>Remote Rate Controller</h3><p>Remote Rate Controller模块根据上文提到的接收端码率计算公式来计算接收端预估码率。该模块是个无线状态机，其状态变动如下图所示：</p>
+<p><img src="../../assets/comm/webrtc-remote-rate-controller-fsm.png" alt="GCC Overuse Detector Signalling" width=500></p>
+<p>结合上文中的公式，我们可以得出：</p>
+<ul>
+<li>当<code>s=overuse</code>，预估码率降低为接收码率的85%，处于<code>decrease</code>状态;</li>
+<li>当<code>s=underuse</code>，预估码率保持和上次预估码率一样，处于<code>hold</code>状态；</li>
+<li>当<code>s=normal</code>，预估码率上升为上次预估码率的105%，处于<code>increase</code>状态。</li>
+</ul>
+<h3 id="Adaptive-Threshold"><a href="#Adaptive-Threshold" class="headerlink" title="Adaptive Threshold"></a>Adaptive Threshold</h3><p>Adaptive Threshold模块用来使算法适应延迟变化的灵敏性。</p>
+<h3 id="Remb-Processing"><a href="#Remb-Processing" class="headerlink" title="Remb Processing"></a>Remb Processing</h3><p>Remb Processing模块用于通知发送端来自接收端预估的码率。该码率通过RTCP REMB报文反馈给发送端。正常情况下，该报文每隔1s发送一次，但如果${A}<em>{r}({t}</em>{i})$ &lt; 0.97${A}<em>{r}({t}</em>{i-1})$，该报文立马发送。</p>
+<h2 id="最终码率计算"><a href="#最终码率计算" class="headerlink" title="最终码率计算"></a>最终码率计算</h2><p>一旦发送端接收到RTCP报告报文，或是接收到携带接收端预估码率${A}<em>{r}$的REMB报文，发送端执行对应的码率控制算法——发送端根据发送端预估码率${A}</em>{s}({t}<em>{k})$、接收端预估${A}</em>{r}({t}<em>{k})$、最大允许码率${A}</em>{max}$最小允许码率${A}<em>{min}$，计算出最终的发送码率${R}</em>{s}({t}_{k})$。</p>
+<script type="math/tex; mode=display">
+{R}_{s}({t}_{k})=max(min(min({A}_{s}({t}_{k}), {A}_{r}({t}_{k})), {A}_{max}), {A}_{min})</script><h2 id="WebRTC拥塞控制模块"><a href="#WebRTC拥塞控制模块" class="headerlink" title="WebRTC拥塞控制模块"></a>WebRTC拥塞控制模块</h2><p>WebRTC中实现了Google GCC算法，该实现包含发送端和接收端两部分。发送端负责发送端码率预估和计算最终目标码率；接收端负责接收端码率预估和统计丢包信息，并通过REMB报文和RTCP RR反馈给发送端。其总体模块图如下：</p>
+<p><img src="../../assets/comm/webrtc-gcc-implementation.png" alt="WebRTC GCC Implementation" width=700></p>
+<h3 id="远端比特率预估模块"><a href="#远端比特率预估模块" class="headerlink" title="远端比特率预估模块"></a>远端比特率预估模块</h3><p><img src="../../assets/comm/webrtc-gcc-remote-bitrate-caculate.png" alt="WebRTC GCC Remote Bitrate Calculate" width=1000></p>
+<h3 id="本地比特率计算模块"><a href="#本地比特率计算模块" class="headerlink" title="本地比特率计算模块"></a>本地比特率计算模块</h3><p><img src="../../assets/comm/webrtc-gcc-local-bitrate-caculate.png" alt="WebRTC GCC Local Bitrate Calculate" width=1000></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://c3lab.poliba.it/images/6/65/Gcc-analysis.pdf">Analysis and Design of the Google Congestion Control for Web Real-time Communication (WebRTC)</a></li>
+</ul>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/comm/webrtc-gcc/"> https://www.freehacker.cn/comm/webrtc-gcc/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f5ydh2b6dgj20sg09smyh.jpg)" href="/hacks/git-share-code/">
+			<section class="post">
+				<h3>如何有效的管理项目中的共享代码</h1>
+				<p>本文着重分析git submodule和git subtree的使用细节和注意事项。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://wx4.sinaimg.cn/large/61b57e82gy1fkrweltnifj21gs0i2462.jpg)" href="/comm/color/">
+			<section class="post">
+				<h3>色彩</h1>
+				<p>颜色或色彩是通过眼、脑和我们的生活经验所产生的一种对光的视觉效应。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/comm/webrtc-gcc/';
+        this.page.identifier = 'comm/webrtc-gcc/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

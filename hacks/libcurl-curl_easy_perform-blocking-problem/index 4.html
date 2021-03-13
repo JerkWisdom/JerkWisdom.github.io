@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>libcurl中curl_easy_perform卡死问题 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="Libcurl为一个免费开源的，客户端url传输库，本文主要分析使用过程中遇到的卡死问题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="libcurl中curl_easy_perform卡死问题">
+<meta property="og:url" content="https://www.freehacker.cn/hacks/libcurl-curl_easy_perform-blocking-problem/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="Libcurl为一个免费开源的，客户端url传输库，本文主要分析使用过程中遇到的卡死问题">
+<meta property="og:locale">
+<meta property="article:published_time" content="2016-05-27T01:27:02.000Z">
+<meta property="article:modified_time" content="2020-10-27T04:47:05.364Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Library">
+<meta property="article:tag" content="Tools">
+<meta name="twitter:card" content="summary">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww2.sinaimg.cn/large/61b57e82gw1f5ywyw4s7jj21he0hzgmw.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">libcurl中curl_easy_perform卡死问题</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Library/'>Library</a> /
+    
+    <a href='/tags/Tools/'>Tools</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-05-27T01:27:02.000Z" >
+          2016-05-27
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote><p>Don’t Live with Broken Windows<br>不要容忍破窗</p>
+<footer><strong>Andrew Hunt/David Thomas</strong><cite>程序员修炼之道</cite></footer></blockquote>  
+<p>Libcurl为一个免费开源的，客户端url传输库，本文主要分析使用过程中遇到的卡死问题。<a id="more"></a></p>
+<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>LibCurl使用阻塞的方式来进行http下载，curl_easy_perform执行后，程序会在这里阻塞等待下载结束（成功OR失败），此时若下载一段时间后出现网络异常，curl_easy_perform不会返回失败，整个线程阻塞卡死。</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>复现：连接无线网络，然后执行curl_easy_perform下载，下载过程中，断开无线网络，curl_easy_perform卡死，阻塞整个线程。</p>
+<p>原因：当断开无线网络时，使用命令行netstat ano | findstr ‘连接ip’, 可以发现LibCurl的http连接并没有断开（不知道是不是windows系统的bug），如果将CURLOPT_TIMEOUT设置为无限等待，curl_easy_perform便会一直阻塞住线程。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>1、如果我们不将CURLOPT_TIMEOUT设置为无限等待，是不会出现上面问题，curl_easy_perform会在执行一段时间（由CURLOPT_TIMEOUR设置），结束并返回失败，但是如果设置合适的CURLOPT_TIMEOUT是个问题。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0); &#x2F;* blocking forever, cannot find a suitable value *&#x2F;</span><br></pre></td></tr></table></figure><br>2、使用multi模式下载, 而不使用easy模式, 此方法的唯一好处就是multi并不会阻塞, 而是立即返回. 但是缺点是带来了问题, 其一就是需要自己去阻塞, 当我们需要返回时再返回, 其二还需要启动一个线程, 需要自己控制整个过程的节奏。</p>
+<p>3、在下载中, 另起一个线程, 若发现下载状态卡死(可以通过定期检查文件大小来实现), 则从外部中断下载线程. 此方法需另起线程, 而且直接中断线程, 会给整个程序带来不稳定。</p>
+<p>4、设置CURLOPT_TIMEOUT为30s，以30s为间隔断点续传。</p>
+<p>5、使用CURLOPT_LOW_SPEED_LIMIT, CURLOPT_LOW_SPEED_TIME<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">res &#x3D; curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1024L);</span><br><span class="line">res &#x3D; curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);</span><br></pre></td></tr></table></figure></p>
+<p>6、使用CURLOPT_PROGRESSFUNCTION设置进度表回调函数，可以在该回调函数内部检测下载是否出错，如果出现就中断curl_easy_perform，返回下载错误。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;curl&#x2F;curl.h&gt;</span><br><span class="line">int progress_callback(void *clientp,   double dltotal,   double dlnow,   double ultotal,   double ulnow);</span><br><span class="line">CURLcode curl_easy_setopt(CURL *handle, CURLOPT_PROGRESSFUNCTION, progress_callback);</span><br></pre></td></tr></table></figure></p>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/hacks/libcurl-curl_easy_perform-blocking-problem/"> https://www.freehacker.cn/hacks/libcurl-curl_easy_perform-blocking-problem/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww2.sinaimg.cn/large/61b57e82gw1f5ydd0qj48j21hc0i240x.jpg)" href="/platform/operating-system-boot-sequence/">
+			<section class="post">
+				<h3>操作系统引导过程</h1>
+				<p>工作以来研究了一段时间系统备份还原，涉及到系统启动项方面的知识，本文主要是分析操作系统的引导过程，便于以后研究备份还原技术。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f5yx2tnicqj20ef054jsi.jpg)" href="/platform/unicode-ansi-utf8-difference/">
+			<section class="post">
+				<h3>字符编码Unicode、UTF-8和ANSI</h1>
+				<p>之前一直对Unicode、ANSI、ASCII、UTF-8的概念混淆不清，今天特地查询资料整理下。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/hacks/libcurl-curl_easy_perform-blocking-problem/';
+        this.page.identifier = 'hacks/libcurl-curl_easy_perform-blocking-problem/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

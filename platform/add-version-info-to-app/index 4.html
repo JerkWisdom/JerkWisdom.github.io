@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>如何给应用程序加版本信息 | 小熊糖否——木子兮的自留地</title>
+  <meta name="description" content="右键应用程序的可执行文件，查看详细信息，能够看到应用程序的详细描述，这是怎么加的呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何给应用程序加版本信息">
+<meta property="og:url" content="https://www.freehacker.cn/platform/add-version-info-to-app/index.html">
+<meta property="og:site_name" content="小熊糖否——木子兮的自留地">
+<meta property="og:description" content="右键应用程序的可执行文件，查看详细信息，能够看到应用程序的详细描述，这是怎么加的呢？">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.freehacker.cn/assets/platform/app-version-info.jpg">
+<meta property="article:published_time" content="2016-09-29T02:39:11.000Z">
+<meta property="article:modified_time" content="2021-02-24T11:58:13.297Z">
+<meta property="article:author" content="ZeroJiu">
+<meta property="article:tag" content="Platform">
+<meta property="article:tag" content="Win32">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.freehacker.cn/assets/platform/app-version-info.jpg">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <link rel="stylesheet" type="text/css" href="/css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/8.5/styles/monokai_sublime.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css">
+
+  <meta name="generator" content="小熊糖否——木子兮的自留地">
+
+
+  
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+
+  <!--载入js，在</body>之前插入即可-->
+  <!--Leancloud 操作库:-->
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <!--Valine 的核心代码库-->
+  <script src="../../source/js/Valine.min.js"></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="/custom_css_source.css">
+<!-- hexo injector head_end end --><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+
+
+<body class="post-template nav-closed ">
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home nav-current" role="presentation"><a href="/">Home</a></li>
+			<li class="nav-developing" role="presentation"><a href="/categories/Developing">Developing</a></li>
+            <li class="nav-reading" role="presentation"><a href="/categories/Reading">Reading</a></li>
+			<li class="nav-utility" role="presentation"><a href="/categories/Utility">Utility</a></li>
+			<li class="nav-timecapsule" role="presentation"><a href="/categories/TimeCapsule">TimeCapsule</a></li>
+            <li class="nav-wikipedia" role="presentation"><a target="_blank" rel="noopener" href="https://wikipedia.freehacker.cn">Wikipedia</a></li>
+			<li class="nav-search" role="presentation"><a href="/search/">Search</a></li>
+			<li class="nav-about" role="presentation"><a href="/about/">About</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="/atom.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+  <div class="site-wrapper">
+	
+
+
+	<header class="main-header post-head" style="background-image: url(http://ww2.sinaimg.cn/large/61b57e82gw1f5ydd0qj48j21hc0i240x.jpg)">
+		<nav class="main-nav overlay clearfix">
+			<a class="blog-logo" href="/"><img src="http://ww3.sinaimg.cn/large/61b57e82gw1f9hqu7hp7kj2068020wea.jpg" alt="Blog Logo"/></a>
+			<a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+		</nav>
+		<div class="vertical">
+			<div class="main-header-content inner">
+				<a class="page-title"></a>
+				<a class="page-description"> </a>
+			</div>
+		</div>
+	</header>
+	
+
+	<main class="content" role="main">
+	  <article class="post">
+		  <header class="post-header">
+			<h1 class="post-title">如何给应用程序加版本信息</h1>
+			<footer class="post-meta">
+	<img class="author-thumb" src="http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg" alt="ZeroJiu" />
+    <a href="/about">ZeroJiu</a>
+	
+    On
+    
+	
+    <a href='/tags/Platform/'>Platform</a> /
+    
+    <a href='/tags/Win32/'>Win32</a>
+    
+    
+    At
+    <time class="post-date" datetime="2016-09-29T02:39:11.000Z" >
+          2016-09-29
+    </time>
+</footer>
+
+		  </header>
+          
+
+		  <section class="post-content">
+			<blockquote>
+<p>如果某个想法是你唯一的想法，再也没有比这个更危险的事情了。</p>
+</blockquote>
+<p>右键应用程序的可执行文件，查看详细信息，能够看到应用程序的详细描述，这是怎么加的呢？<a id="more"></a></p>
+<p><img src="../../assets/platform/app-version-info.jpg"  alt="应用程序详细信息" /></p>
+<h2 id="创建资源（rc）文件"><a href="#创建资源（rc）文件" class="headerlink" title="创建资源（rc）文件"></a>创建资源（rc）文件</h2><p>在Visual Studio 2014中，按照下面顺序：右键项目→Add→Resource，我们就可以在Solution Explorer中看到多了一个<code>resource.h</code>和<code>project.rc</code>文件。project.rc包含了项目的资源信息，包括版本号、icon等。</p>
+<h2 id="生成版本信息"><a href="#生成版本信息" class="headerlink" title="生成版本信息"></a>生成版本信息</h2><p>目前大多数应用程序的版本号都是4位，前三位手动设置，最后一位根据git提交次数来设置。git计算提交次数的指令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;%git_path%&quot;\git rev-list --count HEAD &gt;&gt; version.h</span><br></pre></td></tr></table></figure>
+<p>上面这句命令会将git提交次数写入到version.h文件的最后面，我们在version.h中只需要#define某个宏，然后不给值，用上面这条命令生成git提交次数。等值生成后，包含version.h就可以使用相应的版本号了。譬如下面：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> version_one 100</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> version_two 99</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> version_three 98</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> version_four <span class="comment">// 在这儿我们将要填充git提交辞书，譬如97</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="将版本信息写入到应用程序详情"><a href="#将版本信息写入到应用程序详情" class="headerlink" title="将版本信息写入到应用程序详情"></a>将版本信息写入到应用程序详情</h2><p>在<code>resource.h</code>中包含<code>version.h</code>，按照下面模板填写信息。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Microsoft Visual C++ generated resource script.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;resource.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;version.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> APSTUDIO_READONLY_SYMBOLS</span></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Generated from the TEXTINCLUDE 2 resource.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;winres.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">undef</span> APSTUDIO_READONLY_SYMBOLS</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">// 中文(简体，中国) resources</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)</span></span><br><span class="line">LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> APSTUDIO_INVOKED</span></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// TEXTINCLUDE</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span> TEXTINCLUDE</span><br><span class="line">BEGIN</span><br><span class="line">    <span class="string">&quot;resource.h\0&quot;</span></span><br><span class="line">END</span><br><span class="line"></span><br><span class="line"><span class="number">2</span> TEXTINCLUDE</span><br><span class="line">BEGIN</span><br><span class="line">    <span class="string">&quot;#include &quot;</span><span class="string">&quot;winres.h&quot;</span><span class="string">&quot;\r\n&quot;</span></span><br><span class="line">    <span class="string">&quot;\0&quot;</span></span><br><span class="line">END</span><br><span class="line"></span><br><span class="line"><span class="number">3</span> TEXTINCLUDE</span><br><span class="line">BEGIN</span><br><span class="line">    <span class="string">&quot;\r\n&quot;</span></span><br><span class="line">    <span class="string">&quot;\0&quot;</span></span><br><span class="line">END</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span>    <span class="comment">// APSTUDIO_INVOKED</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Version</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line">VS_VERSION_INFO VERSIONINFO</span><br><span class="line">FILEVERSION version_one, version_two, version_three, version_four</span><br><span class="line">PRODUCTVERSION version_one, version_two, version_three, version_four</span><br><span class="line"> FILEFLAGSMASK <span class="number">0x3f</span>L</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _DEBUG</span></span><br><span class="line"> FILEFLAGS <span class="number">0x1</span>L</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"> FILEFLAGS <span class="number">0x0</span>L</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"> FILEOS <span class="number">0x40004</span>L</span><br><span class="line"> FILETYPE <span class="number">0x2</span>L</span><br><span class="line"> FILESUBTYPE <span class="number">0x0</span>L</span><br><span class="line">BEGIN</span><br><span class="line">    BLOCK <span class="string">&quot;StringFileInfo&quot;</span></span><br><span class="line">    BEGIN</span><br><span class="line">        BLOCK <span class="string">&quot;080404b0&quot;</span></span><br><span class="line">        BEGIN</span><br><span class="line">            VALUE <span class="string">&quot;CompanyName&quot;</span>, <span class="string">&quot;Google China Inc.&quot;</span></span><br><span class="line">            VALUE <span class="string">&quot;FileDescription&quot;</span>, <span class="string">&quot;Chrome&quot;</span></span><br><span class="line">			VALUE <span class="string">&quot;FileVersion&quot;</span>, version(version_one, version_two, version_three, version_four)</span><br><span class="line">            VALUE <span class="string">&quot;InternalName&quot;</span>, <span class="string">&quot;Chrome.exe&quot;</span></span><br><span class="line">            VALUE <span class="string">&quot;LegalCopyright&quot;</span>, <span class="string">&quot;Copyright (C) Google China Inc. 2016&quot;</span></span><br><span class="line">            VALUE <span class="string">&quot;OriginalFilename&quot;</span>, <span class="string">&quot;Chrome.exe&quot;</span></span><br><span class="line">            VALUE <span class="string">&quot;ProductName&quot;</span>, <span class="string">&quot;Chrome&quot;</span></span><br><span class="line">			VALUE <span class="string">&quot;ProductVersion&quot;</span>, version(version_one, version_two, version_three, version_four)</span><br><span class="line">        END</span><br><span class="line">    END</span><br><span class="line">    BLOCK <span class="string">&quot;VarFileInfo&quot;</span></span><br><span class="line">    BEGIN</span><br><span class="line">        VALUE <span class="string">&quot;Translation&quot;</span>, <span class="number">0x804</span>, <span class="number">1200</span></span><br><span class="line">    END</span><br><span class="line">END</span><br><span class="line"></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Icon</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Icon with lowest ID value placed first to ensure application icon</span></span><br><span class="line"><span class="comment">// remains consistent on all systems.</span></span><br><span class="line">IDI_ICON1               ICON                    <span class="string">&quot;ic_pen.ico&quot;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span>    <span class="comment">// 中文(简体，中国) resources</span></span></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> APSTUDIO_INVOKED</span></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Generated from the TEXTINCLUDE 3 resource.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span>    <span class="comment">// not APSTUDIO_INVOKED</span></span></span><br></pre></td></tr></table></figure>
+
+            <hr>
+            <blockquote>
+            <p>
+                本文作者：ZeroJiu
+                <br>
+                本文链接：<a href="https://www.freehacker.cn/platform/add-version-info-to-app/"> https://www.freehacker.cn/platform/add-version-info-to-app/</a>
+                <br>
+                版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/" target="_blank" rel="external">CC BY-NC-SA 3.0 CN</a> 许可协议。转载请注明出处！
+                <br>
+                温馨提示：开启科学上网访问本站，能获得更好的阅读体验，并启用Disqus评论功能和作者交流。
+            </p>
+            </blockquote>
+		  </section>
+
+		  <footer class="post-footer">
+			<figure class="author-image">
+    <a class="img" href="/about" style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f1v79yu8v1j20hs0kwdht.jpg)"><span class="hidden">John O&#x27;Nolan's Picture</span></a>
+</figure>
+<section class="author">
+    <a href="/about">ZeroJiu</a>
+    <p>骆驼、狮子、婴儿</p>
+	<div class="author-meta">
+      <span class="author-location icon-location">Jiu, China</span>
+      <span class="author-link icon-link"><a target="_blank" rel="noopener" href="http://weibo.com/xpringlee">http://weibo.com/xpringlee</a></span>           
+	</div>
+</section>
+		  </footer>
+	  </article>
+	  
+
+<aside class="read-next">
+	
+		<a class="read-next-story " style="background-image: url(http://ww1.sinaimg.cn/large/61b57e82gw1f2ro2bxcqjj21gs0i2wlw.jpg)" href="/foundation/cpp-thread-data-sharing/">
+			<section class="post">
+				<h3>C++并发编程2——为共享数据加锁</h1>
+				<p>C++11中引入了多线程编程，一般教科书中都没有涉及到这个概念，但是在工作中多线程却又是必不可少的。</p>
+			</section>
+		</a>
+	
+
+	
+		<a class="read-next-story prev" style="background-image: url(http://ww4.sinaimg.cn/large/61b57e82gw1f8obk6993nj21gs0i240q.jpg)" href="/foundation/define-variable-in-header-file/">
+			<section class="post">
+				<h3>头文件中定义变量</h1>
+				<p>在头文件中定义变量往往会出错，需要注意一些基本点。</p>
+			</section>
+		</a>
+	
+</aside>
+
+	  <div id="comment" class="comments-area post">
+	
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+
+        var disqus_config = function () {
+        this.page.url = 'https://www.freehacker.cn/platform/add-version-info-to-app/';
+        this.page.identifier = 'platform/add-version-info-to-app/';
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://zerojiu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	
+</div>
+
+	</main>
+
+
+
+	<footer class="site-footer clearfix">
+     <section class="copyright"><a href="/about">小熊糖否——木子兮的自留地</a> &copy; 2015-2019 &bull; All rights reserved.</section>
+</footer>
+
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<script type="text/javascript" src="/js/search.js"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/8.5/highlight.min.js"></script>
+
+<script>
+hljs.configure({useBR: true});
+
+$('td.code').each(function(i, block) {
+  hljs.highlightBlock(block);
+});
+</script>
+
+<script src="//cdn.bootcss.com/mermaid/6.0.0/mermaid.min.js"></script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?72a6704a58b486ff2fcfcb96b3dac9dd";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script type="text/javascript">
+     var search_path = "search.xml";
+     if (search_path.length == 0) {
+     	search_path = "search.xml";
+     }
+     var path = "/" + search_path;
+     searchFunc(path, 'local-search-input', 'local-search-result');
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>
